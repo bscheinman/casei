@@ -9,6 +9,9 @@ class Team(models.Model):
     abbrev_name = models.CharField(max_length=6)
     score = models.IntegerField(default=0)
 
+    def __str__(self):
+        return self.abbrev_name
+
 
 class UserTeam(models.Model):
     user = models.ForeignKey(User)
