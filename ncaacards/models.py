@@ -4,6 +4,29 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+class NcaaGame(models.Model):
+    name = models.CharField(max_length=50)
+    # Storing these in plain text for now
+    password = models.CharField(blank=True, null=True, max_length=100)
+    starting_shares = models.IntegerField(default=100)
+    starting_money = models.IntegerField(default=0)
+
+
+class UserEntry(models.Model):
+    user = models.ForeignKey(User)
+    game = models.ForeignKey(NcaaGame)
+    entry_name = models.CharField(max_length=30)
+    
+    def __str__(self):
+        return self.entry_name
+
+    def get_score(self):
+        points = 0
+        for team in self.user_teams:
+            points += team.team.score * team.count
+        return points
+
+
 class Team(models.Model):
     full_name = models.CharField(max_length=50)
     abbrev_name = models.CharField(max_length=6)
@@ -14,19 +37,19 @@ class Team(models.Model):
 
 
 class UserTeam(models.Model):
-    user = models.ForeignKey(User)
+    entry = models.ForeignKey(UserEntry)
     team = models.ForeignKey(Team)
-    count = models.IntegerField(default=0)
+    count = models.IntegerField()
 
 
 class TradingBlock(models.Model):
-    user = models.OneToOneField(User)
+    entry = models.OneToOneField(UserEntry)
     teams_desired = models.ManyToManyField(Team, related_name='desired_blocks')
     teams_available = models.ManyToManyField(Team, related_name='available_blocks')
 
 
 class TradeSide(models.Model):
-    pass
+    dollar_amount = models.IntegerField(blank=True, null=True)
 
 
 class TradeOffer(models.Model):
@@ -43,9 +66,9 @@ class TradeComponent(models.Model):
 admin.site.register(Team)
 admin.site.register(UserTeam)
 
-@receiver(post_save, sender=User, weak=False)
+@receiver(post_save, sender=UserEntry, weak=False)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        TradingBlock.objects.create(user=instance)
+        TradingBlock.objects.create(entry=instance)
         for team in Team.objects.all():
-            UserTeam.objects.create(user=instance, team=team, count=STARTING_COUNT)
+            UserTeam.objects.create(entry=instance, team=team, count=instance.game.starting_shares)
