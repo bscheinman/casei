@@ -106,13 +106,13 @@ class TradeSide(models.Model):
 
 
 class TradeOffer(models.Model):
-    user = models.ForeignKey(User)
+    entry = models.ForeignKey(UserEntry)
     bid_side = models.OneToOneField(TradeSide, related_name='bid_offer')
     ask_side = models.OneToOneField(TradeSide, related_name='ask_offer')
 
 
 class TradeComponent(models.Model):
-    team = models.ForeignKey(Team)
+    team = models.ForeignKey(Team, related_name='components')
     count = models.IntegerField()
     offer = models.ForeignKey(TradeSide)
 
