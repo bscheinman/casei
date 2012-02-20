@@ -19,6 +19,7 @@ class NcaaGame(models.Model):
 class ScoreType(models.Model):
     name = models.CharField(max_length=30)
     default_score = models.IntegerField()
+    ordering = models.IntegerField(unique=True) # this is for creating a manual ordering
 
     def __str__(self):
         return self.name
@@ -113,6 +114,9 @@ class TradeOffer(models.Model):
     bid_side = models.OneToOneField(TradeSide, related_name='bid_offer')
     ask_side = models.OneToOneField(TradeSide, related_name='ask_offer')
     accepting_user = models.ForeignKey(UserEntry, blank=True, null=True, related_name='accepted_trades')
+
+    def is_accepted(self):
+        return bool(self.accepting_user)
 
 
 class TradeComponent(models.Model):

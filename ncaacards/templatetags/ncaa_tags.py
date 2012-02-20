@@ -24,3 +24,8 @@ def render_offer_table(offer):
 @register.inclusion_tag('team_link.html')
 def team_link(team, game=None):
     return { 'team':team, 'game':game }
+
+
+@register.inclusion_tag('entry_link.html')
+def entry_link(entry):
+    return { 'entry':entry }
