@@ -61,6 +61,9 @@ class GameTeam(models.Model):
     team = models.ForeignKey(Team)
     score = models.IntegerField(default=0)
 
+    def __str__(self):
+        return '%s (%s)' % (self.team.full_name, self.game.name)
+
     # We could pass in the multipliers for the team to the method so we don't need to make that db call for each game
     def update_score(self):
         score = 0
@@ -78,6 +81,9 @@ class TeamScoreCount(models.Model):
     team = models.ForeignKey(Team, related_name='counts')
     scoreType = models.ForeignKey(ScoreType)
     count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return '%s-- %s' % (self.team.full_name, self.scoreType.name)
 
 
 class UserTeam(models.Model):
@@ -117,6 +123,7 @@ admin.site.register(ScoreType)
 admin.site.register(TradingBlock)
 admin.site.register(UserEntry)
 admin.site.register(TeamScoreCount)
+admin.site.register(GameTeam)
 
 @receiver(post_save, sender=UserEntry, weak=False)
 def complete_user_entry(sender, instance, created, **kwargs):
@@ -138,3 +145,10 @@ def populate_game(sender, instance, created, **kwargs):
     if created:
         for team in Team.objects.all():
             GameTeam.objects.create(game=instance, team=team)
+
+
+@receiver(post_save, sender=Team, weak=False)
+def create_team_counts(sender, instance, created, **kwargs):
+    if created:
+        for scoreType in ScoreType.objects.all():
+            TeamScoreCount.objects.create(team=instance, scoreType=scoreType)
