@@ -5,6 +5,27 @@
 {% block game_body %}
 <h2>{{ team.full_name }} ({{ team.abbrev_name }})</h2>
 
+<div id='score_counts'>
+<strong>Scoring</strong>
+<table border='1'>
+{% if game %}
+    <tr><td></td><td>Wins</td><td>Points</td></tr>
+    {% for scoreType, count, row_score in score_counts %}
+        <tr><td>{{ scoreType }}</td>
+        <td>{{ count }}</td>
+        <td>{{ row_score }}</td></tr>
+    {% endfor %}
+    <tr><td>Total</td><td></td><td>{{ game_team.score }}</td></tr>
+{% else %}
+    <tr><td></td><td>Wins</td></tr>
+    {% for scoreType, count in score_counts %}
+        <tr><td>{{ scoreType }}</td>
+        <td>{{ count }}</td></tr>
+    {% endfor %}
+{% endif %}
+</table>
+</div>
+
 
 
 
