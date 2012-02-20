@@ -1,4 +1,5 @@
 {% extends 'game_base.html' %}
+{% load ncaa_tags %}
 
 {% block title %}{{ team.full_name }} Profile{% endblock title %}
 
@@ -26,7 +27,14 @@
 </table>
 </div>
 
-
-
+{% if game %}
+<br/><br/>
+<div id='top_owners'>
+<strong>Top Owners</strong><br/>
+{% for owner, count in top_owners %}
+    {% entry_link owner %}: {{ count }} shares<br/>
+{% endfor %}
+</div>
+{% endif %}
 
 {% endblock game_body %}

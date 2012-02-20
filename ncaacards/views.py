@@ -105,8 +105,18 @@ def create_team_context(**kwargs):
 
     context = { 'team':team, 'score_counts':score_counts_list }
     if game:
+        game_team = GameTeam.objects.get(game=game, team=team)
+
         context['game'] = game
-        context['game_team'] = GameTeam.objects.get(game=game, team=team)
+        context['game_team'] = game_team
+
+        top_owners_list = []
+        top_owners = UserTeam.objects.filter(team=game_team).order_by('-count')
+        
+        for owner in top_owners:
+            top_owners_list.append((owner.entry, owner.count))
+        context['top_owners'] = top_owners_list
+
     return context
 
 
