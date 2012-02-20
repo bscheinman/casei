@@ -6,7 +6,7 @@ from django.dispatch import receiver
 
 
 class NcaaGame(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     # Storing these in plain text for now
     password = models.CharField(blank=True, null=True, max_length=100)
     starting_shares = models.IntegerField(default=100)
@@ -34,6 +34,9 @@ class UserEntry(models.Model):
     user = models.ForeignKey(User)
     game = models.ForeignKey(NcaaGame)
     entry_name = models.CharField(max_length=30)
+
+    class Meta:
+        unique_together = ('game', 'entry_name')
     
     def __str__(self):
         return self.entry_name
@@ -46,11 +49,11 @@ class UserEntry(models.Model):
 
 
 class Team(models.Model):
-    full_name = models.CharField(max_length=50)
-    abbrev_name = models.CharField(max_length=6)
+    full_name = models.CharField(max_length=50, unique=True)
+    abbrev_name = models.CharField(max_length=6, unique=True)
 
     def __str__(self):
-        return self.abbrev_name
+        return self.full_name
 
 
 class GameTeam(models.Model):
@@ -113,6 +116,7 @@ admin.site.register(UserTeam)
 admin.site.register(ScoreType)
 admin.site.register(TradingBlock)
 admin.site.register(UserEntry)
+admin.site.register(TeamScoreCount)
 
 @receiver(post_save, sender=UserEntry, weak=False)
 def complete_user_entry(sender, instance, created, **kwargs):
@@ -124,6 +128,13 @@ def complete_user_entry(sender, instance, created, **kwargs):
 
 # Whenever a team's wins are updated, update the score for that team
 @receiver(post_save, sender=TeamScoreCount, weak=False)
-def update_team_scores(sender, instance, create, **kwargs):
+def update_team_scores(sender, instance, created, **kwargs):
     for team in GameTeam.objects.filter(team=instance.team):
         team.update_score()
+
+
+@receiver(post_save, sender=NcaaGame, weak=False)
+def populate_game(sender, instance, created, **kwargs):
+    if created:
+        for team in Team.objects.all():
+            GameTeam.objects.create(game=instance, team=team)
