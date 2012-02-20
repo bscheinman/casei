@@ -34,6 +34,28 @@
 {% for owner, count in top_owners %}
     {% entry_link owner %}: {{ count }} shares<br/>
 {% endfor %}
+</div><br/>
+
+<div id='trades_offering'>
+<strong>Trades Offering {{ team.abbrev_name }}:</strong><br/>
+{% if offering_trades %}
+    {% for trade in offering_trades %}
+        {% render_offer_table trade %}
+    {% endfor %}
+{% else %}
+    <em>None</em>
+{% endif %}
+</div><br/>
+
+<div id='trades_asking'>
+<strong>Trades Asking For {{ team.abbrev_name }}:</strong><br/>
+{% if asking_trades %}
+    {% for trade in asking_trades %}
+        {% render_offer_table trade %}
+    {% endfor %}
+{% else %}
+    <em>None</em>
+{% endif %}
 </div>
 {% endif %}
 
