@@ -1,10 +1,17 @@
 from casei.ncaacards.models import *
 from casei.views import render_with_request_context
+from django.contrib.auth import logout
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 
 def home(request):
-    return render_with_request_context(request, 'cards_home.html', { })
+    return render_with_request_context(request, 'ncaa_home.html', { })
+
+
+def do_logout(request):
+    if request.user.is_authenticated():
+        logout(request)
+    return HttpResponseRedirect('/ncaa/')
 
 
 def marketplace(request, game_id):
@@ -25,4 +32,5 @@ def marketplace(request, game_id):
 
     offers = TradeOffer.objects.filter(offers_query)
 
-    return render_with_request_context(request, 'marketplace.html', { 'game'=game, 'offers'=offers })
+    return HttpResponseRedirect('/ncaa/')
+    #return render_with_request_context(request, 'marketplace.html', { 'game'=game, 'offers'=offers })
