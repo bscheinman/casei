@@ -27,7 +27,7 @@ Score: {{ entry.score }}<br/>
 
 <td><div id='trading_block'>
 <h3>Trading Block</h3><br/>
-<h5>Wanted</h5><br/>
+<h4>Wanted</h4><br/>
 {% with wanted_teams=entry.trading_block.teams_desired %}
     {% if wanted_teams %}
         {% for team in wanted_teams %}
@@ -37,7 +37,7 @@ Score: {{ entry.score }}<br/>
         <em>None</em><br/>
     {% endif %}
 {% endwith %}
-<h5>Available</h5><br/>
+<h4>Available</h4><br/>
 {% with available_teams=entry.trading_block.teams_available %}
     {% if available_teams %}
         {% for team in available_teams %}
