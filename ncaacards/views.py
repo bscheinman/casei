@@ -70,9 +70,8 @@ def marketplace(request, game_id):
         offers_query = offers_query & Q(bid_side__components__team__abbrev_name__iexact=bid_filter)
 
     offers = TradeOffer.objects.filter(offers_query)
-
-    return HttpResponseRedirect('/ncaa/')
-    #return render_with_request_context(request, 'marketplace.html', { 'game'=game, 'offers'=offers })
+    
+    return render_with_request_context(request, 'marketplace.html', { 'game':game, 'offers':offers })
 
 
 def leaderboard(request, game_id):

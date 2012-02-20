@@ -125,9 +125,9 @@ class TradeOffer(models.Model):
 
 
 class TradeComponent(models.Model):
-    team = models.ForeignKey(Team, related_name='components')
+    team = models.ForeignKey(GameTeam)
     count = models.IntegerField()
-    offer = models.ForeignKey(TradeSide)
+    offer = models.ForeignKey(TradeSide, related_name='components')
 
 admin.site.register(NcaaGame)
 admin.site.register(Team)
@@ -138,6 +138,9 @@ admin.site.register(UserEntry)
 admin.site.register(TeamScoreCount)
 admin.site.register(GameTeam)
 admin.site.register(ScoringSetting)
+admin.site.register(TradeOffer)
+admin.site.register(TradeSide)
+admin.site.register(TradeComponent)
 
 @receiver(post_save, sender=UserEntry, weak=False)
 def complete_user_entry(sender, instance, created, **kwargs):
