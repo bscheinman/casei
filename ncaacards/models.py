@@ -45,7 +45,7 @@ class UserEntry(models.Model):
 
     def update_score(self):
         points = 0
-        for team in self.user_teams:
+        for team in self.teams.all():
             points += team.team.score * team.count
         self.score = points
         self.save()
@@ -70,11 +70,11 @@ class GameTeam(models.Model):
     # We could pass in the multipliers for the team to the method so we don't need to make that db call for each game
     def update_score(self):
         points = 0
-        counts = self.counts
+        counts = self.team.counts
         multipliers = ScoringSetting.objects.filter(game=self.game)
         for scoreType in ScoreType.objects.all():
-            count = counts.get(scoreType=scoreType)
-            multiplier = multipliers.get(scoreType=scoreType)
+            count = counts.get(scoreType=scoreType).count
+            multiplier = multipliers.get(scoreType=scoreType).points
             points += count * multiplier
         self.score = points 
         self.save()
@@ -91,7 +91,7 @@ class TeamScoreCount(models.Model):
 
 
 class UserTeam(models.Model):
-    entry = models.ForeignKey(UserEntry)
+    entry = models.ForeignKey(UserEntry, related_name='teams')
     team = models.ForeignKey(GameTeam)
     count = models.IntegerField()
 
