@@ -1,11 +1,28 @@
+from casei.ncaacards.logic import get_leaders, get_game
 from casei.ncaacards.models import *
 from casei.views import render_with_request_context
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 
 def home(request):
     return render_with_request_context(request, 'ncaa_home.html', { })
+
+@login_required
+def game_home(request, game_id):
+    game = get_game(game_id)
+    if not game:
+        return HttpResponseRedirect('/ncaa/')
+
+    try:
+        entry = UserEntry.objects.get(user=request.user, game=game)
+    except UserEntry.DoesNotExist:
+        return HttpResponseRedirect('/ncaa/')
+
+    leaders = get_leaders(game)
+
+    return render_with_request_context(request, 'game_home.html', { 'game':game, 'entry':entry, 'leaders':leaders })
 
 
 def do_logout(request):
@@ -15,9 +32,8 @@ def do_logout(request):
 
 
 def entry_view(request, game_id, entry_id):
-    try:
-        game = NcaaGame.objects.get(id=game_id)
-    except NcaaGame.DoesNotExist:
+    game = get_game(game_id)
+    if not game:
         return HttpResponseRedirect('/ncaa/')
     
     try:
@@ -60,12 +76,11 @@ def marketplace(request, game_id):
 
 
 def leaderboard(request, game_id):
-    try:
-        game = NcaaGame.objects.get(id=game_id)
-    except NcaaGame.DoesNotExist:
+    game = get_game(game_id)
+    if not game:
         return HttpResponseRedirect('/ncaa/')
-    
-    leaders = UserEntry.objects.filter(game=game).order_by('-score')
+
+    leaders = get_leaders(game)
 
     return render_with_request_context(request, 'leaderboard.html', { 'game':game, 'leaders':leaders })
 
@@ -127,9 +142,8 @@ def team_view(request, team_id):
 
 
 def game_team_view(request, game_id, team_id):
-    try:
-        game = NcaaGame.objects.get(id=game_id)
-    except NcaaGame.DoesNotExist:
+    game = get_game(game_id)
+    if not game:
         return HttpResponseRedirect('/ncaa/')
 
     team = get_team_from_identifier(team_id)

@@ -7,7 +7,7 @@ from django.conf.urls.defaults import patterns, include, url
 urlpatterns = patterns('',
     url(r'^$', 'casei.ncaacards.views.home'),
     url(r'^do_logout/$', 'casei.ncaacards.views.do_logout'),
-    #url(r'^game/([0-9]+)/$', 'casei.ncaacards.views.game_home'),
+    url(r'^game/([0-9]+)/$', 'casei.ncaacards.views.game_home'),
     url(r'^game/([0-9]+)/leaderboard/$', 'casei.ncaacards.views.leaderboard'),
     #url(r'^game/([0-9]+)/marketplace/$', 'casei.ncaacards.views.marketplace'),
     url(r'^game/([0-9]+)/entry/([0-9]+)/$', 'casei.ncaacards.views.entry_view'),

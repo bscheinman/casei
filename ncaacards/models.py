@@ -10,7 +10,7 @@ class NcaaGame(models.Model):
     # Storing these in plain text for now
     password = models.CharField(blank=True, null=True, max_length=100)
     starting_shares = models.IntegerField(default=100)
-    starting_money = models.IntegerField(default=0)
+    starting_points = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -35,6 +35,7 @@ class UserEntry(models.Model):
     user = models.ForeignKey(User)
     game = models.ForeignKey(NcaaGame)
     entry_name = models.CharField(max_length=30)
+    extra_points = models.IntegerField(default=0)
     score = models.IntegerField(default=0)
 
     class Meta:
@@ -110,7 +111,7 @@ class TradingBlock(models.Model):
 
 
 class TradeSide(models.Model):
-    dollar_amount = models.IntegerField(blank=True, null=True)
+    points = models.IntegerField(blank=True, null=True)
 
 
 class TradeOffer(models.Model):
@@ -144,6 +145,8 @@ def complete_user_entry(sender, instance, created, **kwargs):
         TradingBlock.objects.create(entry=instance)
         for team in GameTeam.objects.filter(game=instance.game):
             UserTeam.objects.create(entry=instance, team=team, count=instance.game.starting_shares)
+        instance.extra_points = instance.game.starting_points
+        instance.save()
 
 
 # Whenever a team's wins are updated, update the score for that team

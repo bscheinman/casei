@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 
 {% block body %}
-{% if game %}
-<a href='/ncaa/game/{{ game.id }}/'>{{ game.name }}</a>
+{% if entry %}
+<a href='/ncaa/game/{{entry.game.id}}/'>{{ entry.game.name }}</a>
+<a href='/ncaa/game/{{entry.game.id}}/entry/{{entry.id}}/'>{{ entry.entry_name }}</a>
 {% endif %}
 {% block game_body %}{% endblock game_body %}
 {% endblock body %}
