@@ -34,6 +34,7 @@ class UserEntry(models.Model):
     user = models.ForeignKey(User)
     game = models.ForeignKey(NcaaGame)
     entry_name = models.CharField(max_length=30)
+    score = models.IntegerField(default=0)
 
     class Meta:
         unique_together = ('game', 'entry_name')
@@ -41,11 +42,12 @@ class UserEntry(models.Model):
     def __str__(self):
         return self.entry_name
 
-    def get_score(self):
+    def update_score(self):
         points = 0
         for team in self.user_teams:
             points += team.team.score * team.count
-        return points
+        self.score = points
+        self.save()
 
 
 class Team(models.Model):
@@ -66,14 +68,15 @@ class GameTeam(models.Model):
 
     # We could pass in the multipliers for the team to the method so we don't need to make that db call for each game
     def update_score(self):
-        score = 0
+        points = 0
         counts = self.counts
         multipliers = ScoringSetting.objects.filter(game=self.game)
         for scoreType in ScoreType.objects.all():
             count = counts.get(scoreType=scoreType)
             multiplier = multipliers.get(scoreType=scoreType)
-            score += count * multiplier
-        return score
+            points += count * multiplier
+        self.score = points 
+        self.save()
         
 
 
@@ -138,6 +141,8 @@ def complete_user_entry(sender, instance, created, **kwargs):
 def update_team_scores(sender, instance, created, **kwargs):
     for team in GameTeam.objects.filter(team=instance.team):
         team.update_score()
+    for entry in UserEntry.objects.all():
+        entry.update_score()
 
 
 @receiver(post_save, sender=NcaaGame, weak=False)
