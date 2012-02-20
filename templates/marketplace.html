@@ -2,6 +2,8 @@
 {% load ncaa_tags %}
 
 {% block game_body %}
+    <h2>{{ game.name }} Marketplace</h2>
+
     {% if offers %}
         <div id='offer_list'>
         {% for offer in offers %}

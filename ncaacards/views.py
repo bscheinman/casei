@@ -1,4 +1,4 @@
-from casei.ncaacards.logic import get_leaders, get_game
+from casei.ncaacards.logic import get_leaders, get_game, get_entry
 from casei.ncaacards.models import *
 from casei.views import render_with_request_context
 from django.contrib.auth import logout
@@ -22,7 +22,7 @@ def game_home(request, game_id):
 
     leaders = get_leaders(game)
 
-    return render_with_request_context(request, 'game_home.html', { 'game':game, 'entry':entry, 'leaders':leaders })
+    return render_with_request_context(request, 'game_home.html', { 'game':game, 'self_entry':entry, 'leaders':leaders })
 
 
 def do_logout(request):
@@ -31,9 +31,11 @@ def do_logout(request):
     return HttpResponseRedirect('/ncaa/')
 
 
+@login_required
 def entry_view(request, game_id, entry_id):
     game = get_game(game_id)
-    if not game:
+    self_entry = get_entry(game, request.user)
+    if not self_entry:
         return HttpResponseRedirect('/ncaa/')
     
     try:
@@ -50,15 +52,17 @@ def entry_view(request, game_id, entry_id):
     
     # sort by team name
     teams = sorted(teams, key=lambda x: x[0].team.abbrev_name)
-    return render_with_request_context(request, 'entry.html', { 'entry':entry, 'teams':teams })
+    return render_with_request_context(request, 'entry.html', { 'self_entry':self_entry, 'entry':entry, 'teams':teams })
 
 
+@login_required
 def marketplace(request, game_id):
-    try:
-        game = NcaaGame.objects.get(id=game_id)
-    except NcaaGame.DoesNotExist:
+    game = get_game(game_id)
+    entry = get_entry(game, request.user)
+    if not entry:
         return HttpResponseRedirect('/ncaa/')
-    
+        
+
     offers_query = Q(entry__game=game, accepting_user=None)
 
     ask_filter = request.GET.get('ask_filter', '')
@@ -71,17 +75,19 @@ def marketplace(request, game_id):
 
     offers = TradeOffer.objects.filter(offers_query)
     
-    return render_with_request_context(request, 'marketplace.html', { 'game':game, 'offers':offers })
+    return render_with_request_context(request, 'marketplace.html', { 'game':game, 'self_entry':entry, 'offers':offers })
 
 
+@login_required
 def leaderboard(request, game_id):
     game = get_game(game_id)
-    if not game:
+    entry = get_entry(game, request.user)
+    if not entry:
         return HttpResponseRedirect('/ncaa/')
 
     leaders = get_leaders(game)
 
-    return render_with_request_context(request, 'leaderboard.html', { 'game':game, 'leaders':leaders })
+    return render_with_request_context(request, 'leaderboard.html', { 'game':game, 'self_entry':entry, 'leaders':leaders })
 
 
 def get_team_from_identifier(team_id):
@@ -140,15 +146,18 @@ def team_view(request, team_id):
     return render_with_request_context(request, 'team_view.html', create_team_context(team=team))
 
 
+@login_required
 def game_team_view(request, game_id, team_id):
     game = get_game(game_id)
-    if not game:
+    entry = get_entry(game, request.user)
+    if not entry:
         return HttpResponseRedirect('/ncaa/')
 
     team = get_team_from_identifier(team_id)
     if not team:
         return HttpResponseRedirect('/ncaa/')
 
-    game_team = GameTeam.objects.get(game=game, team=team)
+    context = create_team_context(team=team, game=game)
+    context['self_entry'] = entry
 
-    return render_with_request_context(request, 'team_view.html', create_team_context(team=team, game=game))
+    return render_with_request_context(request, 'team_view.html', context)

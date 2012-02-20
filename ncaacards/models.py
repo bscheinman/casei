@@ -129,6 +129,9 @@ class TradeComponent(models.Model):
     count = models.IntegerField()
     offer = models.ForeignKey(TradeSide, related_name='components')
 
+    def get_score(self):
+        return self.count * self.team.score
+
 admin.site.register(NcaaGame)
 admin.site.register(Team)
 admin.site.register(UserTeam)
