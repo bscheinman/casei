@@ -4,4 +4,5 @@
 {% if game %}
 <a href='/ncaa/game/{{ game.id }}/'>{{ game.name }}</a>
 {% endif %}
+{% block game_body %}{% endblock game_body %}
 {% endblock body %}

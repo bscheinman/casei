@@ -5,6 +5,7 @@
 {% block body %}
 <h2>CaSe InSeNsItIvE NCAA Trading Game</h2>
 
+<div id=''>
 {% if user.is_authenticated %}
 <form method='POST' action='/ncaa/do_logout/'>
 {% csrf_token %}
