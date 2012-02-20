@@ -132,6 +132,7 @@ admin.site.register(TradingBlock)
 admin.site.register(UserEntry)
 admin.site.register(TeamScoreCount)
 admin.site.register(GameTeam)
+admin.site.register(ScoringSetting)
 
 @receiver(post_save, sender=UserEntry, weak=False)
 def complete_user_entry(sender, instance, created, **kwargs):

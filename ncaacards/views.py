@@ -75,13 +75,9 @@ def leaderboard(request, game_id):
 def get_team_from_identifier(team_id):
     try:
         num_id = int(team_id)
-    except ValueError:
-        abbrev_id = team_id
-    
-    if num_id:
         team_query = Q(id=num_id)
-    else:
-        team_query = Q(abbrev_name=abbrev_id)
+    except ValueError:
+        team_query = Q(abbrev_name__iexact=team_id)
 
     try:
         team = Team.objects.get(team_query)
@@ -91,14 +87,27 @@ def get_team_from_identifier(team_id):
     return team
 
 
-def create_team_context(team):
+def create_team_context(**kwargs):
+    team = kwargs['team']
+    game = kwargs.get('game', None)
+
     score_counts_list = []
     score_counts = TeamScoreCount.objects.filter(team=team).order_by('scoreType__ordering')
+    if game:
+        score_multipliers = ScoringSetting.objects.filter(game=game)
 
     for score_count in score_counts:
-        score_counts_list.append((score_count.scoreType.name, score_count.count))
+        if game:
+            multiplier = score_multipliers.get(scoreType=score_count.scoreType).points
+            score_counts_list.append((score_count.scoreType.name, score_count.count, score_count.count * multiplier))
+        else:
+            score_counts_list.append((score_count.scoreType.name, score_count.count))
 
-    return { 'team':team, 'score_counts':score_counts_list }
+    context = { 'team':team, 'score_counts':score_counts_list }
+    if game:
+        context['game'] = game
+        context['game_team'] = GameTeam.objects.get(game=game, team=team)
+    return context
 
 
 def team_view(request, team_id):
@@ -106,10 +115,10 @@ def team_view(request, team_id):
     if not team:
         return HttpResponseRedirect('/ncaa/')
 
-    return render_with_request_context(request, 'team_view.html', create_team_context(team))
+    return render_with_request_context(request, 'team_view.html', create_team_context(team=team))
 
 
-def team_view(request, game_id, team_id):
+def game_team_view(request, game_id, team_id):
     try:
         game = NcaaGame.objects.get(id=game_id)
     except NcaaGame.DoesNotExist:
@@ -119,6 +128,6 @@ def team_view(request, game_id, team_id):
     if not team:
         return HttpResponseRedirect('/ncaa/')
 
-    context = create_team_context(team)
-    context['game'] = game
-    return render_with_request_context(request, 'team_view.html', context)
+    game_team = GameTeam.objects.get(game=game, team=team)
+
+    return render_with_request_context(request, 'team_view.html', create_team_context(team=team, game=game))
