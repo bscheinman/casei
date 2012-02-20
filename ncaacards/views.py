@@ -14,11 +14,16 @@ def do_logout(request):
     return HttpResponseRedirect('/ncaa/')
 
 
-def entry_view(request, entry_id):
+def entry_view(request, game_id, entry_id):
     try:
-        entry = UserEntry.objects.get(id=entry_id)
-    except UserEntry.DoesNotExist:
+        game = NcaaGame.objects.get(id=game_id)
+    except NcaaGame.DoesNotExist:
         return HttpResponseRedirect('/ncaa/')
+    
+    try:
+        entry = UserEntry.objects.get(id=entry_id, game__id=game_id)
+    except UserEntry.DoesNotExist:
+        return HttpResponseRedirect('/ncaa/game/%s/' % game_id)
 
     teams = []
     total_score = 0
@@ -29,6 +34,7 @@ def entry_view(request, entry_id):
         total_score += team_score
         teams.append((user_team.team, user_team.count, team_score))
     
+    # sort by team name
     teams = sorted(teams, key=lambda x: x[0].team.abbrev_name)
     return render_with_request_context(request, 'entry.html', { 'entry':entry, 'teams':teams, 'total_score':total_score })
 
@@ -39,7 +45,7 @@ def marketplace(request, game_id):
     except NcaaGame.DoesNotExist:
         return HttpResponseRedirect('/ncaa/')
     
-    offers_query = Q(entry__game=game)
+    offers_query = Q(entry__game=game, accepting_user=None)
 
     ask_filter = request.GET.get('ask_filter', '')
     bid_filter = request.GET.get('bid_filter', '')
@@ -53,3 +59,66 @@ def marketplace(request, game_id):
 
     return HttpResponseRedirect('/ncaa/')
     #return render_with_request_context(request, 'marketplace.html', { 'game'=game, 'offers'=offers })
+
+
+def leaderboard(request, game_id):
+    try:
+        game = NcaaGame.objects.get(id=game_id)
+    except NcaaGame.DoesNotExist:
+        return HttpResponseRedirect('/ncaa/')
+    
+    leaders = UserEntry.objects.filter(game=game).order_by('score')
+
+    return render_with_request_context(request, 'leaderboard.html', { 'game':game, 'leaders':leaders })
+
+
+def get_team_from_identifier(team_id):
+    try:
+        num_id = int(team_id)
+    except ValueError:
+        abbrev_id = team_id
+    
+    if num_id:
+        team_query = Q(id=num_id)
+    else:
+        team_query = Q(abbrev_name=abbrev_id)
+
+    try:
+        team = Team.objects.get(team_query)
+    except Team.DoesNotExist:
+        return None
+    
+    return team
+
+
+def create_team_context(team):
+    score_counts_list = []
+    score_counts = TeamScoreCount.objects.filter(team=team).order_by('scoreType__ordering')
+
+    for score_count in score_counts:
+        score_counts_list.append((score_count.scoreType.name, score_count.count))
+
+    return { 'team':team, 'score_counts':score_counts_list }
+
+
+def team_view(request, team_id):
+    team = get_team_from_identifier(team_id)
+    if not team:
+        return HttpResponseRedirect('/ncaa/')
+
+    return render_with_request_context(request, 'team_view.html', create_team_context(team))
+
+
+def team_view(request, game_id, team_id):
+    try:
+        game = NcaaGame.objects.get(id=game_id)
+    except NcaaGame.DoesNotExist:
+        return HttpResponseRedirect('/ncaa/')
+
+    team = get_team_from_identifier(team_id)
+    if not team:
+        return HttpResponseRedirect('/ncaa/')
+
+    context = create_team_context(team)
+    context['game'] = game
+    return render_with_request_context(request, 'team_view.html', context)
