@@ -1,5 +1,4 @@
 from django import template
-from sherpas.logic import get_online_sherpas
 register = template.Library()
 
 @register.inclusion_tag('offer_table.html')
@@ -20,3 +19,8 @@ def render_offer_table(offer):
             ask = asks[i]
         rows.append((bid, ask))
     return { 'rows':rows }
+
+
+@register.inclusion_tag('team_link.html')
+def team_link(team, game=None):
+    return { 'team':team, 'game':game }
