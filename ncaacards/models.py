@@ -69,6 +69,7 @@ class GameTeam(models.Model):
 
     # We could pass in the multipliers for the team to the method so we don't need to make that db call for each game
     def update_score(self):
+        import pdb; pdb.set_trace()
         points = 0
         counts = self.team.counts
         multipliers = ScoringSetting.objects.filter(game=self.game)
@@ -166,3 +167,10 @@ def create_team_counts(sender, instance, created, **kwargs):
     if created:
         for scoreType in ScoreType.objects.all():
             TeamScoreCount.objects.create(team=instance, scoreType=scoreType)
+
+
+# Once we're actually processing trades, we should remove this and specifically
+# call update_score after each trade
+@receiver(post_save, sender=UserTeam, weak=False)
+def reflect_trade(sender, instance, created, **kwargs):
+    instance.entry.update_score()

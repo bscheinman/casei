@@ -26,17 +26,15 @@ def entry_view(request, game_id, entry_id):
         return HttpResponseRedirect('/ncaa/game/%s/' % game_id)
 
     teams = []
-    total_score = 0
     
     user_teams = UserTeam.objects.filter(entry=entry)
     for user_team in user_teams:
         team_score = user_team.team.score * user_team.count
-        total_score += team_score
         teams.append((user_team.team, user_team.count, team_score))
     
     # sort by team name
     teams = sorted(teams, key=lambda x: x[0].team.abbrev_name)
-    return render_with_request_context(request, 'entry.html', { 'entry':entry, 'teams':teams, 'total_score':total_score })
+    return render_with_request_context(request, 'entry.html', { 'entry':entry, 'teams':teams })
 
 
 def marketplace(request, game_id):
