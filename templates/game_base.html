@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+
+{% block body %}
+{% if game %}
+<a href='/ncaa/game/{{ game.id }}/'>{{ game.name }}</a>
+{% endif %}
+{% endblock body %}
