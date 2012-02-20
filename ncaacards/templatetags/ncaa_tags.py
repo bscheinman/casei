@@ -29,3 +29,8 @@ def team_link(team, game=None):
 @register.inclusion_tag('entry_link.html')
 def entry_link(entry):
     return { 'entry':entry }
+
+
+@register.inclusion_tag('leaderboard.html')
+def leaderboard(leaders):
+    return { 'leaders':leaders }
