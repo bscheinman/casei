@@ -7,6 +7,13 @@ def get_game(game_id):
         return None
 
 
+def get_entry(game, user):  
+    try:
+        return UserEntry.objects.get(game=game, user=user)
+    except UserEntry.DoesNotExist:
+        return None
+
+
 def get_leaders(game):
     return UserEntry.objects.filter(game=game).order_by('-score')
 
