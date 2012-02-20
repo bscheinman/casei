@@ -109,9 +109,10 @@ class TradeSide(models.Model):
 
 
 class TradeOffer(models.Model):
-    entry = models.ForeignKey(UserEntry)
+    entry = models.ForeignKey(UserEntry, related_name='proposed_trades')
     bid_side = models.OneToOneField(TradeSide, related_name='bid_offer')
     ask_side = models.OneToOneField(TradeSide, related_name='ask_offer')
+    accepting_user = models.ForeignKey(UserEntry, blank=True, null=True, related_name='accepted_trades')
 
 
 class TradeComponent(models.Model):
