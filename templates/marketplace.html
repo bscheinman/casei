@@ -1,4 +1,5 @@
 {% extends 'game_base.html' %}
+{% load ncaa_tags %}
 
 {% block game_body %}
     {% if offers %}
@@ -6,9 +7,7 @@
         <table>
         <tr><td>
         {% for offer in offers %}
-            <tr>
-                <td 
-            </tr>
+            {% render_offer_table offer %}
         {% endfor %}
         </table>
         </div>
