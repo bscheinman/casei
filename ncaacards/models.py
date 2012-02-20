@@ -95,6 +95,9 @@ class UserTeam(models.Model):
     team = models.ForeignKey(GameTeam)
     count = models.IntegerField()
 
+    def __str__(self):
+        return '%s: %s' % (self.entry.entry_name, self.team.team.abbrev_name)
+
 
 class TradingBlock(models.Model):
     entry = models.OneToOneField(UserEntry)
