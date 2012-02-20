@@ -135,6 +135,12 @@ def create_team_context(**kwargs):
             top_owners_list.append((owner.entry, owner.count))
         context['top_owners'] = top_owners_list
 
+        offering_trades = TradeOffer.objects.filter(entry__game=game, bid_side__components__team=game_team)
+        asking_trades = TradeOffer.objects.filter(entry__game=game, ask_side__components__team=game_team)
+
+        context['offering_trades'] = offering_trades
+        context['asking_trades'] = asking_trades
+
     return context
 
 

@@ -1,10 +1,12 @@
+{% load ncaa_tags %}
+
 <table border='1'>
 <tr><td colspan='2'>Offering</td><td colspan='2'>Asking</td></tr>
 {% for bid, ask in rows %}
     <tr>
     {% if bid %}
         {% if bid.team %} {# Hacky way of checking whether this is a team or flat points #}
-            <td>{{ bid.team.team.abbrev_name }}</td><td>{{ bid.count }}</td>
+            <td>{% team_link bid.team.team bid.team.game %}</td><td>{{ bid.count }}</td>
         {% else %}
             <td>Points</td><td>{{ bid }}</td>
         {% endif %}
@@ -13,7 +15,7 @@
     {% endif %}
     {% if ask %}
         {% if ask.team %} {# Hacky way of checking whether this is a team or flat points #}
-            <td>{{ ask.team.team.abbrev_name }}</td><td>{{ ask.count }}</td>
+            <td>{% team_link ask.team.team ask.team.game %}</td><td>{{ ask.count }}</td>
         {% else %}
             <td>Points</td><td>{{ ask }}</td>
         {% endif %}
