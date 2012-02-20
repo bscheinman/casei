@@ -65,7 +65,7 @@ def leaderboard(request, game_id):
     except NcaaGame.DoesNotExist:
         return HttpResponseRedirect('/ncaa/')
     
-    leaders = UserEntry.objects.filter(game=game).order_by('score')
+    leaders = UserEntry.objects.filter(game=game).order_by('-score')
 
     return render_with_request_context(request, 'leaderboard.html', { 'game':game, 'leaders':leaders })
 
