@@ -4,8 +4,8 @@ register = template.Library()
 @register.inclusion_tag('offer_table.html')
 def render_offer_table(offer):
     rows = []
-    bids = offer.bid_side.components
-    asks = offer.ask_side.components
+    bids = offer.bid_side.components.all()
+    asks = offer.ask_side.components.all()
     bid_count = bids.count()
     ask_count = asks.count()
     # maybe later change this to actually use iterators since lists don't have constant-time random access

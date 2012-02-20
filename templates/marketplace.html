@@ -4,12 +4,9 @@
 {% block game_body %}
     {% if offers %}
         <div id='offer_list'>
-        <table>
-        <tr><td>
         {% for offer in offers %}
             {% render_offer_table offer %}
         {% endfor %}
-        </table>
         </div>
     {% endif %}
 {% endblock game_body %}

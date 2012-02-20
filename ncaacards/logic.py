@@ -41,8 +41,8 @@ def accept_trade(trade, accepting_entry):
     if accepting_entry == trade.entry:
         raise Exception('Users cannot accept their own trades')
 
-    bid_components = TradeComponent.objects.filter(offer=trade.bid_side)
-    ask_components = TradeComponent.objects.filter(offer=trade.ask_side)
+    bid_components = trade.bid_side.components
+    ask_components = trade.ask_side.components
     
     bid_points = trade.bid_side.points
     ask_points = trade.ask_side.points
@@ -50,8 +50,8 @@ def accept_trade(trade, accepting_entry):
     seller = trade.entry
     buyer = accepting_entry
 
-    seller_holdings = UserTeam.objects.filter(entry=seller)
-    buyer_holdings = UserTeam.objects.filter(entry=buyer)
+    seller_holdings = seller.teams
+    buyer_holdings = buyer.teams
 
     if not (validate_trade_side(bid_components, bid_points, seller_holdings, seller.extra_points)\
             and validate_trade_side(ask_components, ask_points, buyer_holdings, buyer.extra_points)):
