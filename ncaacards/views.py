@@ -167,3 +167,100 @@ def game_team_view(request, game_id, team_id):
     context['self_entry'] = entry
 
     return render_with_request_context(request, 'team_view.html', context)
+
+
+MAX_OFFER_SIZE = 5
+
+@login_required
+def create_offer(request, game_id, **kwargs):
+    game = get_game(game_id)
+    entry = get_entry(game, request.user)
+    if not entry:
+        return HttpResponseRedirect('/ncaa/')
+
+    all_teams = GameTeam.objects.filter(game=game)
+
+    error = kwargs.get('error', '')
+
+    return render_with_request_context(request, 'create_offer.html', { 'game':game, 'self_entry':entry,\
+        'all_teams':all_teams, 'max_offer_size':MAX_OFFER_SIZE, 'error':error })
+
+
+def create_offer_component(team_name, count_str, teams_in_offer):
+    if bool(team_name) != bool(count_str):
+        raise Exception('All offer components must have both a team and a share count')
+    if team_name:
+        if team_name in teams_in_offer:
+            raise Exception('Team %s occurs more than once in the offer' % team_name)
+        teams_in_offer.add(team_name)
+        try:
+            team = GameTeam.objects.get(game=game, team__abbrev_name=team_name)
+        except GameTeam.DoesNotExist:
+            raise Exception('Team %s does not exist in this game' % team_name)
+
+        try:
+            count = int(count_str)
+        except ValueError:
+            raise Exception('You must enter a valid integer value for each offer component')
+        if count <= 0:
+            raise Exception('All component counts must be positive')
+
+        return (team, count)
+    
+
+
+@login_required
+def make_offer(request, game_id):
+    if request.method != 'POST':
+        return HttpResponseRedirect('/ncaa/game/%s/' % game_id)
+
+    game = get_game(game_id)
+    self_entry = get_entry(game, request.user)
+    if not self_entry:
+        return HttpResponseRedirect('/ncaa/')
+
+    bids, asks = [], []
+    teams_in_offer = set()
+
+    try:
+        for i in range(MAX_OFFER_SIZE):
+            bid_team_name, bid_count_str = request.POST.get('bid_%s_team' % i, ''), request.POST.get('bid_%s_count' % i, '')
+            bid = create_offer_component(bid_team_name, bid_count_str, teams_in_offer)
+            if bid:
+                bids.append(bid)
+            ask_team_name, ask_count_str = request.POST.get('ask_%s_team' % i, ''), request.POST.get('ask_%s_count' % i, '')
+            ask = create_offer_component(ask_team_name, ask_count_str, teams_in_offer)
+            if ask:
+                asks.append(ask)
+
+        bid_point_str, ask_point_str = request.POST.get('bid_points', ''), request.POST.get('ask_points', '')
+        try:
+            if bid_point_str:
+                bid_points = int(bid_point_str)
+            if ask_point_str:
+                ask_points = int(ask_point_str)
+        except ValueError:
+            raise Exception('You must enter integer values for points')
+
+        if bid_points and ask_points:
+            raise Exception('You can\'t include points on both sides of an offer')
+
+    except Exception as e:
+        return create_offer(request, game_id, error=str(e))
+
+    bid_side, ask_side = TradeSide(), TradeSide()
+    if bid_points:
+        bid_side.points = bid_points
+    if ask_points:
+        ask_side.points = ask_points
+    bid_side.save()
+    ask_side.save()
+
+    offer = TradeOffer.objects.create(entry=self_entry, ask_side=ask_side, bid_side=bid_side)
+
+    for bid_team, bid_count in bids:
+        bid_component = TradeComponent.create(team=bid_team, count=bid_count, offer=bid_side)
+    for ask_team, ask_count in asks:
+        ask_component = TradeComponent.create(team=ask_team, count=ask_count, offer=ask_side)
+
+    return HttpResponseRedirect('/ncaa/game/%s/offer/%s/' % game_id, offer.id)

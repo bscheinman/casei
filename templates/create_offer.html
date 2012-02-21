@@ -1,0 +1,33 @@
+{% extends 'game_base.html' %}
+{% load ncaa_tags %}
+
+{% block title %}Create Offer{% endblock title %}
+
+{% block scripts %}
+
+{% endblock scripts %}
+
+{% block game_body %}
+<form method='POST' action='/ncaa/game/{{game.id}}/make_offer/'>
+<table>
+<tr><td colspan='2'>Offer</td><td colspan='2'>Ask For</td></tr>
+{% for i in max_offer_size|get_range %}
+    <tr><td><select name='bid_{{i}}_team'>
+        <option value=''></option>
+        {% for team in all_teams %}<option value='{{team.id}}'>{{ team.team.abbrev_name }}</option>{% endfor %}
+    </select></td>
+    <td><input type='text' name='bid_{{i}}_count' value='0' size='5'></td>
+    <td><select name='ask_{{i}}_team'>
+        <option value=''></option>
+        {% for team in all_teams %}<option value='{{team.id}}'>{{ team.team.abbrev_name }}</option>{% endfor %}
+    </select></td>
+    <td><input type='text' name='ask_{{i}}_count' value='0' size='5'></td></tr>
+{% endfor %}
+{% if game.starting_points %}
+<tr><td>Points</td><td><input type='text' name='bid_points' value='0' size='7'>
+<td>Points</td><td><input type='text' name='ask_points' value='0' size='7'></td></tr>
+{% endif %}
+</table>
+<input type='submit' value='Submit Offer'>
+</form>
+{% endblock game_body %}
