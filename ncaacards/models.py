@@ -102,7 +102,7 @@ class UserTeam(models.Model):
 
 
 class TradingBlock(models.Model):
-    entry = models.OneToOneField(UserEntry)
+    entry = models.OneToOneField(UserEntry, related_name='trading_block')
     teams_desired = models.ManyToManyField(Team, related_name='desired_blocks')
     teams_available = models.ManyToManyField(Team, related_name='available_blocks')
 
