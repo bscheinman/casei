@@ -103,8 +103,8 @@ class UserTeam(models.Model):
 
 class TradingBlock(models.Model):
     entry = models.OneToOneField(UserEntry, related_name='trading_block')
-    teams_desired = models.ManyToManyField(Team, related_name='desired_blocks')
-    teams_available = models.ManyToManyField(Team, related_name='available_blocks')
+    game_teams_desired = models.ManyToManyField(GameTeam, related_name='desired_blocks')
+    game_teams_available = models.ManyToManyField(GameTeam, related_name='available_blocks')
 
     def __str__(self):
         return '%s\'s Trading Block' % self.entry.user.username
