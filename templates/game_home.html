@@ -6,7 +6,14 @@
 {% block game_body %}
 <h2>{{ game.name }}</h2>
 
+<div id='leaderboard'>
 <strong>Leaderboard</strong><br/>
 {% leaderboard leaders %}
+</div>
+<br/><br/>
+
+<div id='marketplace'>
+<strong><a href='marketplace/'>Marketplace</a></strong><br/>
+</div>
 
 {% endblock game_body %}
