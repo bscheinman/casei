@@ -8,18 +8,19 @@
 {% endblock scripts %}
 
 {% block game_body %}
-<form method='POST' action='/ncaa/game/{{game.id}}/make_offer/'>
+<form method='POST' action='/ncaa/game/{{game.id}}/make_offer/'>{% csrf_token %}
+{% if error %}<strong style='color:red;'>{{error}}</strong><br/>{% endif %}
 <table>
 <tr><td colspan='2'>Offer</td><td colspan='2'>Ask For</td></tr>
 {% for i in max_offer_size|get_range %}
     <tr><td><select name='bid_{{i}}_team'>
         <option value=''></option>
-        {% for team in all_teams %}<option value='{{team.id}}'>{{ team.team.abbrev_name }}</option>{% endfor %}
+        {% for team in all_teams %}<option value='{{team.team.abbrev_name}}'>{{ team.team.abbrev_name }}</option>{% endfor %}
     </select></td>
     <td><input type='text' name='bid_{{i}}_count' value='0' size='5'></td>
     <td><select name='ask_{{i}}_team'>
         <option value=''></option>
-        {% for team in all_teams %}<option value='{{team.id}}'>{{ team.team.abbrev_name }}</option>{% endfor %}
+        {% for team in all_teams %}<option value='{{team.team.abbrev_name}}'>{{ team.team.abbrev_name }}</option>{% endfor %}
     </select></td>
     <td><input type='text' name='ask_{{i}}_count' value='0' size='5'></td></tr>
 {% endfor %}
