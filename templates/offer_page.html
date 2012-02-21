@@ -1,0 +1,8 @@
+{% extends 'game_base.html' %}
+{% load ncaa_tags %}
+
+{% block title %}Trade Offer #{{offer.id}}{%endblock title %}
+
+{% block game_body %}
+{% render_offer_table offer %}
+{% endblock game_body %}

@@ -186,26 +186,25 @@ def create_offer(request, game_id, **kwargs):
         'all_teams':all_teams, 'max_offer_size':MAX_OFFER_SIZE, 'error':error })
 
 
-def create_offer_component(team_name, count_str, teams_in_offer):
-    if bool(team_name) != bool(count_str):
+def create_offer_component(team_name, count_str, game):
+    try:
+        count = int(count_str)
+    except ValueError:
+        raise Exception('You must enter a valid integer value for each offer component')
+
+    if bool(team_name) != bool(count):
         raise Exception('All offer components must have both a team and a share count')
     if team_name:
-        if team_name in teams_in_offer:
-            raise Exception('Team %s occurs more than once in the offer' % team_name)
-        teams_in_offer.add(team_name)
         try:
             team = GameTeam.objects.get(game=game, team__abbrev_name=team_name)
         except GameTeam.DoesNotExist:
             raise Exception('Team %s does not exist in this game' % team_name)
 
-        try:
-            count = int(count_str)
-        except ValueError:
-            raise Exception('You must enter a valid integer value for each offer component')
         if count <= 0:
             raise Exception('All component counts must be positive')
 
         return (team, count)
+    return None
     
 
 
@@ -225,15 +224,24 @@ def make_offer(request, game_id):
     try:
         for i in range(MAX_OFFER_SIZE):
             bid_team_name, bid_count_str = request.POST.get('bid_%s_team' % i, ''), request.POST.get('bid_%s_count' % i, '')
-            bid = create_offer_component(bid_team_name, bid_count_str, teams_in_offer)
+            bid = create_offer_component(bid_team_name, bid_count_str, game)
             if bid:
+                bid_team = bid[0]
+                if bid_team in teams_in_offer:
+                    raise Exception('Team %s cannot exist multiple times in the same offer' % bid_team.team.abbrev_name)
+                teams_in_offer.add(bid_team)
                 bids.append(bid)
             ask_team_name, ask_count_str = request.POST.get('ask_%s_team' % i, ''), request.POST.get('ask_%s_count' % i, '')
-            ask = create_offer_component(ask_team_name, ask_count_str, teams_in_offer)
+            ask = create_offer_component(ask_team_name, ask_count_str, game)
             if ask:
+                ask_team = ask[0]
+                if ask_team in teams_in_offer:
+                    raise Exception('Team %s cannot exist multiple times in the same offer' % bid_team.team.abbrev_name)
+                teams_in_offer.add(ask_team)
                 asks.append(ask)
 
         bid_point_str, ask_point_str = request.POST.get('bid_points', ''), request.POST.get('ask_points', '')
+        bid_points, ask_points = 0, 0
         try:
             if bid_point_str:
                 bid_points = int(bid_point_str)
@@ -259,8 +267,22 @@ def make_offer(request, game_id):
     offer = TradeOffer.objects.create(entry=self_entry, ask_side=ask_side, bid_side=bid_side)
 
     for bid_team, bid_count in bids:
-        bid_component = TradeComponent.create(team=bid_team, count=bid_count, offer=bid_side)
+        bid_component = TradeComponent.objects.create(team=bid_team, count=bid_count, offer=bid_side)
     for ask_team, ask_count in asks:
-        ask_component = TradeComponent.create(team=ask_team, count=ask_count, offer=ask_side)
+        ask_component = TradeComponent.objects.create(team=ask_team, count=ask_count, offer=ask_side)
 
-    return HttpResponseRedirect('/ncaa/game/%s/offer/%s/' % game_id, offer.id)
+    return HttpResponseRedirect('/ncaa/game/%s/offer/%s/' % (game_id, offer.id))
+
+
+@login_required
+def offer_view(request, game_id, offer_id):
+    game = get_game(game_id)
+    self_entry = get_entry(game, request.user)
+    if not self_entry:
+        return HttpResponseRedirect('/ncaa/')
+    try:
+        offer = TradeOffer.objects.get(id=offer_id)
+    except TradeOffer.DoesNotExist:
+        return HttpResponseRedirect('/ncaa/game/%s/' % game_id)
+
+    return render_with_request_context(request, 'offer_page.html', { 'game':game, 'self_entry':self_entry, 'offer':offer })
