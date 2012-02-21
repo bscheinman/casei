@@ -52,7 +52,7 @@ def entry_view(request, game_id, entry_id):
     
     # sort by team name
     teams = sorted(teams, key=lambda x: x[0].team.abbrev_name)
-    return render_with_request_context(request, 'entry.html', { 'self_entry':self_entry, 'entry':entry, 'teams':teams })
+    return render_with_request_context(request, 'entry.html', { 'game':game, 'self_entry':self_entry, 'entry':entry, 'teams':teams })
 
 
 @login_required
