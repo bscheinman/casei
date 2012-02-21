@@ -13,6 +13,8 @@ urlpatterns = patterns('',
     url(r'^game/([0-9]+)/entry/([0-9]+)/$', 'casei.ncaacards.views.entry_view'),
     url(r'^game/([0-9]+)/team/([0-9]+)/$', 'casei.ncaacards.views.game_team_view'),
     url(r'^game/([0-9]+)/team/([a-zA-Z]+)/$', 'casei.ncaacards.views.game_team_view'),
+    url(r'^game/([0-9]+)/create_offer/$', 'casei.ncaacards.views.create_offer'),
+    url(r'^game/([0-9]+)/make_offer/$', 'casei.ncaacards.views.make_offer'),
     url(r'^team/([0-9]+)/$', 'casei.ncaacards.views.team_view'),
     url(r'^team/([a-zA-Z]+)/$', 'casei.ncaacards.views.team_view'),
     # Examples:

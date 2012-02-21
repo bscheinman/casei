@@ -1,6 +1,11 @@
 from django import template
 register = template.Library()
 
+@register.filter
+def get_range(i):
+    return range(i)
+
+
 @register.inclusion_tag('offer_table.html')
 def render_offer_table(offer):
     rows = []
