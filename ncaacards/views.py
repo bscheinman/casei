@@ -19,10 +19,11 @@ def game_home(request, game_id):
     if not game:
         return HttpResponseRedirect('/ncaa/')
 
+    entry = None
     try:
         entry = UserEntry.objects.get(user=request.user, game=game)
     except UserEntry.DoesNotExist:
-        return HttpResponseRedirect('/ncaa/')
+        pass
 
     leaders = get_leaders(game)
 
@@ -361,3 +362,35 @@ def game_list(request):
     query = ~Q(entries__in=entries)
     other_games = NcaaGame.objects.filter(query)
     return render_with_request_context(request, 'game_list.html', { 'entries':entries, 'other_games':other_games })
+
+
+@login_required
+def join_game(request):
+    game_id = request.POST.get('game_id', '')
+    entry_name = request.POST.get('entry_name', '')
+
+    game = get_game(game_id)
+    if not game or request.method != 'POST':
+        return HttpResponseRedirect('/ncaa/')
+
+    error = ''
+
+    if not entry_name:
+        error = 'You must provide an entry name'
+    else:
+        try:
+            entry = UserEntry.objects.get(game=game, entry_name=entry_name)
+        except UserEntry.DoesNotExist:
+            pass
+        else:
+            error = 'There is already an entry with the name %s in this game' % entry_name
+
+    self_entry = get_entry(game, request.user)
+    if self_entry:
+        error = 'You already have an entry in this game'
+
+    if error:
+        return render_with_request_context(request, 'game_home.html', { 'game':game, 'self_entry':self_entry, 'error':error, 'leaders':get_leaders(game) })
+    entry = UserEntry.objects.create(user=request.user, game=game, entry_name=entry_name)
+
+    return HttpResponseRedirect('/ncaa/game/%s/entry/%s/' % (game_id, entry.id))

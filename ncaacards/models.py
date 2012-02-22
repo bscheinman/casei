@@ -53,7 +53,7 @@ class UserEntry(models.Model):
         return self.entry_name
 
     def update_score(self):
-        points = extra_points
+        points = self.extra_points
         for team in self.teams.all():
             points += team.team.score * team.count
         self.score = points
