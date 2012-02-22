@@ -5,6 +5,11 @@ from django.forms import PasswordInput
 from django.contrib.auth.models import User
 
 
+class LoginForm(forms.Form):
+    username = forms.CharField(label='username')
+    password = forms.CharField(widget=forms.PasswordInput, label='password')
+
+
 class SignupForm(forms.Form):
     username = forms.CharField(max_length=30, required=True)
     email = forms.EmailField(required=True)
