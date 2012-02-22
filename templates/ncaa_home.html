@@ -1,10 +1,21 @@
 {% extends 'base.html' %}
 {% load ncaa_tags %}
 
-{% block title %}NCAA Trading Game{% endblock title %}
+{% block title %}cASe iNSeNsiTIVe Trading Game{% endblock title %}
 
 {% block body %}
-<h2>CaSe InSeNsItIvE NCAA Trading Game</h2>
+<h2>CaSe InSeNsItIvE Trading Game</h2>
 
 {% auth_block user %}
+
+{% if user.is_authenticated %}
+{% if entries %}
+    Your Entries:<br/>
+    {% for entry in entries %}
+        {% entry_link entry %} in game {% game_link entry.game %}<br/>
+    {% endfor %}<br/>
+{% endif %}
+<a href='/ncaa/create_game/'>Create a New Game</a><br/>
+<a href='/ncaa/join_game/'>Join an Existing Game</a><br/>
+{% endif %}
 {% endblock body %}

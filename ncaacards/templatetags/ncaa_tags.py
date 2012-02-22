@@ -50,6 +50,11 @@ def entry_link(entry):
     return { 'entry':entry }
 
 
+@register.inclusion_tag('game_link.html')
+def game_link(game):
+    return { 'game':game }
+
+
 @register.inclusion_tag('leaderboard.html')
 def leaderboard(leaders):
     return { 'leaders':leaders }

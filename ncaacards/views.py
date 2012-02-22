@@ -7,7 +7,10 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect
 
 def home(request):
-    return render_with_request_context(request, 'ncaa_home.html', { })
+    entries = []
+    if request.user.is_authenticated():
+        entries = request.user.entries.all()
+    return render_with_request_context(request, 'ncaa_home.html', { 'entries':entries })
 
 
 @login_required

@@ -1,5 +1,6 @@
 <div id='auth_block'>
 {% if user.is_authenticated %}
+Welcome, {{ user.username }}!<br/>
 <form method='POST' action='/do_logout/'>
 {% csrf_token %}
 <input type='submit' value='Log Out'>
