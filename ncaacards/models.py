@@ -40,8 +40,8 @@ class ScoringSetting(models.Model):
 
 
 class UserEntry(models.Model):
-    user = models.ForeignKey(User)
-    game = models.ForeignKey(NcaaGame)
+    user = models.ForeignKey(User, related_name='entries')
+    game = models.ForeignKey(NcaaGame, related_name='entries')
     entry_name = models.CharField(max_length=30)
     extra_points = models.IntegerField(default=0)
     score = models.IntegerField(default=0)
