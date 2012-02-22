@@ -29,6 +29,9 @@ Starting Shares = {{ game.starting_shares }}<br/>
     {% if error %}<strong style='color:red;'>{{ error }}</strong><br/>{% endif %}
     <form method='POST' action='/ncaa/join_game/'>{% csrf_token %}
         Entry Name: <input type='text' name='entry_name'> 
+        {% if game.password %}
+        <br/>Password: <input type='password' name='password'> 
+        {% endif %}
         <input type='hidden' name='game_id' value='{{game.id}}'>
         <input type='submit' value='Join Game'>
     </form>
