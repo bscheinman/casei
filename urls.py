@@ -5,6 +5,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    url(r'^$', 'casei.views.home'),
     url(r'^login/$', 'casei.views.login'),
     url(r'^signup/$', 'casei.views.signup'),
     url(r'^do_signup/$', 'casei.views.do_signup'),
