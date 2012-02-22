@@ -5,12 +5,17 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
+class GameType(models.Model):
+    name = models.CharField(max_length=20, unique=True)
+
+
 class NcaaGame(models.Model):
     name = models.CharField(max_length=50, unique=True)
     # Storing these in plain text for now
     password = models.CharField(blank=True, null=True, max_length=100)
     starting_shares = models.IntegerField(default=100)
     starting_points = models.IntegerField(default=0)
+    game_type = models.ForeignKey(GameType, blank=True, null=True, related_name='games') #This is only null for migration purposes
 
     def __str__(self):
         return self.name
@@ -55,6 +60,7 @@ class UserEntry(models.Model):
 class Team(models.Model):
     full_name = models.CharField(max_length=50, unique=True)
     abbrev_name = models.CharField(max_length=6, unique=True)
+    game_type = models.ForeignKey(GameType, blank=True, null=True, related_name='teams') #This is only null for migration purposes
 
     def __str__(self):
         return self.full_name
@@ -168,7 +174,7 @@ def update_team_scores(sender, instance, created, **kwargs):
 @receiver(post_save, sender=NcaaGame, weak=False)
 def populate_game(sender, instance, created, **kwargs):
     if created:
-        for team in Team.objects.all():
+        for team in Team.objects.filter(game_type=instance.game_type):
             GameTeam.objects.create(game=instance, team=team)
 
 
