@@ -28,6 +28,7 @@ class ScoreType(models.Model):
     name = models.CharField(max_length=30)
     default_score = models.IntegerField()
     ordering = models.IntegerField(unique=True) # this is for creating a manual ordering
+    game_type = models.ForeignKey(GameType, blank=True, null=True, related_name='score_types') #This is only null for migration purposes
 
     def __str__(self):
         return self.name
@@ -79,7 +80,6 @@ class GameTeam(models.Model):
 
     # We could pass in the multipliers for the team to the method so we don't need to make that db call for each game
     def update_score(self):
-        import pdb; pdb.set_trace()
         points = 0
         counts = self.team.counts
         multipliers = ScoringSetting.objects.filter(game=self.game)
@@ -180,12 +180,14 @@ def populate_game(sender, instance, created, **kwargs):
     if created:
         for team in Team.objects.filter(game_type=instance.game_type):
             GameTeam.objects.create(game=instance, team=team)
+        for scoreType in ScoreType.objects.filter(game_type=instance.game_type):
+            ScoringSetting.objects.create(game=instance, scoreType=scoreType, points=scoreType.default_score)
 
 
 @receiver(post_save, sender=Team, weak=False)
 def create_team_counts(sender, instance, created, **kwargs):
     if created:
-        for scoreType in ScoreType.objects.all():
+        for scoreType in ScoreType.objects.filter(game_type=instance.game_type):
             TeamScoreCount.objects.create(team=instance, scoreType=scoreType)
 
 
