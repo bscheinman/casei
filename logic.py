@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from urllib import urlencode
 from urllib2 import urlopen
