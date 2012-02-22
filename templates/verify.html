@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% if error %}
+Verification Failed
+{% else %}
+Verification Successful
+{% endif %}
+{% endblock title %}
+
+
+{% block body %}
+{% if error %}
+<span style='color:red;'>Verification failed: {{ error }}</span>
+{% else %}
+User {{ username }} verified successfully!
+{% endif %}
+{% endblock body %}
