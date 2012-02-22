@@ -1,4 +1,6 @@
 from casei.forms import LoginForm, SignupForm
+from casei.logic import send_verification_email
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -6,6 +8,10 @@ from django.template import RequestContext
 
 def render_with_request_context(request, page, context):
     return render_to_response(page, RequestContext(request, context))
+
+
+def home(request):
+    return
 
 
 def login(request):
