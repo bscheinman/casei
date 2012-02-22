@@ -18,7 +18,7 @@ class NcaaGame(models.Model):
     password = models.CharField(blank=True, null=True, max_length=100)
     starting_shares = models.IntegerField(default=100)
     starting_points = models.IntegerField(default=0)
-    game_type = models.ForeignKey(GameType, blank=True, null=True, related_name='games') #This is only null for migration purposes
+    game_type = models.ForeignKey(GameType, related_name='games')
 
     def __str__(self):
         return self.name
@@ -28,7 +28,7 @@ class ScoreType(models.Model):
     name = models.CharField(max_length=30)
     default_score = models.IntegerField()
     ordering = models.IntegerField(unique=True) # this is for creating a manual ordering
-    game_type = models.ForeignKey(GameType, blank=True, null=True, related_name='score_types') #This is only null for migration purposes
+    game_type = models.ForeignKey(GameType, related_name='score_types')
 
     def __str__(self):
         return self.name
@@ -64,7 +64,7 @@ class UserEntry(models.Model):
 class Team(models.Model):
     full_name = models.CharField(max_length=50, unique=True)
     abbrev_name = models.CharField(max_length=6, unique=True)
-    game_type = models.ForeignKey(GameType, blank=True, null=True, related_name='teams') #This is only null for migration purposes
+    game_type = models.ForeignKey(GameType, related_name='teams')
 
     def __str__(self):
         return self.full_name
