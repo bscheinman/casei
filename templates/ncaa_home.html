@@ -7,19 +7,19 @@
 
 <div id=''>
 {% if user.is_authenticated %}
-<form method='POST' action='/ncaa/do_logout/'>
+<form method='POST' action='/do_logout/'>
 {% csrf_token %}
 <input type='submit' value='Log Out'>
 </form>
 {% else %}
 <table><col width='1*'><col width='100'><col width='1*'><tr>
-    <td><form method='POST' action='/ncaa/join_game/'>
+    <td><form method='POST' action='/login/'>
         Username <input type='text' name='username'><br/>
         Password <input type='password' name='password'><br/>
         <input type='submit' value='Login' align='center'>
     </form></td>
     <td align='center'><h4>-OR-</h4></td>
-    <td align='center'><a href='/ncaa/signup/'><h4>Sign Up!</h4></a></td>
+    <td align='center'><a href='/signup/'><h4>Sign Up!</h4></a></td>
 </tr></table>
 {% endif %}
 {% endblock body %}
