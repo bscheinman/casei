@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     url(r'^do_signup/$', 'casei.views.do_signup'),
     url(r'^signup_thanks/$', 'casei.views.signup_thanks'),
     url(r'^do_logout/$', 'casei.views.do_logout'),
+    url(r'^verify/$', 'casei.views.verify'),
     url(r'^ncaa/', include('casei.ncaacards.urls')),
     # Examples:
     # url(r'^$', 'casei.views.home', name='home'),
