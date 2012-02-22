@@ -53,3 +53,8 @@ def entry_link(entry):
 @register.inclusion_tag('leaderboard.html')
 def leaderboard(leaders):
     return { 'leaders':leaders }
+
+
+@register.inclusion_tag('auth_block.html')
+def auth_block(user):
+    return { 'user':user }

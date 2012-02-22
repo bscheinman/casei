@@ -102,6 +102,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'startup.perm_init.PermissionInitMiddleware',
 )
 
 ROOT_URLCONF = 'casei.urls'
@@ -125,6 +126,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'casei.ncaacards',
+    'casei.profiles',
+    'casei.startup',
     'south'
 )
 
@@ -161,3 +164,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 AUTH_PROFILE_MODULE = 'profiles.UserProfile'
+
+BITLY_USERNAME = 'caseinsensitive'
+BITLY_APIKEY = 'R_f22d68584583bba4d59c25b899f2897c'

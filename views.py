@@ -1,6 +1,8 @@
 from casei.forms import LoginForm, SignupForm
 from casei.logic import send_verification_email
-from django.contrib.auth.models import User
+from casei.profiles.models import UserProfile
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import Group, User
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -11,10 +13,10 @@ def render_with_request_context(request, page, context):
 
 
 def home(request):
-    return
+    return render_with_request_context(request, 'home.html', { })
 
 
-def login(request):
+def do_login(request):
     if request.user.is_authenticated() or request.method != 'POST':
         return HttpResponseRedirect('/')
     error = ''
@@ -53,7 +55,8 @@ def do_signup(request):
         return render_with_request_context(request, 'signup.html', { 'form':form })
     data = form.cleaned_data
     user = User.objects.create_user(data['username'], data['email'], data['password'])
-    send_verification_email(user.email, user.profile.verification_id)
+    profile = UserProfile.objects.get(user=user)
+    send_verification_email(user.email, profile.verification_id)
 
     return HttpResponseRedirect('/signup_thanks/')
 
@@ -65,7 +68,7 @@ def signup_thanks(request):
 def do_logout(request):
     if request.user.is_authenticated():
         logout(request)
-    return HttpResponseRedirect('/ncaa/')
+    return HttpResponseRedirect('/')
 
 
 def verify(request, verify_id):
