@@ -8,6 +8,9 @@ from django.dispatch import receiver
 class GameType(models.Model):
     name = models.CharField(max_length=20, unique=True)
 
+    def __str__(self):
+        return self.name
+
 
 class NcaaGame(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -151,6 +154,7 @@ admin.site.register(ScoringSetting)
 admin.site.register(TradeOffer)
 admin.site.register(TradeSide)
 admin.site.register(TradeComponent)
+admin.site.register(GameType)
 
 @receiver(post_save, sender=UserEntry, weak=False)
 def complete_user_entry(sender, instance, created, **kwargs):
