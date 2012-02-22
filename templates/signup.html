@@ -3,14 +3,10 @@
 {% block title %}Sign Up for caSe inSEnSitiVE{% endblock title %}
 
 {% block body %}
-<form method='POST' action='/ncaa/do_signup/'>{% csrf_token %}
+<form method='POST' action='/do_signup/'>{% csrf_token %}
     {{ form.non_field_errors }}
     <table>
-        <tr><th><label for="id_username">Username:</label></th><td><input id="id_username" type="text" name="username" maxlength="30" />{{ form.username.errors }}</td></tr>
-        <tr><th><label for="id_email">Email:</label></th><td><input type="text" name="email" id="id_email" />{{ form.email.errors }}</td></tr>
-        <tr><th><label for="id_email_verify">Verify Email:</label></th><td><input type="text" name="email_verify" id="id_email_verify" />{{ form.email_verify.errors }}</td></tr>
-        <tr><th><label for="id_password">Password:</label></th><td><input id="id_password" type="password" name="password" maxlength="50" />{{ form.password.errors }}</td></tr>
-        <tr><th><label for="id_password_verify">Verify Password:</label></th><td><input id="id_password_verify" type="password" name="password_verify" maxlength="50" />{{ form.password_verify.errors }}</td></tr>
+        {{ form.as_table }}
     </table>
     <input type='submit' value='Sign Up'>
 </form>
