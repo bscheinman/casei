@@ -6,6 +6,7 @@
 {% block game_body %}
 <h2>{{ game.name }}</h2>
 
+{% if is_member %}
 <div id='leaderboard'>
 <strong>Leaderboard</strong><br/>
 {% leaderboard leaders %}
@@ -15,5 +16,20 @@
 <div id='marketplace'>
 <strong><a href='marketplace/'>Marketplace</a></strong><br/>
 </div>
+{% endif %}
+
+<div id='game_settings'>
+Game Settings:<br/>
+Starting Points = 
+{% if game.starting_points %}{{ game.starting_points }}{% else %}Disabled{% endif %}<br/>
+Starting Shares = {{ game.starting_shares }}<br/>
+</div><br/>
+
+{% if not is_member %}
+    <form method='POST' action='/ncaa/join_game/'>{% csrf_token %}
+        <input type='hidden' value='{{game.id}}'>
+        <input type='submit' value='Join Game'>
+    </form>
+{% endif %}
 
 {% endblock game_body %}

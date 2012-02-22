@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load ncaa_tags %}
+
+{% block title %}Join an Existing Game{% endblock title %}
+
+{% block body %}
+{% if entries %}
+    <strong>Your Entries</strong><br/>
+    {% for entry in entries %}
+        {% entry_link entry %} in {% game_link entry.game %}<br/>
+    {% endfor %}
+    <br/>
+{% endif %}
+
+{% if other_games %}
+    <strong>Other Games</strong><br/>
+    {% for game in other_games %}
+        {% game_link game %}<br/>
+    {% endfor %}<br/>
+{% else %}
+    <strong style='color:red;'>No other self_games exist</strong><br/>
+{% endif %}
+{% endblock body %}

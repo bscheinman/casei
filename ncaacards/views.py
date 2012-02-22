@@ -353,3 +353,11 @@ def do_create_game(request):
         game.save()
 
     return HttpResponseRedirect('/ncaa/game/%s/' % game.id)
+
+
+@login_required
+def game_list(request):
+    entries = request.user.entries.all()
+    query = ~Q(entries__in=entries)
+    other_games = NcaaGame.objects.filter(query)
+    return render_with_request_context(request, 'game_list.html', { 'entries':entries, 'other_games':other_games })
