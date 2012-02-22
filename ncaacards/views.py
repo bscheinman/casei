@@ -303,7 +303,8 @@ def do_create_game(request):
     game_type_str = post.get('game_type', '')
     starting_shares_str = post.get('starting_shares', '')
     starting_points_str = post.get('starting_points', '')
-    game_password = post.get('game_password', '')
+    game_password = post.get('password', '')
+    entry_name = post.get('entry_name', '')
 
     if not game_name:
         errors.append('You must specify a game name')
@@ -345,6 +346,9 @@ def do_create_game(request):
             if starting_points < 0:
                 errors.append('You must enter a non-negative number of starting points')
 
+    if not entry_name:
+        errors.append('You must specify an entry name')
+
     if errors:
         return render_with_request_context(request, 'create_game.html', { 'game_types':GameType.objects.all(), 'errors':errors })
 
@@ -352,6 +356,8 @@ def do_create_game(request):
     if game_password:
         game.password = game_password
         game.save()
+
+    entry = UserEntry.objects.create(game=game, user=request.user, entry_name=entry_name)
 
     return HttpResponseRedirect('/ncaa/game/%s/' % game.id)
 
@@ -368,6 +374,7 @@ def game_list(request):
 def join_game(request):
     game_id = request.POST.get('game_id', '')
     entry_name = request.POST.get('entry_name', '')
+    password = request.POST.get('password', '')
 
     game = get_game(game_id)
     if not game or request.method != 'POST':
@@ -384,6 +391,9 @@ def join_game(request):
             pass
         else:
             error = 'There is already an entry with the name %s in this game' % entry_name
+
+    if game.password and game.password != password:
+        error = 'Incorrect password'
 
     self_entry = get_entry(game, request.user)
     if self_entry:
