@@ -281,3 +281,72 @@ def offer_view(request, game_id, offer_id):
         return HttpResponseRedirect('/ncaa/game/%s/' % game_id)
 
     return render_with_request_context(request, 'offer_page.html', { 'game':game, 'self_entry':self_entry, 'offer':offer })
+
+
+@login_required
+def create_game(request):
+    return render_with_request_context(request, 'create_game.html', { 'game_types':GameType.objects.all() })
+
+
+@login_required
+def do_create_game(request):
+    if request.method != 'POST':
+        return HttpResponseRedirect('/ncaa/')
+    errors = []
+
+    post = request.POST
+    game_name = post.get('game_name', '')
+    game_type_str = post.get('game_type', '')
+    starting_shares_str = post.get('starting_shares', '')
+    starting_points_str = post.get('starting_points', '')
+    game_password = post.get('game_password', '')
+
+    if not game_name:
+        errors.append('You must specify a game name')
+    else:
+        try:
+            g = NcaaGame.objects.get(name=game_name)
+        except NcaaGame.DoesNotExist:
+            pass
+        else:
+            errors.append('A game with already exists with the name %s' % game_name)
+
+    if not game_type_str:
+        errors.append('You must specify a game type')
+    else:
+        try:
+            game_type = GameType.objects.get(name=game_type_str)
+        except GameType.DoesNotExist:
+            errors.append('%s is not a valid game type' % game_type_str)
+
+    if not starting_shares_str:
+        errors.append('You must specify the number of starting shares')
+    else:
+        try:
+            starting_shares = int(starting_shares_str)
+        except ValueError:
+            errors.append('You must enter a valid number of starting shares')
+        else:
+            if starting_shares <= 0:
+                errors.append('You must enter a positive number of starting shares')
+
+    if not starting_points_str:
+        errors.append('You must specify the number of starting points')
+    else:
+        try:
+            starting_points = int(starting_points_str)
+        except ValueError:
+            errors.append('You must enter a valid number of starting points')
+        else:
+            if starting_points < 0:
+                errors.append('You must enter a non-negative number of starting points')
+
+    if errors:
+        return render_with_request_context(request, 'create_game.html', { 'game_types':GameType.objects.all(), 'errors':errors })
+
+    game = NcaaGame.objects.create(name=game_name, game_type=game_type, starting_shares=starting_shares, starting_points=starting_points)
+    if game_password:
+        game.password = game_password
+        game.save()
+
+    return HttpResponseRedirect('/ncaa/game/%s/' % game.id)

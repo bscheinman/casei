@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Create New Game{% endblock title %}
+
+{% block body %}
+<form method='POST' action='/ncaa/do_create_game/'>{% csrf_token %}
+    <table>
+        <tr><td>Game Name</td><td><input type='text' name='game_name'></td></tr>
+        <tr><td>Game Type</td><td>
+            <select name='game_type'>
+                {% for game_type in game_types %}
+                    <option value='{{game_type.name}}'>{{ game_type.name }}</option><br/>
+                {% endfor %}
+            </select></td></tr>
+        <tr><td>Starting Shares</td><td><input type='text' name='starting_shares' value='100'></td></td>
+        <tr><td>Starting Points</td><td><input type='text' name='starting_points' value='0'></td></td>
+        <tr><td>Password (optional)</td><td><input type='password' name='game_password'></td></tr>
+        <tr><td></td><td><input type='submit' value='Create Game'></td></tr>
+    </table>
+</form>
+{% endblock body %}
