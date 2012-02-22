@@ -119,6 +119,7 @@ class TradeOffer(models.Model):
     bid_side = models.OneToOneField(TradeSide, related_name='bid_offer')
     ask_side = models.OneToOneField(TradeSide, related_name='ask_offer')
     accepting_user = models.ForeignKey(UserEntry, blank=True, null=True, related_name='accepted_trades')
+    offer_time = models.DateTimeField(auto_now_add=True)
 
     def is_accepted(self):
         return bool(self.accepting_user)

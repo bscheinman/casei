@@ -5,6 +5,11 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    url(r'^login/$', 'casei.views.login'),
+    url(r'^signup/$', 'casei.views.signup'),
+    url(r'^do_signup/$', 'casei.views.do_signup'),
+    url(r'^signup_thanks/$', 'casei.views.signup_thanks'),
+    url(r'^do_logout/$', 'casei.views.do_logout'),
     url(r'^ncaa/', include('casei.ncaacards.urls')),
     # Examples:
     # url(r'^$', 'casei.views.home', name='home'),

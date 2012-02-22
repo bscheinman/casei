@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect
 def home(request):
     return render_with_request_context(request, 'ncaa_home.html', { })
 
+
 @login_required
 def game_home(request, game_id):
     game = get_game(game_id)
@@ -23,12 +24,6 @@ def game_home(request, game_id):
     leaders = get_leaders(game)
 
     return render_with_request_context(request, 'game_home.html', { 'game':game, 'self_entry':entry, 'leaders':leaders })
-
-
-def do_logout(request):
-    if request.user.is_authenticated():
-        logout(request)
-    return HttpResponseRedirect('/ncaa/')
 
 
 @login_required
