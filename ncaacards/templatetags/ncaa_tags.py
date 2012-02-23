@@ -1,5 +1,7 @@
+from array import array
 from django import template
 register = template.Library()
+import random
 
 @register.filter
 def get_range(i):
@@ -63,3 +65,13 @@ def leaderboard(leaders):
 @register.inclusion_tag('auth_block.html')
 def auth_block(user):
     return { 'user':user }
+
+
+CI_LOWER = 'case insensitive'
+@register.inclusion_tag('ci_text.html')
+def ci_text():
+    ci_array = array('c', CI_LOWER)
+    for i in range(len(CI_LOWER)):
+        if random.randint(0,1):
+            ci_array[i] = ci_array[i].upper()
+    return { 'ci_text':ci_array.tostring() }
