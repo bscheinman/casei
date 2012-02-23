@@ -225,9 +225,12 @@ def make_offer(request, game_id):
             bid_team_name, bid_count_str = request.POST.get('bid_%s_team' % i, ''), request.POST.get('bid_%s_count' % i, '')
             bid = create_offer_component(bid_team_name, bid_count_str, game)
             if bid:
-                bid_team = bid[0]
+                bid_team, bid_count = bid
                 if bid_team in teams_in_offer:
                     raise Exception('Team %s cannot exist multiple times in the same offer' % bid_team.team.abbrev_name)
+                self_count = self_entry.teams.get(team=bid_team).count
+                if bid_count > self_count:
+                    raise Exception('You tried to offer %s shares of %s but you only own %s' % (bid_count, bid_team_name, self_count))
                 teams_in_offer.add(bid_team)
                 bids.append(bid)
             ask_team_name, ask_count_str = request.POST.get('ask_%s_team' % i, ''), request.POST.get('ask_%s_count' % i, '')
