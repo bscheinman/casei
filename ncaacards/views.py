@@ -406,6 +406,7 @@ def join_game(request):
     if error:
         return render_with_request_context(request, 'game_home.html', { 'game':game, 'self_entry':self_entry, 'error':error, 'leaders':get_leaders(game) })
     entry = UserEntry.objects.create(user=request.user, game=game, entry_name=entry_name)
+    entry.update_score()
 
     return HttpResponseRedirect('/ncaa/game/%s/entry/%s/' % (game_id, entry.id))
 
