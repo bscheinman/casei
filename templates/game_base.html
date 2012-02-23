@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
+{% load ncaa_tags %}
 
 {% block body %}
 {% if self_entry %}
+{% ci_text %} Trading Game<br/>
 <a href='/ncaa/game/{{game.id}}/'>{{ game.name }}</a> 
 <a href='/ncaa/game/{{game.id}}/entry/{{self_entry.id}}/'>{{ self_entry.entry_name }}</a> 
 <a href='/ncaa/game/{{game.id}}/create_offer/'>Create Offer</a>
