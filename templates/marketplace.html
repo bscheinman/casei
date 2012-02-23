@@ -7,7 +7,7 @@
     {% if offers %}
         <div id='offer_list'>
         {% for offer in offers %}
-            {% render_offer_table offer %}<br/>
+            {% render_offer_table offer self_entry %}<br/>
         {% endfor %}
         </div>
     {% endif %}

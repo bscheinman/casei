@@ -4,7 +4,7 @@
 {% block title %}{% ci_text %}{% endblock title %}
 
 {% block body %}
-{% ci_text %}
+{% ci_text %}<br/>
 {% if error %}<strong style='color:red;'>{{ error }}</strong><br/>{% endif %}
 {% auth_block user %}
 

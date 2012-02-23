@@ -4,5 +4,6 @@
 {% block title %}Trade Offer #{{offer.id}}{%endblock title %}
 
 {% block game_body %}
-{% render_offer_table offer %}
+{% if error %}<strong style='color:red;'>{{ error }}</strong><br/>{% endif %}
+{% render_offer_table offer self_entry %}
 {% endblock game_body %}

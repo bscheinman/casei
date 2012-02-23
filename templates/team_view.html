@@ -40,7 +40,7 @@
 <strong>Trades Offering {{ team.abbrev_name }}:</strong><br/>
 {% if offering_trades %}
     {% for trade in offering_trades %}
-        {% render_offer_table trade %}
+        {% render_offer_table trade self_entry %}
     {% endfor %}
 {% else %}
     <em>None</em>
@@ -51,7 +51,7 @@
 <strong>Trades Asking For {{ team.abbrev_name }}:</strong><br/>
 {% if asking_trades %}
     {% for trade in asking_trades %}
-        {% render_offer_table trade %}
+        {% render_offer_table trade self_entry %}
     {% endfor %}
 {% else %}
     <em>None</em>

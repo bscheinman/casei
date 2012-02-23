@@ -1,5 +1,6 @@
 from casei.fields import UUIDField
 from datetime import datetime
+from django.contrib import admin
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
@@ -13,6 +14,9 @@ class UserProfile(models.Model):
 
     def __unicode__(self):
         return self.user.username
+
+
+admin.site.register(UserProfile)
 
 
 # Automatically create a profile for each user that is created
