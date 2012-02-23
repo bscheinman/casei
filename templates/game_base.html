@@ -2,8 +2,9 @@
 
 {% block body %}
 {% if self_entry %}
-<a href='/ncaa/game/{{game.id}}/'>{{ game.name }}</a>
-<a href='/ncaa/game/{{game.id}}/entry/{{self_entry.id}}/'>{{ self_entry.entry_name }}</a>
+<a href='/ncaa/game/{{game.id}}/'>{{ game.name }}</a> 
+<a href='/ncaa/game/{{game.id}}/entry/{{self_entry.id}}/'>{{ self_entry.entry_name }}</a> 
+<a href='/ncaa/game/{{game.id}}/create_offer/'>Create Offer</a>
 {% endif %}
 {% block game_body %}{% endblock game_body %}
 {% endblock body %}
