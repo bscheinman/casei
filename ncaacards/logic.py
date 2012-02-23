@@ -71,3 +71,6 @@ def accept_trade(trade, accepting_entry):
     apply_trade_side(ask_components, ask_points, seller, seller_holdings, True)
     trade.accepting_user = accepting_entry
     trade.save()
+
+    trade.entry.update_score()
+    accepting_entry.update_score()

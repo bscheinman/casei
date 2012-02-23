@@ -195,4 +195,5 @@ def create_team_counts(sender, instance, created, **kwargs):
 # call update_score after each trade
 @receiver(post_save, sender=UserTeam, weak=False)
 def reflect_trade(sender, instance, created, **kwargs):
-    instance.entry.update_score()
+    pass
+    #instance.entry.update_score()
