@@ -4,9 +4,10 @@
 {% block body %}
 {% if self_entry %}
 {% ci_text %} Trading Game<br/>
+<a href='/ncaa/'>Home</a> 
 <a href='/ncaa/game/{{game.id}}/'>{{ game.name }}</a> 
 <a href='/ncaa/game/{{game.id}}/entry/{{self_entry.id}}/'>{{ self_entry.entry_name }}</a> 
-<a href='/ncaa/game/{{game.id}}/create_offer/'>Create Offer</a>
+<a href='/ncaa/game/{{game.id}}/create_offer/'>Create Offer</a><br/><br/>
 {% endif %}
 {% block game_body %}{% endblock game_body %}
 {% endblock body %}

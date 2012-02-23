@@ -1,3 +1,4 @@
+from casei.ncaacards.logic import accept_trade
 from casei.ncaacards.logic import get_leaders, get_game, get_entry
 from casei.ncaacards.models import *
 from casei.views import render_with_request_context
@@ -407,3 +408,28 @@ def join_game(request):
     entry = UserEntry.objects.create(user=request.user, game=game, entry_name=entry_name)
 
     return HttpResponseRedirect('/ncaa/game/%s/entry/%s/' % (game_id, entry.id))
+
+
+@login_required
+def accept_offer(request, game_id, offer_id):
+    game = get_game(game_id)
+    self_entry = get_entry(game, request.user)
+    if not self_entry or request.method != 'POST':
+        return HttpResponseRedirect('/ncaa/')
+
+    try:
+        offer = TradeOffer.objects.get(id=offer_id)
+    except TradeOffer.DoesNotExist:
+        return HttpResponseRedirect('/ncaa/game/%s/' % game_id)
+
+    error = ''
+    try:
+        accept_trade(offer, self_entry)
+    except Exception as e:
+        error = str(e)
+
+    if error:
+        return render_with_request_context(request, 'offer_page.html', { 'game':game, 'self_entry':self_entry, 'offer':offer, 'error':error })
+
+    return HttpResponseRedirect('/ncaa/game/%s/entry/%s/' % (game_id, self_entry.id))
+

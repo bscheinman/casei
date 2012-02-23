@@ -20,24 +20,25 @@ def get_leaders(game):
 
 def apply_trade_side(components, points, entry, holdings, addOrRemove):
     for component in components:
-        holding = holdings.get(team__team=component.team)
+        holding = holdings.get(team=component.team)
         if addOrRemove:
             holding.count += component.count
         else:
             holding.count -= component.count
         holding.save()
-    if addOrRemove:
-        entry.extra_points += points
-    else:
-        entry.extra_points -= points
+    if points:
+        if addOrRemove:
+            entry.extra_points += points
+        else:
+            entry.extra_points -= points
     entry.save()
         
 
 def validate_trade_side(components, trade_points, entry, holdings):
     for component in components:
-        if component.count > holdings.get(team__team=component.team).count:
+        if component.count > holdings.get(team=component.team).count:
             return False
-    return entry.points >= trade_points
+    return entry.extra_points >= trade_points
 
 
 
@@ -48,8 +49,8 @@ def accept_trade(trade, accepting_entry):
     if accepting_entry == trade.entry:
         raise Exception('Users cannot accept their own trades')
 
-    bid_components = trade.bid_side.components
-    ask_components = trade.ask_side.components
+    bid_components = trade.bid_side.components.all()
+    ask_components = trade.ask_side.components.all()
     
     bid_points = trade.bid_side.points
     ask_points = trade.ask_side.points
@@ -57,11 +58,11 @@ def accept_trade(trade, accepting_entry):
     seller = trade.entry
     buyer = accepting_entry
 
-    seller_holdings = seller.teams
-    buyer_holdings = buyer.teams
+    seller_holdings = seller.teams.all()
+    buyer_holdings = buyer.teams.all()
 
-    if not (validate_trade_side(bid_components, bid_points, seller_holdings, seller.extra_points)\
-            and validate_trade_side(ask_components, ask_points, buyer_holdings, buyer.extra_points)):
+    if not (validate_trade_side(bid_components, bid_points, seller, seller_holdings)\
+            and validate_trade_side(ask_components, ask_points, buyer, buyer_holdings)):
         raise Exception('Entries do not have sufficient resources to complete the trade')
 
     apply_trade_side(bid_components, bid_points, seller, seller_holdings, False)

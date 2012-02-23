@@ -25,4 +25,11 @@
     </tr>
 {% endfor %}
 <tr/><tr><td>Total</td><td>{{ bid_total }}</td><td>Total</td><td>{{ ask_total }}</td></tr>
-</table>
+</table><br/>
+
+{% if can_claim %}
+<form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/accept/'>
+{% csrf_token %}
+<input type='submit' value='Accept Trade'>
+</form>
+{% endif %}

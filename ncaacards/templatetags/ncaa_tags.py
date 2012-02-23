@@ -9,7 +9,7 @@ def get_range(i):
 
 
 @register.inclusion_tag('offer_table.html')
-def render_offer_table(offer):
+def render_offer_table(offer, entry):
     rows = []
     bids, asks = list(offer.bid_side.components.all()), list(offer.ask_side.components.all())
     bid_points, ask_points = offer.bid_side.points, offer.ask_side.points
@@ -39,7 +39,9 @@ def render_offer_table(offer):
                 ask_total += ask
         rows.append((bid, ask))
 
-    return { 'rows':rows, 'bid_points':bid_points, 'ask_points':ask_points, 'bid_total':bid_total, 'ask_total':ask_total }
+    can_claim = offer.entry.id != entry.id and not offer.is_accepted()
+
+    return { 'offer':offer, 'rows':rows, 'bid_points':bid_points, 'ask_points':ask_points, 'bid_total':bid_total, 'ask_total':ask_total, 'can_claim':can_claim }
 
 
 @register.inclusion_tag('team_link.html')
