@@ -16,6 +16,10 @@ def home(request):
     return render_with_request_context(request, 'home.html', { })
 
 
+def login_page(request):
+    return render_with_request_context(request, 'login.html', { })
+
+
 def do_login(request):
     if request.user.is_authenticated() or request.method != 'POST':
         return HttpResponseRedirect('/')

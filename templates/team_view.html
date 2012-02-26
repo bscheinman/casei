@@ -6,9 +6,8 @@
 {% block game_body %}
 <h2>{{ team.full_name }} ({{ team.abbrev_name }})</h2>
 
-<div id='score_counts'>
-<strong>Scoring</strong>
-<table border='1'>
+<div id='score_counts' class='span5'>
+<table class='table table-bordered table-striped table-condensed'>
 {% if game %}
     <tr><td></td><td>Wins</td><td>Points</td></tr>
     {% for scoreType, count, row_score in score_counts %}
@@ -24,38 +23,66 @@
         <td>{{ count }}</td></tr>
     {% endfor %}
 {% endif %}
-</table>
+</table><br/>
+{% if game %}
+    <div id='top_owners' class='well span3'>
+        <strong>Top Owners</strong><br/>
+        {% for owner, count in top_owners %}
+            {% entry_link owner %}: {{ count }} shares<br/>
+        {% endfor %}
+    </div>
+
+    <div id='offering_entries' class='well span3'>
+        <strong>Entries Offering {{ team.full_name }}:</strong><br/>
+        {% if offering_entries %}
+            <ul>
+                {% for entry in offering_entries %}
+                    <li>{% entry_link entry %}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <em>None</em>
+        {% endif %}
+    </div>
+
+    <div id='asking_entries' class='well span3'>
+        <strong>Entries Asking for {{ team.full_name }}:</strong><br/>
+        {% if offering_entries %}
+            <ul>
+                {% for entry in offering_entries %}
+                    <li>{% entry_link entry %}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <em>None</em>
+        {% endif %}
+    </div>
+{% endif %}
 </div>
 
 {% if game %}
-<br/><br/>
-<div id='top_owners'>
-<strong>Top Owners</strong><br/>
-{% for owner, count in top_owners %}
-    {% entry_link owner %}: {{ count }} shares<br/>
-{% endfor %}
-</div><br/>
+<div class='span5'>
+    <div id='trades_offering' class='well span3'>
+    <strong>Trades Offering {{ team.full_name }}:</strong><br/>
+    {% if offering_trades %}
+        {% for trade in offering_trades %}
+            {% render_offer_table trade self_entry %}
+        {% endfor %}
+    {% else %}
+        <em>None</em>
+    {% endif %}
+    </div><br/>
 
-<div id='trades_offering'>
-<strong>Trades Offering {{ team.abbrev_name }}:</strong><br/>
-{% if offering_trades %}
-    {% for trade in offering_trades %}
-        {% render_offer_table trade self_entry %}
-    {% endfor %}
-{% else %}
-    <em>None</em>
-{% endif %}
-</div><br/>
-
-<div id='trades_asking'>
-<strong>Trades Asking For {{ team.abbrev_name }}:</strong><br/>
-{% if asking_trades %}
-    {% for trade in asking_trades %}
-        {% render_offer_table trade self_entry %}
-    {% endfor %}
-{% else %}
-    <em>None</em>
-{% endif %}
+    <div id='trades_asking' class='well span3'>
+    <strong>Trades Asking For {{ team.full_name }}:</strong><br/>
+    {% if asking_trades %}
+        {% for trade in asking_trades %}
+            {% render_offer_table trade self_entry %}
+        {% endfor %}
+    {% else %}
+        <em>None</em>
+    {% endif %}
+    </div>
 </div>
 {% endif %}
 

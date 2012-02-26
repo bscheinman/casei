@@ -6,7 +6,8 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', 'casei.views.home'),
-    url(r'^login/$', 'casei.views.do_login'),
+    url(r'^login/$', 'casei.views.login_page'),
+    url(r'^do_login/$', 'casei.views.do_login'),
     url(r'^signup/$', 'casei.views.signup'),
     url(r'^do_signup/$', 'casei.views.do_signup'),
     url(r'^signup_thanks/$', 'casei.views.signup_thanks'),

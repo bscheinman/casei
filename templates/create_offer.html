@@ -3,12 +3,8 @@
 
 {% block title %}Create Offer{% endblock title %}
 
-{% block scripts %}
-
-{% endblock scripts %}
-
 {% block game_body %}
-<form method='POST' action='/ncaa/game/{{game.id}}/make_offer/'>{% csrf_token %}
+<form method='POST' action='/ncaa/game/{{game.id}}/make_offer/' class='well'>{% csrf_token %}
 {% if error %}<strong style='color:red;'>{{error}}</strong><br/>{% endif %}
 <table>
 <tr><td colspan='2'>Offer</td><td colspan='2'>Ask For</td></tr>

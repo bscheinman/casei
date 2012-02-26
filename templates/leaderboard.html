@@ -1,7 +1,9 @@
+{% extends 'game_base.html' %}
 {% load ncaa_tags %}
 
+{% block game_body %}
 <div id='leaders_table'>
-<table border='1'>
+<table class='table table-striped table-bordered table-condensed span4'>
 <tr><td>Entry</td><td>Score</td></tr>
 {% for leader in leaders %}
     <tr><td>{% entry_link leader %}</td>
@@ -9,3 +11,4 @@
 {% endfor %}
 </table>
 </div>
+{% endblock game_body %}

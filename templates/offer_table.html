@@ -1,6 +1,7 @@
+{# This assumes that the bootstrap static files are included in the calling template #}
 {% load ncaa_tags %}
 
-<table border='1'>
+<table class='table table-bordered table-striped table-condensed'>
 <tr><td colspan='2'>Offering</td><td colspan='2'>Asking</td></tr>
 {% for bid, ask in rows %}
     <tr>
