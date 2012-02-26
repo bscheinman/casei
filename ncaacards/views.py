@@ -78,8 +78,7 @@ def marketplace(request, game_id):
     if not entry:
         return HttpResponseRedirect('/ncaa/')
         
-
-    offers_query = Q(entry__game=game, accepting_user=None)
+    offers_query = Q(entry__game=game, accepting_user=None, is_active=True)
 
     ask_filter = request.GET.get('ask_filter', '')
     bid_filter = request.GET.get('bid_filter', '')
@@ -136,8 +135,8 @@ def create_team_context(request, **kwargs):
             top_owners_list.append((owner.entry, owner.count))
         context['top_owners'] = top_owners_list
 
-        offering_trades = TradeOffer.objects.filter(entry__game=game, bid_side__components__team=game_team)
-        asking_trades = TradeOffer.objects.filter(entry__game=game, ask_side__components__team=game_team)
+        offering_trades = TradeOffer.objects.filter(entry__game=game, bid_side__components__team=game_team, accepting_user=None, is_active=True)
+        asking_trades = TradeOffer.objects.filter(entry__game=game, ask_side__components__team=game_team, accepting_user=None, is_active=True)
 
         context['offering_trades'] = offering_trades
         context['asking_trades'] = asking_trades
@@ -440,6 +439,27 @@ def accept_offer(request, game_id, offer_id):
         return render_with_request_context(request, 'offer_page.html', context)
 
     return HttpResponseRedirect('/ncaa/game/%s/entry/%s/' % (game_id, self_entry.id))
+
+
+@login_required
+def retract_offer(request, game_id, offer_id):
+    try:
+        offer = TradeOffer.objects.get(id=offer_id)
+    except TradeOffer.DoesNotExist:
+        return HttpResponseRedirect('/ncaa/game/%s/' % game_id)
+
+    context = get_base_context(request, game_id, offer=offer)
+    self_entry = context.get('self_entry', None)
+    if not self_entry:
+        return HttpResponseRedirect('/ncaa/')
+
+    error = ''
+    if offer.is_accepted():
+        error = 'This offer has already been accepted'
+    else:
+        offer.is_active = False
+        offer.save()
+
 
 
 @login_required

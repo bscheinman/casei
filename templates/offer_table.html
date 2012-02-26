@@ -30,14 +30,16 @@
 </table>
 
 {% if can_claim %}
-<form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/accept/' class='span2'>
-    {% csrf_token %}
-    <button type='submit' class='btn btn-success'>Accept Offer</button>
-</form>
+    <form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/accept/' class='span2'>
+        {% csrf_token %}
+        <button type='submit' class='btn btn-success'>Accept Offer</button>
+    </form>
 {% else %}
-<form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/retract/' class='span2'>
-    {% csrf_token %}
-    <button type='submit' class='btn btn-danger'>Retract Offer</button>
-<form>
+    {% if can_retract %}
+        <form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/retract/' class='span2'>
+            {% csrf_token %}
+            <button type='submit' class='btn btn-danger'>Retract Offer</button>
+        <form>
+    {% endif %}
 {% endif %}
 </div>
