@@ -35,10 +35,10 @@
         <button type='submit' class='btn btn-success'>Accept Offer</button>
     </form>
 {% else %}
-    {% if can_retract %}
-        <form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/retract/' class='span2'>
+    {% if can_cancel %}
+        <form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/cancel/' class='span2'>
             {% csrf_token %}
-            <button type='submit' class='btn btn-danger'>Retract Offer</button>
+            <button type='submit' class='btn btn-danger'>Cancel Offer</button>
         <form>
     {% endif %}
 {% endif %}
