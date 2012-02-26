@@ -1,5 +1,5 @@
 from casei.ncaacards.logic import accept_trade
-from casei.ncaacards.logic import get_leaders, get_game, get_entry
+from casei.ncaacards.logic import get_leaders, get_game, get_entry, get_team_from_identifier
 from casei.ncaacards.models import *
 from casei.views import render_with_request_context
 from django.contrib.auth import logout
@@ -7,11 +7,27 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 
+
+def get_base_context(request, game_id, **kwargs):
+    context = {}
+    for key in kwargs:
+        context[key] = kwargs[key]
+    game, self_entry = None, None
+    if game_id:
+        game = get_game(game_id)
+    context['game'] = game
+    if request.user.is_authenticated():
+        context['user_entries'] = UserEntry.objects.filter(user=request.user)
+        if game:
+            context['self_entry'] = get_entry(game, request.user)
+    return context
+
+
 def home(request):
     entries = []
     if request.user.is_authenticated():
         entries = request.user.entries.all()
-    return render_with_request_context(request, 'ncaa_home.html', { 'entries':entries })
+    return render_with_request_context(request, 'ncaa_home.html', get_base_context(request, None))
 
 
 @login_required
@@ -26,9 +42,8 @@ def game_home(request, game_id):
     except UserEntry.DoesNotExist:
         pass
 
-    leaders = get_leaders(game)
-
-    return render_with_request_context(request, 'game_home.html', { 'game':game, 'self_entry':entry, 'leaders':leaders })
+    context = get_base_context(request, game_id, leaders=get_leaders(game))
+    return render_with_request_context(request, 'game_home.html', context)
 
 
 @login_required
@@ -52,7 +67,8 @@ def entry_view(request, game_id, entry_id):
     
     # sort by team name
     teams = sorted(teams, key=lambda x: x[0].team.abbrev_name)
-    return render_with_request_context(request, 'entry.html', { 'game':game, 'self_entry':self_entry, 'entry':entry, 'teams':teams })
+    context = get_base_context(request, game_id, entry=entry, teams=teams)
+    return render_with_request_context(request, 'entry.html', context)
 
 
 @login_required
@@ -74,8 +90,8 @@ def marketplace(request, game_id):
         offers_query = offers_query & Q(bid_side__components__team__abbrev_name__iexact=bid_filter)
 
     offers = TradeOffer.objects.filter(offers_query)
-    
-    return render_with_request_context(request, 'marketplace.html', { 'game':game, 'self_entry':entry, 'offers':offers })
+    context = get_base_context(request, game_id, offers=offers)
+    return render_with_request_context(request, 'marketplace.html', context)
 
 
 @login_required
@@ -86,26 +102,11 @@ def leaderboard(request, game_id):
         return HttpResponseRedirect('/ncaa/')
 
     leaders = get_leaders(game)
-
-    return render_with_request_context(request, 'leaderboard.html', { 'game':game, 'self_entry':entry, 'leaders':leaders })
-
-
-def get_team_from_identifier(team_id):
-    try:
-        num_id = int(team_id)
-        team_query = Q(id=num_id)
-    except ValueError:
-        team_query = Q(abbrev_name__iexact=team_id)
-
-    try:
-        team = Team.objects.get(team_query)
-    except Team.DoesNotExist:
-        return None
-    
-    return team
+    context = get_base_context(request, game_id, leaders=leaders)
+    return render_with_request_context(request, 'leaderboard.html', context)
 
 
-def create_team_context(**kwargs):
+def create_team_context(request, **kwargs):
     team = kwargs['team']
     game = kwargs.get('game', None)
 
@@ -121,7 +122,7 @@ def create_team_context(**kwargs):
         else:
             score_counts_list.append((score_count.scoreType.name, score_count.count))
 
-    context = { 'team':team, 'score_counts':score_counts_list }
+    context = get_base_context(request, game.id, team=team, score_counts=score_counts_list)
     if game:
         game_team = GameTeam.objects.get(game=game, team=team)
 
@@ -149,7 +150,7 @@ def team_view(request, team_id):
     if not team:
         return HttpResponseRedirect('/ncaa/')
 
-    return render_with_request_context(request, 'team_view.html', create_team_context(team=team))
+    return render_with_request_context(request, 'team_view.html', create_team_context(request, team=team))
 
 
 @login_required
@@ -163,9 +164,8 @@ def game_team_view(request, game_id, team_id):
     if not team:
         return HttpResponseRedirect('/ncaa/')
 
-    context = create_team_context(team=team, game=game)
+    context = create_team_context(request, team=team, game=game)
     context['self_entry'] = entry
-
     return render_with_request_context(request, 'team_view.html', context)
 
 
@@ -182,8 +182,8 @@ def create_offer(request, game_id, **kwargs):
 
     error = kwargs.get('error', '')
 
-    return render_with_request_context(request, 'create_offer.html', { 'game':game, 'self_entry':entry,\
-        'all_teams':all_teams, 'max_offer_size':MAX_OFFER_SIZE, 'error':error })
+    context = get_base_context(request, game_id, all_teams=all_teams, max_offer_size=MAX_OFFER_SIZE, error=error)
+    return render_with_request_context(request, 'create_offer.html', context)
 
 
 def create_offer_component(team_name, count_str, game):
@@ -288,12 +288,15 @@ def offer_view(request, game_id, offer_id):
     except TradeOffer.DoesNotExist:
         return HttpResponseRedirect('/ncaa/game/%s/' % game_id)
 
-    return render_with_request_context(request, 'offer_page.html', { 'game':game, 'self_entry':self_entry, 'offer':offer })
+    context = get_base_context(request, game_id, offer=offer)
+
+    return render_with_request_context(request, 'offer_page.html', context)
 
 
 @login_required
 def create_game(request):
-    return render_with_request_context(request, 'create_game.html', { 'game_types':GameType.objects.all() })
+    context = get_base_context(request, None, game_types=GameType.objects.all())
+    return render_with_request_context(request, 'create_game.html', context)
 
 
 @login_required
@@ -354,7 +357,8 @@ def do_create_game(request):
         errors.append('You must specify an entry name')
 
     if errors:
-        return render_with_request_context(request, 'create_game.html', { 'game_types':GameType.objects.all(), 'errors':errors })
+        context = get_base_context(request, None, game_types=GameType.objects.all(), errors=errors)
+        return render_with_request_context(request, 'create_game.html', context)
 
     game = NcaaGame.objects.create(name=game_name, game_type=game_type, starting_shares=starting_shares, starting_points=starting_points)
     if game_password:
@@ -371,7 +375,8 @@ def game_list(request):
     entries = request.user.entries.all()
     query = ~Q(entries__in=entries)
     other_games = NcaaGame.objects.filter(query)
-    return render_with_request_context(request, 'game_list.html', { 'entries':entries, 'other_games':other_games })
+    context = get_base_context(request, None, entries=entries, other_games=other_games)
+    return render_with_request_context(request, 'game_list.html', context)
 
 
 @login_required
@@ -404,7 +409,8 @@ def join_game(request):
         error = 'You already have an entry in this game'
 
     if error:
-        return render_with_request_context(request, 'game_home.html', { 'game':game, 'self_entry':self_entry, 'error':error, 'leaders':get_leaders(game) })
+        context = get_base_context(request, game_id, error=error, leaders=get_leaders(game))
+        return render_with_request_context(request, 'game_home.html', context)
     entry = UserEntry.objects.create(user=request.user, game=game, entry_name=entry_name)
     entry.update_score()
 
@@ -430,7 +436,16 @@ def accept_offer(request, game_id, offer_id):
         error = str(e)
 
     if error:
-        return render_with_request_context(request, 'offer_page.html', { 'game':game, 'self_entry':self_entry, 'offer':offer, 'error':error })
+        context = get_base_context(request, game_id, offer=offer, error=error)
+        return render_with_request_context(request, 'offer_page.html', context)
 
     return HttpResponseRedirect('/ncaa/game/%s/entry/%s/' % (game_id, self_entry.id))
 
+
+@login_required
+def leaderboard(request, game_id):
+    context = get_base_context(request, game_id)
+    if 'self_entry' not in context:
+        return HttpResponseRedirect('/ncaa/')
+    context['leaders'] = get_leaders(context['game'])
+    return render_with_request_context(request, 'leaderboard.html', context)

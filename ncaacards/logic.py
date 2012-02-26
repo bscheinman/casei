@@ -1,4 +1,5 @@
-from casei.ncaacards.models import NcaaGame, TradeComponent, UserEntry, UserTeam
+from casei.ncaacards.models import NcaaGame, Team, TradeComponent, UserEntry, UserTeam
+from django.db.models import Q
 
 def get_game(game_id):
     try:
@@ -74,3 +75,18 @@ def accept_trade(trade, accepting_entry):
 
     trade.entry.update_score()
     accepting_entry.update_score()
+
+
+def get_team_from_identifier(team_id):
+    try:
+        num_id = int(team_id)
+        team_query = Q(id=num_id)
+    except ValueError:
+        team_query = Q(abbrev_name__iexact=team_id)
+
+    try:
+        team = Team.objects.get(team_query)
+    except Team.DoesNotExist:
+        return None
+    
+    return team

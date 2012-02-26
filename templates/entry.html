@@ -10,7 +10,7 @@ Score: {{ entry.score }}<br/>
 <br/><br/><table cellpadding='20'><tr>
 <td><div id='holdings'>
 <h3>Holdings:</h3><br/>
-<table border='1'>
+<table class='table table-bordered table-striped table-condensed'>
 <tr><td>Shares</td><td>Team</td><td>Points/Share</td><td>Total Points</td></tr>
 {% for team, shares, team_points in teams %}
     <tr>
@@ -20,7 +20,7 @@ Score: {{ entry.score }}<br/>
     <td>{{ team_points }}</td>
     </tr>
 {% endfor %}
-<tr><td></td><td>Total</td><td></td><td>{{ entry.score }}</td></tr>
+<tr><td></td><td><b>Total</b></td><td></td><td>{{ entry.score }}</td></tr>
 </table>
 </div></td>
 
@@ -49,6 +49,6 @@ Score: {{ entry.score }}<br/>
 {% endwith %}
 </div></td>
 
-</tr></table/home/brendon/source/sherpas/tasks/templatetags/__init__.py>
+</tr></table>
 
 {% endblock game_body %}

@@ -1,8 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'game_base.html' %}
 
 {% block title %}Create New Game{% endblock title %}
 
-{% block body %}
+{% block game_body %}
 <form method='POST' action='/ncaa/do_create_game/'>{% csrf_token %}
     <table>
         <tr><td>Game Name</td><td><input type='text' name='game_name'></td></tr>
@@ -19,4 +19,4 @@
         <tr><td></td><td><input type='submit' value='Create Game'></td></tr>
     </table>
 </form>
-{% endblock body %}
+{% endblock game_body %}
