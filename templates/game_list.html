@@ -5,11 +5,17 @@
 
 {% block game_body %}
 {% if other_games %}
-    <strong>Other Games</strong><br/>
-    {% for game in other_games %}
-        {% game_link game %}<br/>
-    {% endfor %}<br/>
+    <strong>Games</strong><br/>
+    <div id='game_list' class='well span6'>
+        <ul>
+            {% for game in other_games %}
+                <li>{% game_link game %}</li>
+            {% endfor %}<br/>
+        </ul>
+    </div>
 {% else %}
-    <strong style='color:red;'>No other self_games exist</strong><br/>
+    <div class='alert alert-error span4'>
+        No other games exist!
+    </div>
 {% endif %}
 {% endblock game_body %}

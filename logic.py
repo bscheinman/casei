@@ -4,7 +4,6 @@ from urllib import urlencode
 from urllib2 import urlopen
 
 
-
 def shorten_url(long_url):
     username = settings.BITLY_USERNAME
     apiKey= settings.BITLY_APIKEY
@@ -28,3 +27,11 @@ def send_verification_email(email, verify_id):
     msg = EmailMultiAlternatives(subject, '', from_email, [to_email])
     msg.attach_alternative(html_content, 'text/html')
     msg.send()
+
+
+def get_login_redirect(redirect_key):
+    return settings.LOGIN_REDIRECTS.get(redirect_key, settings.DEFAULT_LOGIN_REDIRECT)
+
+
+def get_login_render_page(redirect_key):
+    return settings.LOGIN_RENDERS.get(redirect_key, settings.DEFAULT_LOGIN_RENDER)

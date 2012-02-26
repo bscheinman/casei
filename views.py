@@ -1,5 +1,5 @@
 from casei.forms import LoginForm, SignupForm
-from casei.logic import send_verification_email
+from casei.logic import get_login_redirect, get_login_render_page, send_verification_email
 from casei.profiles.models import UserProfile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group, User
@@ -13,7 +13,8 @@ def render_with_request_context(request, page, context):
 
 
 def home(request):
-    return render_with_request_context(request, 'home.html', { })
+    #return render_with_request_context(request, 'home.html', { })
+    return HttpResponseRedirect('/ncaa/')
 
 
 def login_page(request):
@@ -40,9 +41,11 @@ def do_login(request):
             error = 'Invalid username or password'
     else:
         error = 'Please enter a valid username and password'
+
+    redirect_target = request.POST.get('redirect_target', '')
     if error:
-        return render_with_request_context(request, 'home.html', { 'error':error })
-    return HttpResponseRedirect('/')
+        return render_with_request_context(request, get_login_render_page(redirect_target), { 'login_error':error })
+    return HttpResponseRedirect(get_login_redirect(request.POST.get(redirect_target)))
 
 
 def signup(request):
