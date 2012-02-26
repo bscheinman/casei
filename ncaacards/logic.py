@@ -1,5 +1,6 @@
 from casei.ncaacards.models import NcaaGame, Team, TradeComponent, UserEntry, UserTeam
 from django.db.models import Q
+import datetime
 
 def get_game(game_id):
     try:
@@ -71,6 +72,7 @@ def accept_trade(trade, accepting_entry):
     apply_trade_side(bid_components, bid_points, buyer, buyer_holdings, True)
     apply_trade_side(ask_components, ask_points, seller, seller_holdings, True)
     trade.accepting_user = accepting_entry
+    trade.accept_time = datetime.datetime.now()
     trade.save()
 
     trade.entry.update_score()
