@@ -39,7 +39,12 @@ def render_offer_table(offer, entry):
                 ask_total += ask
         rows.append((bid, ask))
 
-    can_claim = offer.entry.id != entry.id and not offer.is_accepted()
+    can_claim, can_retract = False, False
+    if not offer.is_accepted():
+        if offer.entry.id == entry.id:
+            can_retract = True
+        else:
+            can_claim = True
 
     return { 'offer':offer, 'rows':rows, 'bid_points':bid_points, 'ask_points':ask_points, 'bid_total':bid_total, 'ask_total':ask_total, 'can_claim':can_claim }
 
