@@ -168,3 +168,9 @@ AUTH_PROFILE_MODULE = 'profiles.UserProfile'
 
 BITLY_USERNAME = 'caseinsensitive'
 BITLY_APIKEY = 'R_f22d68584583bba4d59c25b899f2897c'
+
+LOGIN_REDIRECTS = { 'ncaa_home':'/ncaa/' }
+DEFAULT_LOGIN_REDIRECT = '/ncaa/'
+
+LOGIN_RENDERS = { 'ncaa_home':'ncaa_home.html' }
+DEFAULT_LOGIN_RENDER = 'ncaa_home.html'

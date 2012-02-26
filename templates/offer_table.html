@@ -1,7 +1,8 @@
 {# This assumes that the bootstrap static files are included in the calling template #}
 {% load ncaa_tags %}
 
-<table class='table table-bordered table-striped table-condensed'>
+<div id='offer offer-{{offer.id}}' class='well span4'>
+<table class='table table-bordered table-striped table-condensed span3'>
 <tr><td colspan='2'>Offering</td><td colspan='2'>Asking</td></tr>
 {% for bid, ask in rows %}
     <tr>
@@ -26,11 +27,17 @@
     </tr>
 {% endfor %}
 <tr/><tr><td>Total</td><td>{{ bid_total }}</td><td>Total</td><td>{{ ask_total }}</td></tr>
-</table><br/>
+</table>
 
 {% if can_claim %}
-<form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/accept/'>
-{% csrf_token %}
-<input type='submit' value='Accept Trade'>
+<form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/accept/' class='span2'>
+    {% csrf_token %}
+    <button type='submit' class='btn btn-success'>Accept Offer</button>
 </form>
+{% else %}
+<form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/retract/' class='span2'>
+    {% csrf_token %}
+    <button type='submit' class='btn btn-danger'>Retract Offer</button>
+<form>
 {% endif %}
+</div>
