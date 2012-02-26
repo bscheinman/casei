@@ -442,7 +442,7 @@ def accept_offer(request, game_id, offer_id):
 
 
 @login_required
-def retract_offer(request, game_id, offer_id):
+def cancel_offer(request, game_id, offer_id):
     try:
         offer = TradeOffer.objects.get(id=offer_id)
     except TradeOffer.DoesNotExist:
@@ -460,6 +460,8 @@ def retract_offer(request, game_id, offer_id):
         offer.is_active = False
         offer.save()
 
+    context['error'] = error
+    return render_with_request_context(request, 'offer_page.html', context)
 
 
 @login_required

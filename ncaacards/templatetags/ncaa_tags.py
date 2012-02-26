@@ -39,14 +39,14 @@ def render_offer_table(offer, entry):
                 ask_total += ask
         rows.append((bid, ask))
 
-    can_claim, can_retract = False, False
+    can_claim, can_cancel = False, False
     if not offer.is_accepted():
-        if offer.entry.id == entry.id:
-            can_retract = True
-        else:
+        if offer.entry.id != entry.id:
             can_claim = True
+        elif offer.is_active:
+            can_cancel = True
 
-    return { 'offer':offer, 'rows':rows, 'bid_points':bid_points, 'ask_points':ask_points, 'bid_total':bid_total, 'ask_total':ask_total, 'can_claim':can_claim }
+    return { 'offer':offer, 'rows':rows, 'bid_points':bid_points, 'ask_points':ask_points, 'bid_total':bid_total, 'ask_total':ask_total, 'can_claim':can_claim, 'can_cancel':can_cancel }
 
 
 @register.inclusion_tag('team_link.html')
