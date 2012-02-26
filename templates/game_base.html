@@ -44,7 +44,7 @@
                     {% if user_entries %}
                         <li>
                             <div class='game-select btn-group'>
-                                <a class='btn dropdown-toggle' data-toggle='dropdown' href='#'>Your Entries<span class='caret'></span></a>
+                                <a class='btn dropdown-toggle' data-toggle='dropdown' href='#'>Your Entries <span class='caret'></span></a>
                                 <ul class='dropdown-menu'>
                                     {% for entry in user_entries %}
                                         <li><a href='/ncaa/game/{{entry.game.id}}/entry/{{entry.id}}/'>{{ entry.entry_name }}</a></li>
@@ -63,7 +63,7 @@
                         <li><a href='/ncaa/game/{{game.id}}/create_offer/'>Create Offer</a></li>
                         <li>
                             <div class='entry-select btn-group'>
-                                <a class='btn dropdown-toggle' data-toggle='dropdown' href='#'>{{ game.name }} Entries<span class='caret'></span></a>
+                                <a class='btn dropdown-toggle' data-toggle='dropdown' href='#'>{{ game.name }} Entries <span class='caret'></span></a>
                                 <ul class='dropdown-menu'>
                                     {% for entry in game.entries.all %}
                                         <li><a href='/ncaa/game/{{game.id}}/entry/{{entry.id}}/'>{{ entry.entry_name }}</a></li>
