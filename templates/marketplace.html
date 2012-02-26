@@ -6,9 +6,11 @@
 
     {% if offers %}
         <div id='offer_list'>
-        {% for offer in offers %}
-            {% render_offer_table offer self_entry %}<br/>
-        {% endfor %}
+            {% for offer in offers %}
+                <div class='row'>
+                    {% render_offer_table offer self_entry %}<br/>
+                </div>
+            {% endfor %}
         </div>
     {% endif %}
 {% endblock game_body %}
