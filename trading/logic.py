@@ -43,6 +43,9 @@ def place_order(placer_name, security_name, is_buy, price, quantity):
     except Security.DoesNotExist:
         raise Exception('No security exists with name %s' % security_name)
 
+    if quantity <= 0:
+        raise Exception('Offers must have a positive quantity')
+
     order = Order.objects.create(placer=placer_name, security=security, price=price, quantity=quantity, quantity_remaining=quantity, is_buy=is_buy)
-    
+    process_new_order(order)
     

@@ -74,6 +74,11 @@ def auth_block(user):
     return { 'user':user }
 
 
+@register.inclusion_tag('team_select.html')
+def team_options(teams):
+    return { 'teams':teams }
+
+
 CI_LOWER = 'case insensitive'
 @register.inclusion_tag('ci_text.html')
 def ci_text():
