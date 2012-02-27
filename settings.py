@@ -129,6 +129,7 @@ INSTALLED_APPS = (
     'casei.ncaacards',
     'casei.profiles',
     'casei.startup',
+    'casei.trading',
     'south'
 )
 
