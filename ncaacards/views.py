@@ -1,3 +1,4 @@
+from casei.ncaacards.forms import TradeForm
 from casei.ncaacards.logic import accept_trade
 from casei.ncaacards.logic import get_leaders, get_game, get_entry, get_team_from_identifier
 from casei.ncaacards.models import *
@@ -471,3 +472,25 @@ def leaderboard(request, game_id):
         return HttpResponseRedirect('/ncaa/')
     context['leaders'] = get_leaders(context['game'])
     return render_with_request_context(request, 'leaderboard.html', context)
+
+
+@login_required
+def do_trade(request, game_id):
+    context = get_base_context(request, game_id)
+    self_entry = context.get('self_entry', None)
+    if not self_entry or request.method != 'POST':
+        return HttpResponseRedirect('/ncaa/')
+
+    form = TradeForm(request.POST)
+    if form.is_valid():
+        error = ''
+        security_name = request.POST.get('team', '')
+        try:
+            security = Security.get(security_name)
+        except Security.DoesNotExist:
+            error = 'No security exists with name %s' % security_name
+        placer_name = self_entry.entry_name
+
+        if not error:
+            try:
+                place_order(self_entry.entry_name, security.name, 
