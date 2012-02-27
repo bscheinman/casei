@@ -1,3 +1,4 @@
+from casei.trading.models import Execution, Market, Security
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.db import models
@@ -180,8 +181,10 @@ def update_team_scores(sender, instance, created, **kwargs):
 @receiver(post_save, sender=NcaaGame, weak=False)
 def populate_game(sender, instance, created, **kwargs):
     if created:
+        market = Market.objects.create(name=instance.name)
         for team in Team.objects.filter(game_type=instance.game_type):
             GameTeam.objects.create(game=instance, team=team)
+            Security.objects.create(market=market, name=team.abbrev_name)
         for scoreType in ScoreType.objects.filter(game_type=instance.game_type):
             ScoringSetting.objects.create(game=instance, scoreType=scoreType, points=scoreType.default_score)
 
@@ -193,9 +196,22 @@ def create_team_counts(sender, instance, created, **kwargs):
             TeamScoreCount.objects.create(team=instance, scoreType=scoreType)
 
 
-# Once we're actually processing trades, we should remove this and specifically
-# call update_score after each trade
-@receiver(post_save, sender=UserTeam, weak=False)
-def reflect_trade(sender, instance, created, **kwargs):
-    pass
-    #instance.entry.update_score()
+@receiver(post_save, sender=Execution, weak=False)
+def record_execution(sender, instance, created, **kwargs):
+    if created:
+        try:
+            game = NcaaGame.get(name=instance.name)
+            buyer = UserEntry.get(game=game, entry_name=instance.placer)
+            seller = UserEntry.get(game=game, entry_name=instance.placer)
+            team = Team.get(name=instance.security.name)
+            game_team = GameTeam.get(game=game, team=team)
+
+            buyer_count = UserTeam.get(team=game_team, entry=buyer)
+            buyer_count.count += instance.quantity
+            buyer_count.save()
+
+            seller_count = UserTeam.get(team=game_team, entry=buyer)
+            seller_count.count -= instance.quantity
+            seller_count.save()
+        except Exception as e:
+            logger.error('Error processing execution %s: %s' % (instance.execution_id, str(e)))
