@@ -30,10 +30,10 @@ def do_login(request):
         data = form.cleaned_data
         user = authenticate(username=data['username'], password=data['password'])
         if user:
-            profile = UserProfile.objects.get(user=user)
-            if not user.has_perm('auth.can_login'):
-                error = 'User is not verified'
-            elif not user.is_active:
+            #if not user.has_perm('auth.can_login'):
+            #    error = 'User is not verified'
+            #el
+            if not user.is_active:
                 error = 'Your account has been disabled.  Please contact site administrators.'
             else:
                 login(request, user)
@@ -62,10 +62,13 @@ def do_signup(request):
         return render_with_request_context(request, 'signup.html', { 'form':form })
     data = form.cleaned_data
     user = User.objects.create_user(data['username'], data['email'], data['password'])
-    profile = UserProfile.objects.get(user=user)
-    send_verification_email(user.email, profile.verification_id)
+    #profile = UserProfile.objects.get(user=user)
+    #send_verification_email(user.email, profile.verification_id)
 
-    return HttpResponseRedirect('/signup_thanks/')
+    #return HttpResponseRedirect('/signup_thanks/')
+    user = authenticate(username=data['username'], password=data['password'])
+    login(request, user)
+    return HttpResponseRedirect('/ncaa/')
 
 
 def signup_thanks(request):
