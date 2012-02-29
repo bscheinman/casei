@@ -3,6 +3,16 @@
 {% block title %}Create New Game{% endblock title %}
 
 {% block game_body %}
+{% if errors %}
+<div class='row'>
+    <div class='span4 alert alert-error'>
+        <a class='close' data-dismiss='alert' >x</a>
+        <ul>
+            {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
 <form method='POST' action='/ncaa/do_create_game/'>{% csrf_token %}
     <table>
         <tr><td>Game Name</td><td><input type='text' name='game_name'></td></tr>
