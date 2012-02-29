@@ -87,8 +87,6 @@ def get_team_from_identifier(team_id):
         team_query = Q(abbrev_name__iexact=team_id)
 
     try:
-        team = Team.objects.get(team_query)
+        return Team.objects.get(team_query)
     except Team.DoesNotExist:
         return None
-    
-    return team

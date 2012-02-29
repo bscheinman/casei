@@ -6,6 +6,18 @@
 {% block game_body %}
 <h2>{{ team.full_name }} ({{ team.abbrev_name }})</h2>
 
+{% if game %}
+<div id='order_placer' class='span4 well'>
+    <form method='POST' action='/ncaa/game/{{game.id}}/team/{{team.id}}/place_order/'>
+        {% csrf_token %}
+        Shares <input type='text' name='quantity' size='5'><br/>
+        Price <input type='text' name='price' size='6'><br/>
+        <input type='radio' name='side' value='buy'>Buy <input type='radio' name='side' value='sell'>Sell<br/>
+        <button type='submit' class='btn btn-success'>Submit Order</button>
+    </form>
+</div>
+{% endif %}
+
 <div id='score_counts' class='span5'>
 <table class='table table-bordered table-striped table-condensed'>
 {% if game %}

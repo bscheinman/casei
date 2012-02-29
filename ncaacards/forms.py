@@ -3,7 +3,6 @@ import re
 
 
 class TradeForm(forms.Form):
-    team_name = forms.CharField(max_length=10)
     side = forms.ChoiceField(choices=[('buy', 'Buy'), ('sell', 'Sell')])
     price = forms.CharField(max_length=10)
     quantity = forms.CharField(max_length=10)
@@ -12,7 +11,6 @@ class TradeForm(forms.Form):
         super(TradeForm, self).clean()
         cleaned_data = self.cleaned_data
 
-        team_name = cleaned_data.get('team_name')
         side = cleaned_data.get('side')
         price = cleaned_data.get('price')
         quantity = cleaned_data.get('quantity')
