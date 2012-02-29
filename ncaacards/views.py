@@ -6,7 +6,8 @@ from casei.views import render_with_request_context
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
+from django.utils import simplejson
 
 
 def get_base_context(request, game_id, **kwargs):
@@ -475,22 +476,39 @@ def leaderboard(request, game_id):
 
 
 @login_required
-def do_trade(request, game_id):
+def do_trade(request, game_id, team_id):
+    results = { 'success':False, 'errors':[], 'field_errors':{} }
     context = get_base_context(request, game_id)
     self_entry = context.get('self_entry', None)
-    if not self_entry or request.method != 'POST':
-        return HttpResponseRedirect('/ncaa/')
-
-    form = TradeForm(request.POST)
-    if form.is_valid():
-        error = ''
-        security_name = request.POST.get('team', '')
+    team = get_team_from_identifier(team_id)
+    if team:
         try:
-            security = Security.get(security_name)
-        except Security.DoesNotExist:
-            error = 'No security exists with name %s' % security_name
-        placer_name = self_entry.entry_name
+            game_team = GameTeam.objects.get(game=context['game'], team=team)
+        except GameTeam.DoesNotExist:
+            game_team = None
+    if not self_entry:
+        results['errors'].append('You cannot place orders for games in which you do not have an entry')
+    if not game_team:
+        results['errors'].append('There is no team with the ID %s' % team_id)
+    if request.method != 'POST':
+        results['errors'].append('You must use a POST request for submitting orders')
 
-        if not error:
+    if not results['errors']:
+        form = TradeForm(request.POST)
+        if form.is_valid():
+            error = ''
+            data = form.cleaned_data
             try:
-                place_order(self_entry.entry_name, security.name, 
+                security = Security.objects.get(name=team.abbrev_name)
+            except Security.DoesNotExist:
+                raise Exception('No security exists with name %s' % team.abbrev_name)
+            placer_name = self_entry.entry_name
+
+            place_order(placer_name=placer_name, security_name=security.name,\
+               is_buy=data['side'] == 'buy', price=data['price'], quantity=data['quantity'])
+            results['success'] = True
+        else:
+            for k, v in form.errors:
+                results['field_errors'][k] = v
+
+    return HttpResponse(simplejson.dumps(results), mimetype='text/json')
