@@ -4,10 +4,6 @@ from casei.trading.models import Market, Security, Order, Execution
 def process_new_order(order):
     def execute_orders(accepting_order, existing_order):
         exec_quantity = min([accepting_order.quantity, existing_order.quantity])
-        accepting_order.quantity_remaining -= exec_quantity
-        existing_order.quantity_remaining -= exec_quantity
-        accepting_order.save()
-        existing_order.save()
 
         if accepting_order.is_buy:
             buy_order = accepting_order
