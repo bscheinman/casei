@@ -41,7 +41,7 @@ class Security(models.Model):
         return execs[0].price if execs else 0.0
 
     def get_bbo(self):
-        return (get_top_bids(5), get_top_asks(5))
+        return (self.get_top_bids(5), self.get_top_asks(5))
 
 
 
