@@ -2,22 +2,22 @@ from casei.trading.models import Market, Security, Order, Execution
 
 
 def process_new_order(order):
-    def execute_orders(o1, o2):
-        exec_quantity = min(o1.quantity, o2.quantity)
-        o1.quantity_remaining -= exec_quantity
-        o2.quantity_remaining -= exec_quantity
-        o1.save()
-        o2.save()
+    def execute_orders(accepting_order, existing_order):
+        exec_quantity = min([accepting_order.quantity, existing_order.quantity])
+        accepting_order.quantity_remaining -= exec_quantity
+        existing_order.quantity_remaining -= exec_quantity
+        accepting_order.save()
+        existing_order.save()
 
-        if o1.is_buy:
-            buy_order = o1
-            sell_order = o2
+        if accepting_order.is_buy:
+            buy_order = accepting_order
+            sell_order = existing_order
         else:
-            buy_order = o2
-            sell_order = o1
+            buy_order = existing_order
+            sell_order = accepting_order
 
         execution = Execution.objects.create(security=order.security, buy_order=buy_order, sell_order=sell_order, quantity=exec_quantity, price=order.price)
-    
+
     if order.is_buy:
         comparer = lambda x: x.price <= order.price
         order_generator = lambda: order.security.get_top_asks()
