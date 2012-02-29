@@ -1,5 +1,5 @@
 from django import forms
-import re
+from decimal import *
 
 
 class TradeForm(forms.Form):
@@ -20,8 +20,10 @@ class TradeForm(forms.Form):
             del cleaned_data['side']
 
         if price:
-            price_pattern = r'\d+(\.\d{2})?'
-            if not re.search(price_pattern, price):
+            try:
+                p = Decimal(price)
+                cleaned_data['price'] = p
+            except ValueError:
                 self._errors['price'] = self.error_class(['%s is not a valid price' % price])
                 del cleaned_data['price']
 
@@ -35,5 +37,7 @@ class TradeForm(forms.Form):
                 if q <= 0:
                     self._errors['quantity'] = self.error_class(['Trade quantity must be greater than zero'])
                     del cleaned_data['quantity']
+                else:
+                    cleaned_data['quantity'] = q
 
         return cleaned_data
