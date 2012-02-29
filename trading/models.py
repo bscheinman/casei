@@ -61,13 +61,13 @@ class Order(models.Model):
 
 
 class Execution(models.Model):
-    security = models.ForeignKey(Security, related_name='executions')
-    execution_id = UUIDField(auto=True, primary_key=True)
-    buy_order = models.ForeignKey(Order, related_name='buy_executions')
-    sell_order = models.ForeignKey(Order, related_name='sell_executions')
-    quantity = models.IntegerField()
-    price = models.DecimalField(decimal_places=2, max_digits=10)
-    time = models.DateTimeField(auto_now_add=True)
+    security = models.ForeignKey(Security, related_name='executions', editable=False)
+    execution_id = UUIDField(auto=True, primary_key=True, editable=False)
+    buy_order = models.ForeignKey(Order, related_name='buy_executions', editable=False)
+    sell_order = models.ForeignKey(Order, related_name='sell_executions', editable=False)
+    quantity = models.IntegerField(editable=False)
+    price = models.DecimalField(decimal_places=2, max_digits=10, editable=False)
+    time = models.DateTimeField(auto_now_add=True, editable=False)
 
     def __str__(self):
         return self.execution_id
@@ -77,3 +77,12 @@ admin.site.register(Market)
 admin.site.register(Security)
 admin.site.register(Order)
 admin.site.register(Execution)
+
+
+@receiver(post_save, sender=Execution, weak=False)
+def record_execution(sender, instance, created, **kwargs):
+    if created:
+        instance.buy_order.quantity_remaining -= instance.quantity
+        instance.buy_order.save()
+        instance.sell_order.quantity_remaining -= instance.quantity
+        instance.sell_order.save()
