@@ -366,7 +366,7 @@ def do_create_game(request):
 
     entry = UserEntry.objects.create(game=game, user=request.user, entry_name=entry_name)
 
-    return HttpResponseRedirect('/ncaa/game/%s/' % game.id)
+    return HttpResponseRedirect('/ncaa/game/%s/entry/%s/' % (game.id, entry.id))
 
 
 @login_required
