@@ -14,7 +14,10 @@ class Market(models.Model):
 
 class Security(models.Model):
     market = models.ForeignKey(Market, related_name='securities')
-    name = models.CharField(max_length=6, unique=True)
+    name = models.CharField(max_length=6)
+
+    class Meta:
+       unique_together = ('market', 'name')
 
     def __str__(self):
         return self.name
