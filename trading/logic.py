@@ -20,10 +20,10 @@ def process_new_order(order):
     
     if order.is_buy:
         comparer = lambda x: x.price <= order.price
-        order_generator = lambda: order.get_top_asks()
+        order_generator = lambda: order.security.get_top_asks()
     else:
         comparer = lambda x: x.price >= order.price
-        order_generator = lambda: order.get_top_bids()
+        order_generator = lambda: order.security.get_top_bids()
 
     while True:
         orders = order_generator()
@@ -37,11 +37,23 @@ def process_new_order(order):
                 return
 
 
-def place_order(placer_name, security_name, is_buy, price, quantity):
+def get_security(market_name, security_name):
     try:
-        security = Security.objects.get(name=security_name)
+        market = Market.objects.get(name=market_name)
+    except Market.DoesNotExist:
+        return None
+    try:
+        security = Security.objects.get(market=market, name=security_name)
     except Security.DoesNotExist:
-        raise Exception('No security exists with name %s' % security_name)
+        return None
+    else:
+        return security
+
+
+def place_order(market_name, placer_name, security_name, is_buy, price, quantity):
+    security = get_security(market_name, security_name)
+    if not security:
+        raise Exception('No security %s exists in the market %s' % (security_name, market_name))
 
     if quantity <= 0:
         raise Exception('Offers must have a positive quantity')

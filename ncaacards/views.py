@@ -2,6 +2,7 @@ from casei.ncaacards.forms import TradeForm
 from casei.ncaacards.logic import accept_trade
 from casei.ncaacards.logic import get_leaders, get_game, get_entry, get_team_from_identifier
 from casei.ncaacards.models import *
+from casei.trading.logic import get_security, place_order
 from casei.views import render_with_request_context
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -167,6 +168,7 @@ def game_team_view(request, game_id, team_id):
 
     context = create_team_context(request, team=team, game=game)
     context['self_entry'] = entry
+    context['security'] = get_security(game.name, team.abbrev_name)
     return render_with_request_context(request, 'team_view.html', context)
 
 
@@ -498,16 +500,13 @@ def do_trade(request, game_id, team_id):
         if form.is_valid():
             error = ''
             data = form.cleaned_data
-            try:
-                security = Security.objects.get(name=team.abbrev_name)
-            except Security.DoesNotExist:
-                raise Exception('No security exists with name %s' % team.abbrev_name)
             placer_name = self_entry.entry_name
 
-            place_order(placer_name=placer_name, security_name=security.name,\
+            place_order(market_name=context['game'].name, placer_name=placer_name, security_name=team.abbrev_name,\
                is_buy=data['side'] == 'buy', price=data['price'], quantity=data['quantity'])
             results['success'] = True
         else:
+            import pdb; pdb.set_trace()
             for k, v in form.errors:
                 results['field_errors'][k] = v
 

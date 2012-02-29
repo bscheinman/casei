@@ -7,6 +7,13 @@
 <h2>{{ team.full_name }} ({{ team.abbrev_name }})</h2>
 
 {% if game %}
+    {% if security %}
+        <div id='market_data' class='span4 well'>
+            Bid: {{ security.get_bid }}<br/>
+            Ask: {{ security.get_ask }}<br/>
+            Last: {{ security.get_last }}<br/>
+        </div>
+    {% endif %}
 <div id='order_placer' class='span4 well'>
     <form method='POST' action='/ncaa/game/{{game.id}}/team/{{team.id}}/place_order/'>
         {% csrf_token %}

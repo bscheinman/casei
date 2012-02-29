@@ -23,19 +23,22 @@ class Security(models.Model):
         return self.name
 
     def get_top_bids(self, count=5):
-        return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=True).order_by('-price')[count:].price
+        return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=True).order_by('-price')[count:]
 
     def get_top_asks(self, count=5):
-        return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=False).order_by('price')[count:].price
+        return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=False).order_by('price')[count:]
 
     def get_bid(self):
-        return self.get_top_bids(1)
+        bids = self.get_top_bids(1)
+        return bids[0].price if bids else 0.0
 
     def get_ask(self):
-        return self.get_top_asks(1)
+        asks = self.get_top_asks(1)
+        return asks[0].price if asks else 0.0
 
     def get_last(self):
-        return self.executions.order_by('-time')[0].price
+        execs = self.executions.order_by('-time')
+        return execs[0].price if execs else 0.0
 
     def get_bbo(self):
         return (get_top_bids(5), get_top_asks(5))
