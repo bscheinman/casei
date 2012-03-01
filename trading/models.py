@@ -111,10 +111,10 @@ def process_new_order(order):
         order_generator = lambda: order.security.get_top_bids()
 
     while True:
-        orders = order_generator()
-        if not orders:
+        matching_orders = order_generator()
+        if not matching_orders:
             return
-        for matching_order in orders:
+        for matching_order in matching_orders:
             if not comparer(matching_order):
                 return
             execute_orders(order, matching_order)

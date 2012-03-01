@@ -12,7 +12,6 @@
         padding :9px 0;
     }
 </style>
-{% block game_scripts %}{% endblock game_scripts %}
 {% endblock scripts %}
 
 {% block body %}
@@ -103,4 +102,6 @@
 {% endif %}
 <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
 <script src='/static/bootstrap/js/bootstrap.min.js'></script>
+<script src='/static/jquery.form.js'></script>
+{% block game_scripts %}{% endblock game_scripts %}
 {% endblock body %}
