@@ -479,6 +479,7 @@ def leaderboard(request, game_id):
 
 @login_required
 def do_trade(request, game_id, team_id):
+    import pdb; pdb.set_trace()
     results = { 'success':False, 'errors':[], 'field_errors':{} }
     context = get_base_context(request, game_id)
     self_entry = context.get('self_entry', None)
@@ -506,8 +507,6 @@ def do_trade(request, game_id, team_id):
                is_buy=data['side'] == 'buy', price=data['price'], quantity=data['quantity'])
             results['success'] = True
         else:
-            import pdb; pdb.set_trace()
-            for k, v in form.errors:
-                results['field_errors'][k] = v
+            results['field_errors'] = form.errors
 
     return HttpResponse(simplejson.dumps(results), mimetype='text/json')
