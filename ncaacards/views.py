@@ -479,7 +479,6 @@ def leaderboard(request, game_id):
 
 @login_required
 def do_trade(request, game_id, team_id):
-    import pdb; pdb.set_trace()
     results = { 'success':False, 'errors':[], 'field_errors':{} }
     context = get_base_context(request, game_id)
     self_entry = context.get('self_entry', None)

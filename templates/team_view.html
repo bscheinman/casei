@@ -5,8 +5,8 @@
 
 {% block game_scripts %}
 <script type='text/javascript'>
-    function OnTradeResponse(responseText, statusText, xhr, $form) {
-        alert(responseText);
+    function OnTradeResponse(data) {
+        alert(data.success);
     }
 
     $(document).ready(function() {
