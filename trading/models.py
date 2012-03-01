@@ -43,6 +43,17 @@ class Security(models.Model):
     def get_bbo(self):
         return (self.get_top_bids(5), self.get_top_asks(5))
 
+    def get_bbo_table(self, depth=5):
+        bids, asks = self.get_top_bids(depth), self.get_top_asks(depth)
+        table = []
+        for i in range(depth):
+            bid = bids[i] if len(bids) > i else None
+            ask = asks[i] if len(asks) > i else None
+            if not bid and not ask:
+                break
+            table.append((bid, ask))
+        return table
+
 
 
 class Order(models.Model):
@@ -77,6 +88,44 @@ admin.site.register(Market)
 admin.site.register(Security)
 admin.site.register(Order)
 admin.site.register(Execution)
+
+
+def process_new_order(order):
+    def execute_orders(accepting_order, existing_order):
+        exec_quantity = min([accepting_order.quantity, existing_order.quantity])
+
+        if accepting_order.is_buy:
+            buy_order = accepting_order
+            sell_order = existing_order
+        else:
+            buy_order = existing_order
+            sell_order = accepting_order
+
+        execution = Execution.objects.create(security=order.security, buy_order=buy_order, sell_order=sell_order, quantity=exec_quantity, price=existing_order.price)
+
+    if order.is_buy:
+        comparer = lambda x: x.price <= order.price
+        order_generator = lambda: order.security.get_top_asks()
+    else:
+        comparer = lambda x: x.price >= order.price
+        order_generator = lambda: order.security.get_top_bids()
+
+    while True:
+        orders = order_generator()
+        if not orders:
+            return
+        for matching_order in orders:
+            if not comparer(matching_order):
+                return
+            execute_orders(order, matching_order)
+            if order.quantity_remaining <= 0:
+                return
+
+
+@receiver(post_save, sender=Order, weak=False)
+def on_new_order(sender, instance, created, **kwargs):
+    if created:
+        process_new_order(instance)
 
 
 @receiver(post_save, sender=Execution, weak=False)
