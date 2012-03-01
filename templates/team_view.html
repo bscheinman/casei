@@ -6,7 +6,8 @@
 {% block game_scripts %}
 <script type='text/javascript'>
     function OnTradeResponse(data) {
-        alert(data.success);
+        if (data.success)
+            location.reload();
     }
 
     $(document).ready(function() {
