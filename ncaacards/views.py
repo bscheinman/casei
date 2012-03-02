@@ -96,6 +96,20 @@ def marketplace(request, game_id):
     return render_with_request_context(request, 'marketplace.html', context)
 
 
+def ticker(request, game_id):
+    context = get_base_context(request, game_id)
+    if not context['game']:
+        return HttpResponseRedirect('/ncaa/')
+    rows = []
+    teams = GameTeam.objects.filter(game=context['game'])
+    securities = Security.objects.filter(market__name=context['game'].name)
+    for team in teams:
+        rows.append((team.team, securities.get(name=team.team.abbrev_name)))
+    context['rows'] = rows
+    
+    return render_with_request_context(request, 'ticker.html', context)
+
+
 @login_required
 def leaderboard(request, game_id):
     game = get_game(game_id)
