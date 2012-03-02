@@ -1,0 +1,39 @@
+{% extends 'game_base.html' %}
+{% load ncaa_tags %}
+
+{% block title %}{{ game.name }} Ticker{% endblock title %}
+
+{% block game_scripts %}
+    <script type='text/javascript' src='/static/sorttable.js/'></script>
+    <script type='text/javascript'>
+        function show_placer(team_name) {
+            $('#trade_title').html("<h4>Trade " + team_name + "</h4>");
+            $('#team_' + team_name).selected = true;
+            $('#order_placer').modal();
+        }
+    </script>
+{% endblock %}
+
+{% block game_body %}
+<table class='table table-bordered table-striped table-condensed sortable'>
+    <thead><tr><th>Team</th><th>Last</th><th>Bid</th><th>Ask</th><th></th></tr></thead>
+    {% for team, security in rows %}
+        <tr><td>{% team_link team game %} </td>
+        <td>{{ security.get_last }}</td>
+        <td>{{ security.get_bid }}</td>
+        <td>{{ security.get_ask }}</td>
+        <td><button class='btn btn-primary' onclick='show_placer("{{team.abbrev_name}}")'>Place Order</button></td></tr>
+    {% endfor %}
+</table>
+
+<div id='order_placer' class='modal hide fade' style='width:250px;'>
+    <div class='modal-header'>
+        <div id='trade_title'></div>
+        <a class='close' data-dismiss='modal'>x</a>
+    </div>
+    <div class='modal-body'>
+        {% trade_form game %}
+    </div>
+</div>
+
+{% endblock game_body %}

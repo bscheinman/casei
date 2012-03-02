@@ -12,7 +12,7 @@
         padding :9px 0;
     }
 </style>
-{% block css %}{% endblock css %}
+{% block head_scripts %}{% endblock head_scripts %}
 {% endblock scripts %}
 
 {% block body %}
@@ -59,7 +59,8 @@
                     {% endif %}
                     {% if game %}
                         <li class='nav-header'>{{ game.name }}</li>
-                        <li><a href='/ncaa/game/{{game.id}}/marketplace/'>Marketplace</a></li>
+                        {% if game.supports_cards %}<li><a href='/ncaa/game/{{game.id}}/marketplace/'>Marketplace</a></li>{% endif %}
+                        {% if game.supports_stocks %}<li><a href='/ncaa/game/{{game.id}}/ticker/'>Ticker</a></li>{% endif %}
                         <li><a href='/ncaa/game/{{game.id}}/leaderboard/'>Leaderboard</a></li>
                         <li><a href='/ncaa/game/{{game.id}}/create_offer/'>Create Offer</a></li>
                         <li>

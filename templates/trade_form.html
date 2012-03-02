@@ -1,11 +1,11 @@
 <form id='tradeForm' method='POST' action='/ncaa/game/{{game.id}}/place_order/'>
     {% csrf_token %}
     {% if team %}
-        <input type='hidden' name='team_identifier' value='{{team.abbrev_name}}'>
+        <input style='display:none;' id='team_id_field' type='hidden' name='team_identifier' value='{{team.abbrev_name}}'>
     {% else %}
-        Team <select name='team_identifier'>
+        Team <select id='team_id_field' name='team_identifier'>
             {% for team_id in all_team_ids %}
-                <option value='{{team_id}}'>
+                <option id='team_{{team_id}}' value='{{team_id}}'>{{team_id}}</option>
             {% endfor %}
         </select>
     {% endif %}

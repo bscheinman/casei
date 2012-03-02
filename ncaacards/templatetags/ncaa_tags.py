@@ -1,4 +1,5 @@
 from array import array
+from casei.ncaacards.models import GameTeam
 from django import template
 register = template.Library()
 import random
@@ -90,9 +91,9 @@ def ci_text():
 
 
 @register.inclusion_tag('trade_form.html')
-def trade_form(game, team):
+def trade_form(game, team=None):
     if team:
         all_team_ids = []
     else:
-        all_team_ids = Team.objects.filter(game_type=game.game_type)
+        all_team_ids = [t.team.abbrev_name for t in GameTeam.objects.filter(game=game)]
     return { 'game':game, 'team':team, 'all_team_ids':all_team_ids }
