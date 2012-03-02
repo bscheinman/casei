@@ -482,16 +482,8 @@ def do_trade(request, game_id, team_id):
     results = { 'success':False, 'errors':[], 'field_errors':{} }
     context = get_base_context(request, game_id)
     self_entry = context.get('self_entry', None)
-    team = get_team_from_identifier(team_id)
-    if team:
-        try:
-            game_team = GameTeam.objects.get(game=context['game'], team=team)
-        except GameTeam.DoesNotExist:
-            game_team = None
     if not self_entry:
         results['errors'].append('You cannot place orders for games in which you do not have an entry')
-    if not game_team:
-        results['errors'].append('There is no team with the ID %s' % team_id)
     if request.method != 'POST':
         results['errors'].append('You must use a POST request for submitting orders')
 
@@ -502,9 +494,19 @@ def do_trade(request, game_id, team_id):
             data = form.cleaned_data
             placer_name = self_entry.entry_name
 
-            place_order(market_name=context['game'].name, placer_name=placer_name, security_name=team.abbrev_name,\
-               is_buy=data['side'] == 'buy', price=data['price'], quantity=data['quantity'])
-            results['success'] = True
+            team = data['team']
+            game_team = None
+            if team:
+                try:
+                    game_team = GameTeam.objects.get(game=context['game'], team=team)
+                except GameTeam.DoesNotExist:
+                    pass
+            if not game_team:
+                results['errors'].append('There is no team with the ID %s' % team_id)
+            else:
+                place_order(market_name=context['game'].name, placer_name=placer_name, security_name=team.abbrev_name,\
+                   is_buy=data['side'] == 'buy', price=data['price'], quantity=data['quantity'])
+                results['success'] = True
         else:
             results['field_errors'] = form.errors
 
