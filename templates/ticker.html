@@ -16,7 +16,7 @@
 
 {% block game_body %}
 <table class='table table-bordered table-striped table-condensed sortable'>
-    <thead><tr><th>Team</th><th>Last</th><th>Bid</th><th>Ask</th><th></th></tr></thead>
+    <thead><tr><th>Team</th><th>Last</th><th>Bid</th><th>Ask</th><th class='sorttable_nosort'></th></tr></thead>
     {% for team, security in rows %}
         <tr><td>{% team_link team game %} </td>
         <td>{{ security.get_last }}</td>
