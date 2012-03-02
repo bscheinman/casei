@@ -22,6 +22,8 @@ class NcaaGame(models.Model):
     starting_shares = models.IntegerField(default=100)
     starting_points = models.IntegerField(default=0)
     game_type = models.ForeignKey(GameType, related_name='games')
+    supports_cards = models.BooleanField(default=False)
+    supports_stocks = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

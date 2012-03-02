@@ -1,0 +1,16 @@
+<form id='tradeForm' method='POST' action='/ncaa/game/{{game.id}}/place_order/'>
+    {% csrf_token %}
+    {% if team %}
+        <input type='hidden' name='team_identifier' value='{{team.abbrev_name}}'>
+    {% else %}
+        Team <select name='team_identifier'>
+            {% for team_id in all_team_ids %}
+                <option value='{{team_id}}'>
+            {% endfor %}
+        </select>
+    {% endif %}
+    Shares <input type='text' name='quantity' size='5'><br/>
+    Price <input type='text' name='price' size='6'><br/>
+    <input type='radio' name='side' value='buy'>Buy <input type='radio' name='side' value='sell'>Sell<br/>
+    <button type='submit' class='btn btn-success'>Submit Order</button>
+</form>

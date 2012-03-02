@@ -24,8 +24,74 @@
 {% block game_body %}
 <h2>{{ team.full_name }} ({{ team.abbrev_name }})</h2>
 
-{% if game %}
-    {% if security %}
+<ul class='nav nav-tabs'>
+    <li class='active'><a href='#overview'>Overview</a></li>
+    {% if game.supports_cards %}<li><a href='#card_tab'>Card Trading</a></li>{% endif %}
+    {% if game.supports_stocks %}<li><a href='#stock_tab'>Stock Trading</a></li>{% endif %}
+</ul>
+<div class='tab-content'>
+    <div class='tab-pane active' id='overview'>
+        <div id='score_counts' class='span5'>
+            <table class='table table-bordered table-striped table-condensed'>
+                <tr><td></td><td>Wins</td><td>Points</td></tr>
+                {% for scoreType, count, row_score in score_counts %}
+                    <tr><td>{{ scoreType }}</td>
+                    <td>{{ count }}</td>
+                    <td>{{ row_score }}</td></tr>
+                {% endfor %}
+                <tr><td>Total</td><td></td><td>{{ game_team.score }}</td></tr>
+            </table><br/>
+        </div>
+        <div id='top_owners' class='well span3'>
+            <strong>Top Owners</strong><br/>
+            {% for owner, count in top_owners %}
+                {% entry_link owner %}: {{ count }} shares<br/>
+            {% endfor %}
+        </div>
+    </div>
+    {% if game.supports_cards %}
+    <div class='tab-pane' id='card_tab'>
+        <div id='trades' class='accordion'>
+            <div class='accordion-group'>
+                <div class='accordion-heading'>
+                    <a class='accordion-toggle' data-toggle='collapse' data-parent='#trades' href='#offering_accordion'>
+                        Trades Offering {{ team.full_name }} ({{ offering_trades|length }})</a>
+                </div>
+                <div id='offering_accordion' class='accordion-body collapse'>
+                    <div class='accordion-inner'>
+                        {% if offering_trades %}
+                            {% for trade in offering_trades %}
+                                {% render_offer_table trade self_entry %}
+                            {% endfor %}
+                        {% else %}
+                            <em>None</em>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class='accordion-group'>
+                <div class='accordion-heading'>
+                    <a class='accordion-toggle' data-toggle='collapse' data-parent='#trades' href='#asking_accordion'>
+                        Trades Asking for {{ team.full_name }} ({{ asking_trades|length }})</a>
+                </div>
+                <div id='asking_accordion' class='accordion-body collapse'>
+                    <div class='accordion-inner'>
+                        {% if asking_trades %}
+                            {% for trade in asking_trades %}
+                                {% render_offer_table trade self_entry %}
+                            {% endfor %}
+                        {% else %}
+                            <em>None</em>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if game.supports_stocks %}
+    <div class='tab-pane' id='stock_tab'>
         <div id='market_data' class='span4 well'>
             Bid: {{ security.get_bid }}<br/>
             Ask: {{ security.get_ask }}<br/>
@@ -40,109 +106,11 @@
                     {% endfor %}
             </table>
         </div>
+        <div id='order_placer' class='span4 well'>
+            {% trade_form game team %}
+        </div>
+    </div>
     {% endif %}
-<div id='order_placer' class='span4 well'>
-    <form id='tradeForm' method='POST' action='/ncaa/game/{{game.id}}/team/{{team.id}}/place_order/'>
-        {% csrf_token %}
-        Shares <input type='text' name='quantity' size='5'><br/>
-        Price <input type='text' name='price' size='6'><br/>
-        <input type='radio' name='side' value='buy'>Buy <input type='radio' name='side' value='sell'>Sell<br/>
-        <button type='submit' class='btn btn-success'>Submit Order</button>
-    </form>
 </div>
-{% endif %}
-
-<div id='score_counts' class='span5'>
-<table class='table table-bordered table-striped table-condensed'>
-{% if game %}
-    <tr><td></td><td>Wins</td><td>Points</td></tr>
-    {% for scoreType, count, row_score in score_counts %}
-        <tr><td>{{ scoreType }}</td>
-        <td>{{ count }}</td>
-        <td>{{ row_score }}</td></tr>
-    {% endfor %}
-    <tr><td>Total</td><td></td><td>{{ game_team.score }}</td></tr>
-{% else %}
-    <tr><td></td><td>Wins</td></tr>
-    {% for scoreType, count in score_counts %}
-        <tr><td>{{ scoreType }}</td>
-        <td>{{ count }}</td></tr>
-    {% endfor %}
-{% endif %}
-</table><br/>
-{% if game %}
-    <div id='trades' class='accordion'>
-        <div class='accordion-group'>
-            <div class='accordion-heading'>
-                <a class='accordion-toggle' data-toggle='collapse' data-parent='#trades' href='#offering_accordion'>Trades Offering {{ team.full_name }} ({{ offering_trades|length }})</a>
-            </div>
-            <div id='offering_accordion' class='accordion-body collapse'>
-                <div class='accordion-inner'>
-                    {% if offering_trades %}
-                        {% for trade in offering_trades %}
-                            {% render_offer_table trade self_entry %}
-                        {% endfor %}
-                    {% else %}
-                        <em>None</em>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class='accordion-group'>
-            <div class='accordion-heading'>
-                <a class='accordion-toggle' data-toggle='collapse' data-parent='#trades' href='#asking_accordion'>Trades Asking for {{ team.full_name }} ({{ asking_trades|length }})</a>
-            </div>
-            <div id='asking_accordion' class='accordion-body collapse'>
-                <div class='accordion-inner'>
-                    {% if asking_trades %}
-                        {% for trade in asking_trades %}
-                            {% render_offer_table trade self_entry %}
-                        {% endfor %}
-                    {% else %}
-                        <em>None</em>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-{% endif %}
-</div>
-
-{% if game %}
-    <div class='span5'>
-        <div id='top_owners' class='well span3'>
-            <strong>Top Owners</strong><br/>
-            {% for owner, count in top_owners %}
-                {% entry_link owner %}: {{ count }} shares<br/>
-            {% endfor %}
-        </div>
-
-        <div id='offering_entries' class='well span3'>
-            <strong>Entries Offering {{ team.full_name }}:</strong><br/>
-            {% if offering_entries %}
-                <ul>
-                    {% for entry in offering_entries %}
-                        <li>{% entry_link entry %}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <em>None</em>
-            {% endif %}
-        </div>
-
-        <div id='asking_entries' class='well span3'>
-            <strong>Entries Asking for {{ team.full_name }}:</strong><br/>
-            {% if offering_entries %}
-                <ul>
-                    {% for entry in offering_entries %}
-                        <li>{% entry_link entry %}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <em>None</em>
-            {% endif %}
-        </div>
-    </div>
-{% endif %}
 
 {% endblock game_body %}

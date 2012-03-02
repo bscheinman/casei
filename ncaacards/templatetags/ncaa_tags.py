@@ -87,3 +87,12 @@ def ci_text():
         if random.randint(0,1):
             ci_array[i] = ci_array[i].upper()
     return { 'ci_text':ci_array.tostring() }
+
+
+@register.inclusion_tag('trade_form.html')
+def trade_form(game, team):
+    if team:
+        all_team_ids = []
+    else:
+        all_team_ids = Team.objects.filter(game_type=game.game_type)
+    return { 'game':game, 'team':team, 'all_team_ids':all_team_ids }
