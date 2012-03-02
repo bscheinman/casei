@@ -91,17 +91,21 @@ admin.site.register(Execution)
 
 
 def process_new_order(order):
-    def execute_orders(accepting_order, existing_order):
-        exec_quantity = min([accepting_order.quantity, existing_order.quantity])
+    def execute_orders(existing_order):
+        exec_quantity = min([order.quantity_remaining, existing_order.quantity_remaining])
 
-        if accepting_order.is_buy:
-            buy_order = accepting_order
+        if order.is_buy:
+            buy_order = order
             sell_order = existing_order
         else:
             buy_order = existing_order
-            sell_order = accepting_order
+            sell_order = order
 
-        execution = Execution.objects.create(security=order.security, buy_order=buy_order, sell_order=sell_order, quantity=exec_quantity, price=existing_order.price)
+        execution = Execution.objects.create(security=order.security, buy_order=buy_order,\
+            sell_order=sell_order, quantity=exec_quantity, price=existing_order.price)
+        
+        # don't save this because it's already done in record_execution.  this is just for keeping track within process_new_order
+        order.quantity_remaining -= exec_quantity
 
     if order.is_buy:
         comparer = lambda x: x.price <= order.price
@@ -117,7 +121,7 @@ def process_new_order(order):
         for matching_order in matching_orders:
             if not comparer(matching_order):
                 return
-            execute_orders(order, matching_order)
+            execute_orders(matching_order)
             if order.quantity_remaining <= 0:
                 return
 
