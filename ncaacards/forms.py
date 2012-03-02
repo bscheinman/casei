@@ -1,3 +1,4 @@
+from casei.ncaacards.logic import get_team_from_identifier
 from django import forms
 from decimal import *
 
