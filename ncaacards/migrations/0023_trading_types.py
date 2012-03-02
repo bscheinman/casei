@@ -9,6 +9,7 @@ class Migration(DataMigration):
     def forwards(self, orm):
         for game in orm.NcaaGame.objects.all():
             game.supports_cards = True
+            game.save()
 
 
     def backwards(self, orm):

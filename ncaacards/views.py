@@ -478,7 +478,7 @@ def leaderboard(request, game_id):
 
 
 @login_required
-def do_trade(request, game_id, team_id):
+def do_trade(request, game_id):
     results = { 'success':False, 'errors':[], 'field_errors':{} }
     context = get_base_context(request, game_id)
     self_entry = context.get('self_entry', None)
@@ -504,9 +504,12 @@ def do_trade(request, game_id, team_id):
             if not game_team:
                 results['errors'].append('There is no team with the ID %s' % team_id)
             else:
-                place_order(market_name=context['game'].name, placer_name=placer_name, security_name=team.abbrev_name,\
-                   is_buy=data['side'] == 'buy', price=data['price'], quantity=data['quantity'])
-                results['success'] = True
+                try:
+                    place_order(market_name=context['game'].name, placer_name=placer_name, security_name=team.abbrev_name,\
+                       is_buy=data['side'] == 'buy', price=data['price'], quantity=data['quantity'])
+                    results['success'] = True
+                except Exception as error:
+                    results['errors'].append(str(error))
         else:
             results['field_errors'] = form.errors
 
