@@ -1,0 +1,16 @@
+{% load ncaa_tags %}
+
+<table class='table table-bordered table-striped table-condensed sorttable'>
+    <thead><tr><td>Time</td><td>Team</td><td>Quantity</td><td>Price</td></tr></thead>
+    {% for execution in executions %}
+        <tr
+            {% if execution.buy_order.placer == self_entry.entry_name %} class='self_buy'{% endif %}
+            {% if execution.sell_order.placer == self_entry.entry_name %} class='self_sell'{% endif %}
+            >
+            <td>{{ execution.time }}</td>
+            <td>{% team_link execution.security.name game %}</td>
+            <td>{{ execution.quantity }}</td>
+            <td>{{ execution.price }}</td>
+        </tr>
+    {% endfor %}
+</table>

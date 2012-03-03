@@ -97,19 +97,21 @@
             Ask: {{ security.get_ask }}
             Last: {{ security.get_last }}
         </div>
+        <div id='bbo' class='span3 well'>
+            <table class='table table-striped table-condensed table-bordered'>
+                <tr><td>Bids</td><td>Asks</td></tr>
+                    {% for bid, ask in security.get_bbo_table %}
+                        <tr><td>{% if bid %}{{ bid.price }} ({{ bid.quantity_remaining }}) {% endif %}</td>
+                        <td>{% if ask %}{{ ask.price }} ({{ ask.quantity_remaining }}) {% endif %}</td></tr>
+                    {% endfor %}
+            </table>
+        </div>
         <div class='span2'>
             <a data-toggle='modal' href='#order_placer' class='btn btn-primary'>Place Order</a>
         </div>
     </div>
-    <div id='bbo' class='span3 well'>
-        <table class='table table-striped table-condensed table-bordered'>
-            <tr><td>Bids</td><td>Asks</td></tr>
-                {% for bid, ask in security.get_bbo_table %}
-                    <tr><td>{% if bid %}{{ bid.price }} ({{ bid.quantity_remaining }}) {% endif %}</td>
-                    <td>{% if ask %}{{ ask.price }} ({{ ask.quantity_remaining }}) {% endif %}</td></tr>
-                {% endfor %}
-        </table>
-    </div>
+
+    {% ordercordion open_orders executions game self_entry %}
 
     <div id='order_placer' class='modal hide fade' style='width:250px;'>
         <div class='modal-header'>

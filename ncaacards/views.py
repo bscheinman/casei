@@ -73,12 +73,11 @@ def entry_view(request, game_id, entry_id):
     if game.supports_cards:
         card_offers = TradeOffer.objects.filter(entry=self_entry, is_active=True, accepting_user__isnull=True).order_by('-offer_time')
         query = (Q(entry=self_entry) | Q(accepting_user=self_entry)) & Q(accepting_user__isnull=False)
-        card_executions = TradeOffer.objects.filter(query).order_by('-offer_time')
+        card_executions = TradeOffer.objects.filter(query).order_by('-offer_time')[:10]
     if game.supports_stocks:
         stock_orders = Order.objects.filter(placer=self_entry.entry_name, is_active=True, quantity_remaining__gt=0).order_by('-placed_time')
         query = Q(buy_order__placer=self_entry.entry_name) | Q(sell_order__placer=self_entry.entry_name)
-        stock_executions = Execution.objects.filter(query).order_by('-time')
-        
+        stock_executions = Execution.objects.filter(query).order_by('-time')[:10]
 
     context = get_base_context(request, game_id, entry=entry, teams=teams,\
         card_offers=card_offers, stock_orders=stock_orders, card_executions=card_executions, stock_executions=stock_executions)
@@ -163,11 +162,23 @@ def create_team_context(request, **kwargs):
             top_owners_list.append((owner.entry, owner.count))
         context['top_owners'] = top_owners_list
 
-        offering_trades = TradeOffer.objects.filter(entry__game=game, bid_side__components__team=game_team, accepting_user=None, is_active=True)
-        asking_trades = TradeOffer.objects.filter(entry__game=game, ask_side__components__team=game_team, accepting_user=None, is_active=True)
+        if game.supports_cards:
+            offering_trades = TradeOffer.objects.filter(entry__game=game, bid_side__components__team=game_team, accepting_user=None, is_active=True)
+            asking_trades = TradeOffer.objects.filter(entry__game=game, ask_side__components__team=game_team, accepting_user=None, is_active=True)
 
-        context['offering_trades'] = offering_trades
-        context['asking_trades'] = asking_trades
+            context['offering_trades'] = offering_trades
+            context['asking_trades'] = asking_trades
+
+        if game.supports_stocks:
+            self_entry = context.get('self_entry', '')
+            open_orders = []
+            if self_entry:
+                open_orders = Order.objects.filter(placer=self_entry.entry_name, security__name=team.abbrev_name,\
+                    is_active=True, quantity_remaining__gt=0).order_by('-placed_time')[:10]
+            executions = Execution.objects.filter(security__name=team.abbrev_name).order_by('-time')[:10]
+
+            context['open_orders'] = open_orders
+            context['executions'] = executions
 
     return context
 

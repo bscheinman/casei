@@ -99,6 +99,16 @@ def trade_form(game, team=None):
     return { 'game':game, 'team':team, 'all_team_ids':all_team_ids }
 
 
+@register.inclusion_tag('ordercordion.html')
+def ordercordion(open_orders, executions, game, self_entry):
+    return { 'open_orders':open_orders, 'executions':executions, 'game':game, 'self_entry':self_entry }
+
+
 @register.inclusion_tag('order_table.html')
-def order_table(orders, game):
-    return { 'orders':orders, 'game':game }
+def order_table(orders, game, self_entry):
+    return { 'orders':orders, 'game':game, 'self_entry':self_entry }
+
+
+@register.inclusion_tag('stock_execution_table.html')
+def execution_table(executions, game, self_entry):
+    return { 'executions':executions, 'game':game, 'self_entry':self_entry }
