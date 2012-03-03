@@ -69,14 +69,19 @@ def entry_view(request, game_id, entry_id):
         team_score = user_team.team.score * user_team.count
         teams.append((user_team.team, user_team.count, team_score))
     
-    card_trades, stock_orders = None, None
+    card_offers, stock_orders, card_executions, stock_executions = None, None, None, None
     if game.supports_cards:
-        card_trades = TradeOffer.objects.filter(entry=self_entry, is_active=True, accepting_user__isnull=True).order_by('-offer_time')
+        card_offers = TradeOffer.objects.filter(entry=self_entry, is_active=True, accepting_user__isnull=True).order_by('-offer_time')
+        query = (Q(entry=self_entry) | Q(accepting_user=self_entry)) & Q(accepting_user__isnull=False)
+        card_executions = TradeOffer.objects.filter(query).order_by('-offer_time')
     if game.supports_stocks:
         stock_orders = Order.objects.filter(placer=self_entry.entry_name, is_active=True, quantity_remaining__gt=0).order_by('-placed_time')
+        query = Q(buy_order__placer=self_entry.entry_name) | Q(sell_order__placer=self_entry.entry_name)
+        stock_executions = Execution.objects.filter(query).order_by('-time')
         
 
-    context = get_base_context(request, game_id, entry=entry, teams=teams, card_trades=card_trades, stock_orders=stock_orders)
+    context = get_base_context(request, game_id, entry=entry, teams=teams,\
+        card_offers=card_offers, stock_orders=stock_orders, card_executions=card_executions, stock_executions=stock_executions)
     return render_with_request_context(request, 'entry.html', context)
 
 
@@ -189,6 +194,9 @@ def game_team_view(request, game_id, team_id):
     context = create_team_context(request, team=team, game=game)
     context['self_entry'] = entry
     context['security'] = get_security(game.name, team.abbrev_name)
+    start_tab = request.GET.get('start_tab', '')
+    if start_tab:
+        context['start_tab'] = start_tab
     return render_with_request_context(request, 'team_view.html', context)
 
 
@@ -498,7 +506,7 @@ def leaderboard(request, game_id):
 
 
 @login_required
-def place_order(request, game_id):
+def do_place_order(request, game_id):
     results = { 'success':False, 'errors':[], 'field_errors':{} }
     context = get_base_context(request, game_id)
     self_entry = context.get('self_entry', None)

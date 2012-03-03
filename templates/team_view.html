@@ -7,9 +7,9 @@
 <script type='text/javascript'>
     function OnTradeResponse(data) {
         if (data.success)
-            location.reload();
+            window.location = '/ncaa/game/{{game.id}}/team/{{team.abbrev_name}}/?start_tab=stock_tab';
         else
-            alert(data.error);
+            alert(data.errors);
     }
 
     $(document).ready(function() {
@@ -19,7 +19,12 @@
         };
 
         $('#tradeForm').ajaxForm(options);
+
+        {% if start_tab %}
+            $('#{{ start_tab }}_expander').click();
+        {% endif %}
     });
+    
 </script>
 {% endblock game_scripts %}
 

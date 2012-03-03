@@ -4,9 +4,9 @@
 {% block page_header %}{% endblock page_header %}
 
 <ul class='nav nav-tabs'>
-    <li class='active'><a href='#overview' data-toggle='tab'>Overview</a></li>
-    {% if game.supports_cards %}<li><a href='#card_tab' data-toggle='tab'>Card Trading</a></li>{% endif %}
-    {% if game.supports_stocks %}<li><a href='#stock_tab' data-toggle='tab'>Stock Trading</a></li>{% endif %}
+    <li class='active'><a href='#overview' data-toggle='tab' id='overview_expander'>Overview</a></li>
+    {% if game.supports_cards %}<li><a href='#card_tab' data-toggle='tab' id='card_tab_expander'>Card Trading</a></li>{% endif %}
+    {% if game.supports_stocks %}<li><a href='#stock_tab' data-toggle='tab' id='stock_tab_expander'>Stock Trading</a></li>{% endif %}
 </ul>
 
 <div class='tab-content'>
