@@ -71,6 +71,9 @@ class Order(models.Model):
     def __str__(self):
         return self.order_id
 
+    def side_name(self):
+        return 'Buy' if self.is_buy else 'Sell'
+
 
 class Execution(models.Model):
     security = models.ForeignKey(Security, related_name='executions', editable=False)
