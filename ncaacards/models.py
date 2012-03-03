@@ -204,18 +204,22 @@ def create_team_counts(sender, instance, created, **kwargs):
 def record_execution(sender, instance, created, **kwargs):
     if created:
         try:
-            game = NcaaGame.get(name=instance.name)
-            buyer = UserEntry.get(game=game, entry_name=instance.placer)
-            seller = UserEntry.get(game=game, entry_name=instance.placer)
-            team = Team.get(name=instance.security.name)
-            game_team = GameTeam.get(game=game, team=team)
+            game = NcaaGame.objects.get(name=instance.security.market.name)
+            buyer = UserEntry.objects.get(game=game, entry_name=instance.buy_order.placer)
+            seller = UserEntry.objects.get(game=game, entry_name=instance.sell_order.placer)
+            team = Team.objects.get(abbrev_name=instance.security.name)
+            game_team = GameTeam.objects.get(game=game, team=team)
 
-            buyer_count = UserTeam.get(team=game_team, entry=buyer)
+            buyer_count = UserTeam.objects.get(team=game_team, entry=buyer)
             buyer_count.count += instance.quantity
             buyer_count.save()
 
-            seller_count = UserTeam.get(team=game_team, entry=buyer)
+            seller_count = UserTeam.objects.get(team=game_team, entry=seller)
             seller_count.count -= instance.quantity
             seller_count.save()
+
+            if seller_count.count < 0:
+                logger.error('Entry %s sold %s shares of %s when they only had %s'\
+                    % (seller.name, instance.quantity, team.abbrev_name, seller_count + instance.quantity))
         except Exception as e:
             logger.error('Error processing execution %s: %s' % (instance.execution_id, str(e)))
