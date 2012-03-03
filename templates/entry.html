@@ -16,7 +16,7 @@ Score: {{ entry.score }}<br/>
         {% for team, shares, team_points in teams %}
             <tr>
             <td>{{ shares }}</td>
-            <td>{% team_link team.team entry.game %}</td>
+            <td>{% team_link team.team.abbrev_name entry.game %}</td>
             <td>{{ team.score }}</td>
             <td>{{ team_points }}</td>
             </tr>
@@ -34,7 +34,7 @@ Score: {{ entry.score }}<br/>
             {% with wanted_teams=entry.trading_block.game_teams_desired.all %}
                 {% if wanted_teams %}
                     {% for team in wanted_teams %}
-                        {% team_link team.team entry.game %}<br/>
+                        {% team_link team.team.abbrev_name entry.game %}<br/>
                     {% endfor %}
                 {% else %}
                     <em>None</em><br/>
@@ -46,7 +46,7 @@ Score: {{ entry.score }}<br/>
             {% with available_teams=entry.trading_block.game_teams_available.all %}
                 {% if available_teams %}
                     {% for team in available_teams %}
-                        {% team_link team.team entry.game %}<br/>
+                        {% team_link team.team.abbrev_name entry.game %}<br/>
                     {% endfor %}
                 {% else %}
                     <em>None</em><br/>
@@ -57,5 +57,5 @@ Score: {{ entry.score }}<br/>
 {% endblock card_tab %}
 
 {% block stock_tab %}
-    {% order_table stock_orders %}
+    {% order_table stock_orders game %}
 {% endblock stock_tab %}

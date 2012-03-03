@@ -51,8 +51,8 @@ def render_offer_table(offer, entry):
 
 
 @register.inclusion_tag('team_link.html')
-def team_link(team, game=None):
-    return { 'team':team, 'game':game }
+def team_link(team_name, game=None):
+    return { 'team_name':team_name, 'game':game }
 
 
 @register.inclusion_tag('entry_link.html')
@@ -100,5 +100,5 @@ def trade_form(game, team=None):
 
 
 @register.inclusion_tag('order_table.html')
-def order_table(orders):
-    return { 'orders':orders }
+def order_table(orders, game):
+    return { 'orders':orders, 'game':game }

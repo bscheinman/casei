@@ -8,7 +8,7 @@
     <tr>
     {% if bid %}
         {% if bid.team %} {# Hacky way of checking whether this is a team or flat points #}
-            <td>{% team_link bid.team.team bid.team.game %}</td><td>{{ bid.count }}</td>
+            <td>{% team_link bid.team.team.abbrev_name bid.team.game %}</td><td>{{ bid.count }}</td>
         {% else %}
             <td>Points</td><td>{{ bid }}</td>
         {% endif %}
@@ -17,7 +17,7 @@
     {% endif %}
     {% if ask %}
         {% if ask.team %} {# Hacky way of checking whether this is a team or flat points #}
-            <td>{% team_link ask.team.team ask.team.game %}</td><td>{{ ask.count }}</td>
+            <td>{% team_link ask.team.team.abbrev_name ask.team.game %}</td><td>{{ ask.count }}</td>
         {% else %}
             <td>Points</td><td>{{ ask }}</td>
         {% endif %}

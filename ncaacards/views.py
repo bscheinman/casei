@@ -498,7 +498,7 @@ def leaderboard(request, game_id):
 
 
 @login_required
-def do_trade(request, game_id):
+def place_order(request, game_id):
     results = { 'success':False, 'errors':[], 'field_errors':{} }
     context = get_base_context(request, game_id)
     self_entry = context.get('self_entry', None)
@@ -532,5 +532,33 @@ def do_trade(request, game_id):
                     results['errors'].append(str(error))
         else:
             results['field_errors'] = form.errors
+
+    return HttpResponse(simplejson.dumps(results), mimetype='text/json')
+
+
+@login_required
+def cancel_order(request, game_id):
+    results = { 'success':False, 'errors':[] }
+    if request.method != 'POST':
+        results['errors'].append('You must use a POST request for cancelling orders')
+    else:
+        context = get_base_context(request, game_id)
+        self_entry = context.get('self_entry', None)
+        order_id = request.POST.get('order_id', '')
+        if not order_id:
+            results['errors'].append('You must provide an order id')
+        else:
+            try:
+                order = Order.objects.get(order_id=order_id)
+            except Order.DoesNotExist:
+                results['errors'].append('No order exists with the id %s' % order_id)
+            else:
+                if not self_entry or self_entry.entry_name != order.placer:
+                    results['errors'].append('You can only cancel your own orders')
+
+        if not results['errors']:
+            order.is_active = False
+            order.save()
+            results['success'] = True
 
     return HttpResponse(simplejson.dumps(results), mimetype='text/json')
