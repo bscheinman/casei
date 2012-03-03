@@ -97,3 +97,8 @@ def trade_form(game, team=None):
     else:
         all_team_ids = [t.team.abbrev_name for t in GameTeam.objects.filter(game=game)]
     return { 'game':game, 'team':team, 'all_team_ids':all_team_ids }
+
+
+@register.inclusion_tag('order_table.html')
+def order_table(orders):
+    return { 'orders':orders }

@@ -69,14 +69,14 @@ def entry_view(request, game_id, entry_id):
         team_score = user_team.team.score * user_team.count
         teams.append((user_team.team, user_team.count, team_score))
     
-    card_trades, stock_trades = None, None
+    card_trades, stock_orders = None, None
     if game.supports_cards:
         card_trades = TradeOffer.objects.filter(entry=self_entry, is_active=True, accepting_user__isnull=True).order_by('-offer_time')
     if game.supports_stocks:
-        stock_trades = Order.objects.filter(placer=self_entry.entry_name, is_active=True, quantity_remaining__gt=0).order_by('-placed_time')
+        stock_orders = Order.objects.filter(placer=self_entry.entry_name, is_active=True, quantity_remaining__gt=0).order_by('-placed_time')
         
 
-    context = get_base_context(request, game_id, entry=entry, teams=teams, card_trades=card_trades, stock_trades=stock_trades)
+    context = get_base_context(request, game_id, entry=entry, teams=teams, card_trades=card_trades, stock_orders=stock_orders)
     return render_with_request_context(request, 'entry.html', context)
 
 
