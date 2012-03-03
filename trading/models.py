@@ -103,9 +103,6 @@ def process_new_order(order):
 
         execution = Execution.objects.create(security=order.security, buy_order=buy_order,\
             sell_order=sell_order, quantity=exec_quantity, price=existing_order.price)
-        
-        # don't save this because it's already done in record_execution.  this is just for keeping track within process_new_order
-        order.quantity_remaining -= exec_quantity
 
     if order.is_buy:
         comparer = lambda x: x.price <= order.price
