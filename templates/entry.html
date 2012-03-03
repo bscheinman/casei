@@ -1,12 +1,14 @@
-{% extends 'game_base.html' %}
+{% extends 'trade_tab_view.html' %}
 {% load ncaa_tags %}
 
 {% block title %}{{ entry.entry_name }}{% endblock title %}
 
-{% block game_body %}
+{% block page_header %}
 <h2>{{ entry.entry_name }}</h2>
 Score: {{ entry.score }}<br/>
+{% endblock page_header %}
 
+{% block main_tab %}
 <div id='holdings' class='well span4'>
     <h3>Holdings</h3>
     <table class='table table-bordered table-striped table-condensed'>
@@ -22,33 +24,39 @@ Score: {{ entry.score }}<br/>
         <tr><td></td><td><b>Total</b></td><td></td><td>{{ entry.score }}</td></tr>
     </table>
 </div>
+{% endblock main_tab %}
+
+{% block card_tab %}
+    <div id='trading_block' class='well span4 offset1'>
+        <h3>Trading Block</h3><br/>
+        <h4>Wanted</h4>
+        <div class='well'>
+            {% with wanted_teams=entry.trading_block.game_teams_desired.all %}
+                {% if wanted_teams %}
+                    {% for team in wanted_teams %}
+                        {% team_link team.team entry.game %}<br/>
+                    {% endfor %}
+                {% else %}
+                    <em>None</em><br/>
+                {% endif %}
+            {% endwith %}
+        </div>
+        <h4>Available</h4><br/>
+        <div class='well'>
+            {% with available_teams=entry.trading_block.game_teams_available.all %}
+                {% if available_teams %}
+                    {% for team in available_teams %}
+                        {% team_link team.team entry.game %}<br/>
+                    {% endfor %}
+                {% else %}
+                    <em>None</em><br/>
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+{% endblock card_tab %}
+
+{% block stock_tab %}
 
 
-<div id='trading_block' class='well span4 offset1'>
-    <h3>Trading Block</h3><br/>
-    <h4>Wanted</h4>
-    <div class='well'>
-        {% with wanted_teams=entry.trading_block.game_teams_desired.all %}
-            {% if wanted_teams %}
-                {% for team in wanted_teams %}
-                    {% team_link team.team entry.game %}<br/>
-                {% endfor %}
-            {% else %}
-                <em>None</em><br/>
-            {% endif %}
-        {% endwith %}
-    </div>
-    <h4>Available</h4><br/>
-    <div class='well'>
-        {% with available_teams=entry.trading_block.game_teams_available.all %}
-            {% if available_teams %}
-                {% for team in available_teams %}
-                    {% team_link team.team entry.game %}<br/>
-                {% endfor %}
-            {% else %}
-                <em>None</em><br/>
-            {% endif %}
-        {% endwith %}
-    </div>
-</div>
-{% endblock game_body %}
+{% endblock stock_tab %}

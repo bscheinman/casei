@@ -3,6 +3,7 @@ from casei.ncaacards.logic import accept_trade
 from casei.ncaacards.logic import get_leaders, get_game, get_entry, get_team_from_identifier
 from casei.ncaacards.models import *
 from casei.trading.logic import get_security, place_order
+from casei.trading.models import Execution, Order
 from casei.views import render_with_request_context
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -63,14 +64,19 @@ def entry_view(request, game_id, entry_id):
 
     teams = []
     
-    user_teams = UserTeam.objects.filter(entry=entry)
+    user_teams = UserTeam.objects.filter(entry=entry).order_by('team__team__abbrev_name')
     for user_team in user_teams:
         team_score = user_team.team.score * user_team.count
         teams.append((user_team.team, user_team.count, team_score))
     
-    # sort by team name
-    teams = sorted(teams, key=lambda x: x[0].team.abbrev_name)
-    context = get_base_context(request, game_id, entry=entry, teams=teams)
+    card_trades, stock_trades = None, None
+    if game.supports_cards:
+        card_trades = TradeOffer.objects.filter(entry=self_entry, is_active=True, accepting_user__isnull=True).order_by('-offer_time')
+    if game.supports_stocks:
+        stock_trades = Order.objects.filter(placer=self_entry.entry_name, is_active=True, quantity_remaining__gt=0).order_by('-placed_time')
+        
+
+    context = get_base_context(request, game_id, entry=entry, teams=teams, card_trades=card_trades, stock_trades=stock_trades)
     return render_with_request_context(request, 'entry.html', context)
 
 
