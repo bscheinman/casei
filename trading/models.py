@@ -61,6 +61,7 @@ class Order(models.Model):
     placer = models.CharField(max_length=30) # This should be populated by the using application and is just for that application's use
     security = models.ForeignKey(Security, related_name='orders')
     placed_time = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now_add=True)
     quantity = models.IntegerField()
     quantity_remaining = models.IntegerField()
     price = models.DecimalField(decimal_places=2, max_digits=10)
