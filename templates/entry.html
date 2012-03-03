@@ -3,6 +3,26 @@
 
 {% block title %}{{ entry.entry_name }}{% endblock title %}
 
+{% block game_scripts %}
+    <script type='text/javascript'>
+        function OnCancelResponse(data) {
+            if (data.success)
+                location.reload();
+            else
+                alert(data.errors);
+        }
+
+        $(document).ready(function() {
+            var options = {
+                dataType: 'json',
+                success: OnTradeResponse
+            };
+
+            $('#tradeForm').ajaxForm(options);
+        });
+    </script>
+{% endblock game_scripts %}
+
 {% block page_header %}
 <h2>{{ entry.entry_name }}</h2>
 Score: {{ entry.score }}<br/>
@@ -27,7 +47,7 @@ Score: {{ entry.score }}<br/>
 {% endblock main_tab %}
 
 {% block card_tab %}
-    <div id='trading_block' class='well span4 offset1'>
+    <div id='trading_block' class='well span4'>
         <h3>Trading Block</h3><br/>
         <h4>Wanted</h4>
         <div class='well'>
