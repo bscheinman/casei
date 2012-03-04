@@ -25,6 +25,7 @@ class NcaaGame(models.Model):
     game_type = models.ForeignKey(GameType, related_name='games')
     supports_cards = models.BooleanField(default=False)
     supports_stocks = models.BooleanField(default=False)
+    settings_locked = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

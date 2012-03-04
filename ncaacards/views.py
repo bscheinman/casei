@@ -559,7 +559,7 @@ def add_scoring_context(game, context):
     scoring_settings = ScoringSetting.objects.filter(game=game).order_by('scoreType__ordering')
     context['scoring_settings'] = scoring_settings
     self_entry = context['self_entry']
-    context['can_edit'] = self_entry == game.founding_entry()
+    context['can_edit'] = self_entry == game.founding_entry() and not game.settings_locked
 
 
 def scoring_settings(request, game_id):
@@ -578,6 +578,10 @@ def save_settings(request, game_id):
     if not game or request.method != 'POST':
         return HttpResponseRedirect('/ncaa/')
 
+    add_scoring_context(game, context)
+    if not context['can_edit']:
+        return HttpResponseRedirect('/ncaa/game/%s/scoring_settings/' % game_id)
+
     scoring_settings = ScoringSetting.objects.filter(game=game)
     errors = []
     for setting in scoring_settings:
@@ -592,6 +596,19 @@ def save_settings(request, game_id):
             setting.points = setting_points
             setting.save()
 
-    add_scoring_context(game, context)
     context['errors'] = errors
     return render_with_request_context(request, 'scoring_settings.html', context)
+
+
+def lock_settings(request, game_id):
+    context = get_base_context(request, game_id)
+    game = context['game']
+    if not game or request.method != 'POST':
+        return HttpResponseRedirect('/ncaa/')
+
+    add_scoring_context(game, context)
+    if context['can_edit']:
+        game.settings_locked = True
+        game.save()
+
+    return HttpResponseRedirect('/ncaa/game/%s/scoring_settings/' % game_id)

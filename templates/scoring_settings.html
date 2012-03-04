@@ -6,6 +6,7 @@
 {% block game_body %}
     <div class='well span5'>
         <h3>Scoring Settings</h3>
+        ({% if game.settings_locked %}Locked{% else %}Unlocked{% endif %})</br>
         {% if errors %}
             <div class='alert alert-error span4'>
                 <a class='close' data-dismiss='alert'>x</a>
@@ -30,6 +31,9 @@
                 {% endfor %}
 
                 <button type='submit' class='btn btn-primary'>Save Settings</button>
+            </form>
+            <form method='POST' action='/ncaa/game/{{game.id}}/lock_settings/'>{% csrf_token %}
+                <button type='submit' class='btn btn-danger'>Lock Settings</button>
             </form>
         {% else %}
             {% for score_setting in scoring_settings %}
