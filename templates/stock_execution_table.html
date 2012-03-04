@@ -7,7 +7,7 @@
             {% if execution.buy_order.placer == self_entry.entry_name %} class='self_buy'{% endif %}
             {% if execution.sell_order.placer == self_entry.entry_name %} class='self_sell'{% endif %}
             >
-            <td>{{ execution.time }}</td>
+            <td>{{ execution.time|date:'m/d/y H:i:s' }}</td>
             <td>{% team_link execution.security.name game %}</td>
             <td>{{ execution.quantity }}</td>
             <td>{{ execution.price }}</td>

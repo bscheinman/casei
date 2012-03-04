@@ -65,8 +65,8 @@ def game_link(game):
     return { 'game':game }
 
 
-@register.inclusion_tag('leaderboard.html')
-def leaderboard(leaders):
+@register.inclusion_tag('leaderboard_table.html')
+def leaderboard_table(leaders):
     return { 'leaders':leaders }
 
 

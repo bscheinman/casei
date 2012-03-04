@@ -21,7 +21,8 @@ def get_base_context(request, game_id, **kwargs):
         game = get_game(game_id)
     context['game'] = game
     if request.user.is_authenticated():
-        context['user_entries'] = UserEntry.objects.filter(user=request.user)
+        context['user_games'] = NcaaGame.objects.filter(entries__user=request.user)
+        #context['user_entries'] = UserEntry.objects.filter(user=request.user)
         if game:
             context['self_entry'] = get_entry(game, request.user)
     return context
@@ -39,13 +40,15 @@ def game_home(request, game_id):
     context = get_base_context(request, game_id)
 
     game = context['game']
+    if not game:
+        return HttpResponseRedirect('/ncaa/')
     context['leaders'] = get_leaders(game)
 
     card_executions, stock_executions = [], []
     if game.supports_cards:
-        card_executions = Execution.objects.filter(security__market__name=game.name).order_by('-time')[:10]
+        card_executions = TradeOffer.objects.filter(accepting_user__isnull=False).order_by('-offer_time')[:10]
     if game.supports_stocks:
-        stock_executions = TradeOffer.objects.filter(accepting_user__isnull=False).order_by('-offer_time')[:10]
+        stock_executions = Execution.objects.filter(security__market__name=game.name).order_by('-time')[:25]
 
     context['card_executions'] = card_executions
     context['stock_executions'] = stock_executions
