@@ -46,7 +46,7 @@ def game_home(request, game_id):
 
     card_executions, stock_executions = [], []
     if game.supports_cards:
-        card_executions = TradeOffer.objects.filter(accepting_user__isnull=False).order_by('-offer_time')[:10]
+        card_executions = TradeOffer.objects.filter(entry__game=game, accepting_user__isnull=False).order_by('-offer_time')[:10]
     if game.supports_stocks:
         stock_executions = Execution.objects.filter(security__market__name=game.name).order_by('-time')[:25]
 
