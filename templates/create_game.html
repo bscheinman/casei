@@ -13,20 +13,57 @@
     </div>
 </div>
 {% endif %}
-<form method='POST' action='/ncaa/do_create_game/'>{% csrf_token %}
-    <table>
-        <tr><td>Game Name</td><td><input type='text' name='game_name'></td></tr>
-        <tr><td>Game Type</td><td>
-            <select name='game_type'>
-                {% for game_type in game_types %}
-                    <option value='{{game_type.name}}'>{{ game_type.name }}</option><br/>
-                {% endfor %}
-            </select></td></tr>
-        <tr><td>Starting Shares</td><td><input type='text' name='starting_shares' value='100'></td></td>
-        <tr><td>Starting Points</td><td><input type='text' name='starting_points' value='0'></td></td>
-        <tr><td>Password (optional)</td><td><input type='password' name='password'></td></tr>
-        <tr><td>Your Entry Name</td><td><input type='text' name='entry_name'></td></tr>
-        <tr><td></td><td><button type='submit' class='btn btn-success'>Create Game</button></td></tr>
-    </table>
+<form method='POST' action='/ncaa/do_create_game/' class='well form-horizontal'>{% csrf_token %}
+    <fieldset>
+        <legend>Create New Game</legend>
+        <div class='control-group'>
+            <label class='control-label' for='name_input'>Game Name</label>
+            <div class='controls'>
+                <input type='text' name='game_name' id='name_input'>
+            </div>
+        </div>
+        <div class='control-group'>
+            <label class='control-label' for='type_input'>Game Type</label>
+            <div class='controls'>
+                <select name='game_type'>
+                    {% for game_type in game_types %}
+                        <option value='{{game_type.name}}'>{{ game_type.name }}</option><br/>
+                    {% endfor %}
+                </select></td></tr>
+            </div>
+        </div>
+        <div class='control-group'>
+            <label class='control-label' for='shares_input'>Starting Shares</label>
+            <div class='controls'>
+                <input type='text' name='starting_shares' id='shares_input' value='100'>
+            </div>
+        </div>
+        <div class='control-group'>
+            <label class='control-label' for='points_input'>Starting Points</label>
+            <div class='controls'>
+                <input type='text' name='starting_points' id='points_input' value='0'>
+            </div>
+        </div>
+        <div class='control-group'>
+            <label class='control-label' for='password_input'>Password (optional)</label>
+            <div class='controls'>
+                <input type='password' name='password' id='password_input'>
+            </div>
+        </div>
+        <div class='control-group'>
+            <label class='control-label' for='entry_input'>Your Entry Name</label>
+            <div class='controls'>
+                <input type='text' name='entry_name' id='entry_input'>
+            </div>
+        </div>
+        <div class='control-group'>
+            <label class='control-label'>Trading Types</label>
+            <div class='controls'>
+                <input type='checkbox' name='support_cards'> Card-Style<br/>
+                <input type='checkbox' name='support_stocks'> Stock-Style
+            </div>
+        </div>
+        <button type='submit' class='btn btn-success'>Create Game</button>
+    </fieldset>
 </form>
 {% endblock game_body %}

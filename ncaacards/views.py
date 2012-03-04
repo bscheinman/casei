@@ -1,4 +1,4 @@
-from casei.ncaacards.forms import TradeForm
+from casei.ncaacards.forms import CreateGameForm, TradeForm
 from casei.ncaacards.logic import accept_trade
 from casei.ncaacards.logic import get_leaders, get_game, get_entry, get_team_from_identifier
 from casei.ncaacards.models import *
@@ -87,6 +87,8 @@ def entry_view(request, game_id, entry_id):
 @login_required
 def marketplace(request, game_id):
     game = get_game(game_id)
+    if not game.supports_cards:
+        return HttpResponseRedirect('/ncaa/game/%s/' % game_id)
     entry = get_entry(game, request.user)
     if not entry:
         return HttpResponseRedirect('/ncaa/')
@@ -108,8 +110,11 @@ def marketplace(request, game_id):
 
 def ticker(request, game_id):
     context = get_base_context(request, game_id)
-    if not context['game']:
+    game = context.get('game', None)
+    if not game:
         return HttpResponseRedirect('/ncaa/')
+    if not game.supports_stocks:
+        return HttpResponseRedirect('/ncaa/game/%s/' % game_id)
     rows = []
     teams = GameTeam.objects.filter(game=context['game']).order_by('team__abbrev_name')
     securities = Security.objects.filter(market__name=context['game'].name)
@@ -175,7 +180,7 @@ def create_team_context(request, **kwargs):
             if self_entry:
                 open_orders = Order.objects.filter(placer=self_entry.entry_name, security__name=team.abbrev_name,\
                     is_active=True, quantity_remaining__gt=0).order_by('-placed_time')[:10]
-            executions = Execution.objects.filter(security__name=team.abbrev_name).order_by('-time')[:10]
+            executions = Execution.objects.filter(security__market__name=game.name, security__name=team.abbrev_name).order_by('-time')[:10]
 
             context['open_orders'] = open_orders
             context['executions'] = executions
@@ -216,6 +221,8 @@ MAX_OFFER_SIZE = 5
 @login_required
 def create_offer(request, game_id, **kwargs):
     game = get_game(game_id)
+    if not game.supports_cards:
+        return HttpResponseRedirect('/ncaa/game/%s/' % game_id)
     entry = get_entry(game, request.user)
     if not entry:
         return HttpResponseRedirect('/ncaa/')
@@ -252,10 +259,10 @@ def create_offer_component(team_name, count_str, game):
 
 @login_required
 def make_offer(request, game_id):
-    if request.method != 'POST':
+    game = get_game(game_id)
+    if request.method != 'POST' or not game.supports_cards:
         return HttpResponseRedirect('/ncaa/game/%s/' % game_id)
 
-    game = get_game(game_id)
     self_entry = get_entry(game, request.user)
     if not self_entry:
         return HttpResponseRedirect('/ncaa/')
@@ -347,67 +354,24 @@ def do_create_game(request):
         return HttpResponseRedirect('/ncaa/')
     errors = []
 
-    post = request.POST
-    game_name = post.get('game_name', '')
-    game_type_str = post.get('game_type', '')
-    starting_shares_str = post.get('starting_shares', '')
-    starting_points_str = post.get('starting_points', '')
-    game_password = post.get('password', '')
-    entry_name = post.get('entry_name', '')
+    form = CreateGameForm(request.POST)
+    if form.is_valid():
+        data = form.cleaned_data
 
-    if not game_name:
-        errors.append('You must specify a game name')
+        game = NcaaGame.objects.create(name=data['game_name'], game_type=data['game_type'], starting_shares=data['starting_shares'],\
+            starting_points=data['starting_points'], supports_cards=data['support_cards'], supports_stocks=data['support_stocks'])
+        game_password = data['game_password']
+        if game_password:
+            game.password = game_password
+            game.save()
+
+        entry = UserEntry.objects.create(game=game, user=request.user, entry_name=data['entry_name'])
     else:
-        try:
-            g = NcaaGame.objects.get(name=game_name)
-        except NcaaGame.DoesNotExist:
-            pass
-        else:
-            errors.append('A game with already exists with the name %s' % game_name)
-
-    if not game_type_str:
-        errors.append('You must specify a game type')
-    else:
-        try:
-            game_type = GameType.objects.get(name=game_type_str)
-        except GameType.DoesNotExist:
-            errors.append('%s is not a valid game type' % game_type_str)
-
-    if not starting_shares_str:
-        errors.append('You must specify the number of starting shares')
-    else:
-        try:
-            starting_shares = int(starting_shares_str)
-        except ValueError:
-            errors.append('You must enter a valid number of starting shares')
-        else:
-            if starting_shares <= 0:
-                errors.append('You must enter a positive number of starting shares')
-
-    if not starting_points_str:
-        errors.append('You must specify the number of starting points')
-    else:
-        try:
-            starting_points = int(starting_points_str)
-        except ValueError:
-            errors.append('You must enter a valid number of starting points')
-        else:
-            if starting_points < 0:
-                errors.append('You must enter a non-negative number of starting points')
-
-    if not entry_name:
-        errors.append('You must specify an entry name')
-
-    if errors:
+        for field in form:
+            for e in field.errors:
+                errors.append(e)
         context = get_base_context(request, None, game_types=GameType.objects.all(), errors=errors)
         return render_with_request_context(request, 'create_game.html', context)
-
-    game = NcaaGame.objects.create(name=game_name, game_type=game_type, starting_shares=starting_shares, starting_points=starting_points)
-    if game_password:
-        game.password = game_password
-        game.save()
-
-    entry = UserEntry.objects.create(game=game, user=request.user, entry_name=entry_name)
 
     return HttpResponseRedirect('/ncaa/game/%s/entry/%s/' % (game.id, entry.id))
 
@@ -521,6 +485,8 @@ def do_place_order(request, game_id):
     results = { 'success':False, 'errors':[], 'field_errors':{} }
     context = get_base_context(request, game_id)
     self_entry = context.get('self_entry', None)
+    if not context['game']:
+        results['errors'].append('This game does not support stock-style trades')
     if not self_entry:
         results['errors'].append('You cannot place orders for games in which you do not have an entry')
     if request.method != 'POST':

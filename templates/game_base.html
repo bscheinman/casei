@@ -59,10 +59,14 @@
                     {% endif %}
                     {% if game %}
                         <li class='nav-header'>{{ game.name }}</li>
-                        {% if game.supports_cards %}<li><a href='/ncaa/game/{{game.id}}/marketplace/'>Marketplace</a></li>{% endif %}
-                        {% if game.supports_stocks %}<li><a href='/ncaa/game/{{game.id}}/ticker/'>Ticker</a></li>{% endif %}
+                        {% if game.supports_cards %}
+                            <li><a href='/ncaa/game/{{game.id}}/marketplace/'>Marketplace</a></li>
+                            <li><a href='/ncaa/game/{{game.id}}/create_offer/'>Create Offer</a></li>
+                        {% endif %}
+                        {% if game.supports_stocks %}
+                            <li><a href='/ncaa/game/{{game.id}}/ticker/'>Ticker</a></li>
+                        {% endif %}
                         <li><a href='/ncaa/game/{{game.id}}/leaderboard/'>Leaderboard</a></li>
-                        <li><a href='/ncaa/game/{{game.id}}/create_offer/'>Create Offer</a></li>
                         <li>
                             <div class='entry-select btn-group'>
                                 <a class='btn dropdown-toggle' data-toggle='dropdown' href='#'>{{ game.name }} Entries <span class='caret'></span></a>
