@@ -60,6 +60,7 @@
                     {% if game %}
                         <li class='nav-header'>{{ game.name }}</li>
                         <li><a href='/ncaa/game/{{game.id}}/'>Home</a></li>
+                        <li><a href='/ncaa/game/{{game.id}}/scoring_settings/'>Scoring Settings</a></li>
                         {% if game.supports_cards %}
                             <li><a href='/ncaa/game/{{game.id}}/marketplace/'>Marketplace</a></li>
                             <li><a href='/ncaa/game/{{game.id}}/create_offer/'>Create Offer</a></li>

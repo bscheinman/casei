@@ -379,7 +379,7 @@ def do_create_game(request):
         context = get_base_context(request, None, game_types=GameType.objects.all(), errors=errors)
         return render_with_request_context(request, 'create_game.html', context)
 
-    return HttpResponseRedirect('/ncaa/game/%s/entry/%s/' % (game.id, entry.id))
+    return HttpResponseRedirect('/ncaa/game/%s/scoring_settings/' % game_id)
 
 
 @login_required
@@ -555,14 +555,43 @@ def cancel_order(request, game_id):
     return HttpResponse(simplejson.dumps(results), mimetype='text/json')
 
 
+def add_scoring_context(game, context):
+    scoring_settings = ScoringSetting.objects.filter(game=game).order_by('scoreType__ordering')
+    context['scoring_settings'] = scoring_settings
+    self_entry = context['self_entry']
+    context['can_edit'] = self_entry == game.founding_entry()
+
+
 def scoring_settings(request, game_id):
     context = get_base_context(request, game_id)
     game = context['game']
     if not game:
         return HttpResponseRedirect('/ncaa/')
 
-    scoring_settings = ScoringSetting.objects.filter(game=game)
-    context['scoring_settings'] = scoring_settings
-
+    add_scoring_context(game, context)
     return render_with_request_context(request, 'scoring_settings.html', context)
     
+
+def save_settings(request, game_id):
+    context = get_base_context(request, game_id)
+    game = context['game']
+    if not game or request.method != 'POST':
+        return HttpResponseRedirect('/ncaa/')
+
+    scoring_settings = ScoringSetting.objects.filter(game=game)
+    errors = []
+    for setting in scoring_settings:
+        setting_str = request.POST.get(setting.scoreType.name.replace(' ', '_'), '')
+        if not setting_str:
+            continue
+        try:
+            setting_points = int(setting_str)
+        except ValueError:
+            errors.append('%s is not a valid score setting' % setting_str)
+        else:
+            setting.points = setting_points
+            setting.save()
+
+    add_scoring_context(game, context)
+    context['errors'] = errors
+    return render_with_request_context(request, 'scoring_settings.html', context)
