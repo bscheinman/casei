@@ -37,6 +37,9 @@ class NcaaGame(models.Model):
             types.append('Stocks')
         return string.join(types, ', ')
 
+    def founding_entry(self):
+        return self.entries.order_by('join_time')[0]
+
 
 class ScoreType(models.Model):
     name = models.CharField(max_length=30)
@@ -60,6 +63,7 @@ class UserEntry(models.Model):
     entry_name = models.CharField(max_length=30)
     extra_points = models.IntegerField(default=0)
     score = models.IntegerField(default=0)
+    join_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ('game', 'entry_name')
