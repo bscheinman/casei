@@ -77,5 +77,7 @@ Score: {{ entry.score }}<br/>
 {% endblock card_tab %}
 
 {% block stock_tab %}
-    {% ordercordion stock_orders stock_executions game self_entry %}
+    {% if entry == self_entry %}
+        {% ordercordion stock_orders stock_executions game self_entry %}
+    {% endif %}
 {% endblock stock_tab %}
