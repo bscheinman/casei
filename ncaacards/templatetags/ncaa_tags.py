@@ -9,6 +9,11 @@ def get_range(i):
     return range(i)
 
 
+@register.filter
+def underscore(s):
+    return s.replace(' ', '_')
+
+
 @register.inclusion_tag('offer_table.html')
 def render_offer_table(offer, entry):
     rows = []
