@@ -553,3 +553,16 @@ def cancel_order(request, game_id):
             results['success'] = True
 
     return HttpResponse(simplejson.dumps(results), mimetype='text/json')
+
+
+def scoring_settings(request, game_id):
+    context = get_base_context(request, game_id)
+    game = context['game']
+    if not game:
+        return HttpResponseRedirect('/ncaa/')
+
+    scoring_settings = ScoringSetting.objects.filter(game=game)
+    context['scoring_settings'] = scoring_settings
+
+    return render_with_request_context(request, 'scoring_settings.html', context)
+    
