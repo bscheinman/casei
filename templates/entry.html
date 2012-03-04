@@ -41,7 +41,8 @@ Score: {{ entry.score }}<br/>
             <td>{{ team_points }}</td>
             </tr>
         {% endfor %}
-        <tr><td></td><td><b>Total</b></td><td></td><td>{{ entry.score }}</td></tr>
+        <tr><td colspan='3'>Tradable Points</td><td>{{ entry.extra_points }}</td></tr>
+        <tr><td colspan='3'><b>Total</b></td><td>{{ entry.score }}</td></tr>
     </table>
 </div>
 {% endblock main_tab %}

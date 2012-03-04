@@ -36,17 +36,20 @@ def home(request):
 
 @login_required
 def game_home(request, game_id):
-    game = get_game(game_id)
-    if not game:
-        return HttpResponseRedirect('/ncaa/')
+    context = get_base_context(request, game_id)
 
-    entry = None
-    try:
-        entry = UserEntry.objects.get(user=request.user, game=game)
-    except UserEntry.DoesNotExist:
-        pass
+    game = context['game']
+    context['leaders'] = get_leaders(game)
 
-    context = get_base_context(request, game_id, leaders=get_leaders(game))
+    card_executions, stock_executions = [], []
+    if game.supports_cards:
+        card_executions = Execution.objects.filter(security__market__name=game.name).order_by('-time')[:10]
+    if game.supports_stocks:
+        stock_executions = TradeOffer.objects.filter(accepting_user__isnull=False).order_by('-offer_time')[:10]
+
+    context['card_executions'] = card_executions
+    context['stock_executions'] = stock_executions
+
     return render_with_request_context(request, 'game_home.html', context)
 
 
