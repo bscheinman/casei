@@ -42,13 +42,13 @@
             {% if user.is_authenticated %}
             <div class='well sidebar-nav'>
                 <ul class='nav nav-list'>
-                    {% if user_entries %}
+                    {% if user_games %}
                         <li>
                             <div class='game-select btn-group'>
-                                <a class='btn dropdown-toggle' data-toggle='dropdown' href='#'>Your Entries <span class='caret'></span></a>
+                                <a class='btn dropdown-toggle' data-toggle='dropdown' href='#'>Your Games <span class='caret'></span></a>
                                 <ul class='dropdown-menu'>
-                                    {% for entry in user_entries %}
-                                        <li><a href='/ncaa/game/{{entry.game.id}}/entry/{{entry.id}}/'>{{ entry.entry_name }}</a></li>
+                                    {% for user_game in user_games %}
+                                        <li><a href='/ncaa/game/{{user_game.id}}/'>{{ user_game.name }}</a></li>
                                     {% endfor %}
                                 </ul>
                             </div>
@@ -59,6 +59,7 @@
                     {% endif %}
                     {% if game %}
                         <li class='nav-header'>{{ game.name }}</li>
+                        <li><a href='/ncaa/game/{{game.id}}/'>Home</a></li>
                         {% if game.supports_cards %}
                             <li><a href='/ncaa/game/{{game.id}}/marketplace/'>Marketplace</a></li>
                             <li><a href='/ncaa/game/{{game.id}}/create_offer/'>Create Offer</a></li>
