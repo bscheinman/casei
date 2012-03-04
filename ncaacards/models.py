@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import logging
+import string
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,14 @@ class NcaaGame(models.Model):
 
     def __str__(self):
         return self.name
+
+    def trade_type_string(self):
+        types = []
+        if self.supports_cards:
+            types.append('Cards')
+        if self.supports_stocks:
+            types.append('Stocks')
+        return string.join(types, ', ')
 
 
 class ScoreType(models.Model):
@@ -170,6 +179,7 @@ def complete_user_entry(sender, instance, created, **kwargs):
         for team in GameTeam.objects.filter(game=instance.game):
             UserTeam.objects.create(entry=instance, team=team, count=instance.game.starting_shares)
         instance.extra_points = instance.game.starting_points
+        instance.score = instance.game.starting_points
         instance.save()
 
 

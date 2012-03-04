@@ -1,40 +1,44 @@
-{% extends 'game_base.html' %}
+{% extends 'trade_tab_view.html' %}
 {% load ncaa_tags %}
 
 {% block title %}{{ game.name }}{% endblock title %}
 
-{% block game_body %}
-<h2>{{ game.name }}</h2>
+{% block page_header %}
+    <h2>{{ game.name }}</h2>
+{% endblock page_header %}
 
-{% if self_entry %}
-<div id='leaderboard'>
-<strong>Leaderboard</strong><br/>
-{% leaderboard leaders %}
-</div>
-<br/><br/>
+{% block main_tab %}
+    {% if self_entry %}
+        {% leaderboard leaders %}<br/>
+    {% endif %}
 
-<div id='marketplace'>
-<strong><a href='marketplace/'>Marketplace</a></strong><br/>
-</div>
-{% endif %}
+    <div class='row'>
+        <div id='game_settings' class='well span4'>
+            Game Settings:<br/>
+            Game Type = {{ game.game_type.name }}<br/>
+            Trading Types = {{ game.trade_type_string }}<br/>
+            Starting Points = 
+            {% if game.starting_points %}{{ game.starting_points }}{% else %}Disabled{% endif %}<br/>
+            Starting Shares = {{ game.starting_shares }}<br/>
+        </div><br/>
+    </div>
 
-<div id='game_settings'>
-Game Settings:<br/>
-Starting Points = 
-{% if game.starting_points %}{{ game.starting_points }}{% else %}Disabled{% endif %}<br/>
-Starting Shares = {{ game.starting_shares }}<br/>
-</div><br/>
-
-{% if not self_entry %}
-    {% if error %}<strong style='color:red;'>{{ error }}</strong><br/>{% endif %}
-    <form method='POST' action='/ncaa/join_game/'>{% csrf_token %}
-        Entry Name: <input type='text' name='entry_name'> 
-        {% if game.password %}
-        <br/>Password: <input type='password' name='password'> 
-        {% endif %}
-        <input type='hidden' name='game_id' value='{{game.id}}'>
-        <input type='submit' value='Join Game'>
-    </form>
-{% endif %}
-
-{% endblock game_body %}
+    {% if not self_entry %}
+        <div class='well span4'>
+            {% if error %}
+                <div class='span3 alert alert-error'>
+                    <a class='close' data-dismiss='alert' >x</a>
+                    {{ error }}
+                </div>
+            {% endif %}
+            <form method='POST' action='/ncaa/join_game/'>{% csrf_token %}
+                Entry Name: <input type='text' name='entry_name'> 
+                {% if game.password %}
+                <br/>Password: <input type='password' name='password'> 
+                {% endif %}
+                <input type='hidden' name='game_id' value='{{game.id}}'>
+                <input type='submit' value='Join Game'>
+            </form>
+        </div>
+    {% endif %}
+{% endblock main_tab %}
