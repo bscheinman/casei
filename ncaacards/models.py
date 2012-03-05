@@ -45,12 +45,14 @@ class NcaaGame(models.Model):
 class ScoreType(models.Model):
     name = models.CharField(max_length=30)
     default_score = models.IntegerField()
-    ordering = models.IntegerField(unique=True) # this is for creating a manual ordering
+    ordering = models.IntegerField() # this is for creating a manual ordering
     game_type = models.ForeignKey(GameType, related_name='score_types')
 
     def __str__(self):
         return self.name
 
+    class Meta:
+        unique_together = ('ordering', 'game_type')
 
 class ScoringSetting(models.Model):
     game = models.ForeignKey(NcaaGame)
@@ -194,6 +196,16 @@ def update_team_scores(sender, instance, created, **kwargs):
     for team in GameTeam.objects.filter(team=instance.team):
         team.update_score()
     for entry in UserEntry.objects.all():
+        entry.update_score()
+
+
+# Update all scores in a game when its scoring settings change
+@receiver(post_save, sender=ScoringSetting, weak=False)
+def update_game_scores(sender, instance, created, **kwargs):
+    game = instance.game
+    for team in GameTeam.objects.filter(game=game):
+        team.update_score()
+    for entry in UserEntry.objects.filter(game=game):
         entry.update_score()
 
 
