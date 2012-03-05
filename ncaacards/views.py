@@ -372,14 +372,14 @@ def do_create_game(request):
             game.save()
 
         entry = UserEntry.objects.create(game=game, user=request.user, entry_name=data['entry_name'])
+
+        return HttpResponseRedirect('/ncaa/game/%s/scoring_settings/' % game.id)
     else:
         for field in form:
             for e in field.errors:
                 errors.append(e)
         context = get_base_context(request, None, game_types=GameType.objects.all(), errors=errors)
         return render_with_request_context(request, 'create_game.html', context)
-
-    return HttpResponseRedirect('/ncaa/game/%s/scoring_settings/' % game_id)
 
 
 @login_required

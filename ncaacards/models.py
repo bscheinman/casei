@@ -104,7 +104,7 @@ class GameTeam(models.Model):
         points = 0
         counts = self.team.counts
         multipliers = ScoringSetting.objects.filter(game=self.game)
-        for scoreType in ScoreType.objects.all():
+        for scoreType in ScoreType.objects.filter(game_type=self.game.game_type):
             count = counts.get(scoreType=scoreType).count
             multiplier = multipliers.get(scoreType=scoreType).points
             points += count * multiplier
@@ -202,11 +202,12 @@ def update_team_scores(sender, instance, created, **kwargs):
 # Update all scores in a game when its scoring settings change
 @receiver(post_save, sender=ScoringSetting, weak=False)
 def update_game_scores(sender, instance, created, **kwargs):
-    game = instance.game
-    for team in GameTeam.objects.filter(game=game):
-        team.update_score()
-    for entry in UserEntry.objects.filter(game=game):
-        entry.update_score()
+    if not created:
+        game = instance.game
+        for team in GameTeam.objects.filter(game=game):
+            team.update_score()
+        for entry in UserEntry.objects.filter(game=game):
+            entry.update_score()
 
 
 @receiver(post_save, sender=NcaaGame, weak=False)
