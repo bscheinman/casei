@@ -1,7 +1,7 @@
 from casei.trading.models import Execution, Market, Security
 from django.contrib import admin
 from django.contrib.auth.models import User
-from django.db import models
+from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import logging
@@ -193,10 +193,11 @@ def complete_user_entry(sender, instance, created, **kwargs):
 # Whenever a team's wins are updated, update the score for that team
 @receiver(post_save, sender=TeamScoreCount, weak=False)
 def update_team_scores(sender, instance, created, **kwargs):
-    for team in GameTeam.objects.filter(team=instance.team):
-        team.update_score()
-    for entry in UserEntry.objects.all():
-        entry.update_score()
+    with transaction.commit_on_success():
+        for team in GameTeam.objects.filter(team=instance.team):
+            team.update_score()
+        for entry in UserEntry.objects.all():
+            entry.update_score()
 
 
 # Update all scores in a game when its scoring settings change
@@ -204,28 +205,31 @@ def update_team_scores(sender, instance, created, **kwargs):
 def update_game_scores(sender, instance, created, **kwargs):
     if not created:
         game = instance.game
-        for team in GameTeam.objects.filter(game=game):
-            team.update_score()
-        for entry in UserEntry.objects.filter(game=game):
-            entry.update_score()
+        with transaction.commit_on_success():
+            for team in GameTeam.objects.filter(game=game):
+                team.update_score()
+            for entry in UserEntry.objects.filter(game=game):
+                entry.update_score()
 
 
 @receiver(post_save, sender=NcaaGame, weak=False)
 def populate_game(sender, instance, created, **kwargs):
     if created:
         market = Market.objects.create(name=instance.name)
-        for team in Team.objects.filter(game_type=instance.game_type):
-            GameTeam.objects.create(game=instance, team=team)
-            Security.objects.create(market=market, name=team.abbrev_name)
-        for scoreType in ScoreType.objects.filter(game_type=instance.game_type):
-            ScoringSetting.objects.create(game=instance, scoreType=scoreType, points=scoreType.default_score)
+        with transaction.commit_on_success():
+            for team in Team.objects.filter(game_type=instance.game_type):
+                GameTeam.objects.create(game=instance, team=team)
+                Security.objects.create(market=market, name=team.abbrev_name)
+            for scoreType in ScoreType.objects.filter(game_type=instance.game_type):
+                ScoringSetting.objects.create(game=instance, scoreType=scoreType, points=scoreType.default_score)
 
 
 @receiver(post_save, sender=Team, weak=False)
 def create_team_counts(sender, instance, created, **kwargs):
     if created:
-        for scoreType in ScoreType.objects.filter(game_type=instance.game_type):
-            TeamScoreCount.objects.create(team=instance, scoreType=scoreType)
+        with transaction.commit_on_success():
+            for scoreType in ScoreType.objects.filter(game_type=instance.game_type):
+                TeamScoreCount.objects.create(team=instance, scoreType=scoreType)
 
 
 @receiver(post_save, sender=Execution, weak=False)
