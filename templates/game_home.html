@@ -35,10 +35,10 @@
             <form method='POST' action='/ncaa/join_game/'>{% csrf_token %}
                 Entry Name: <input type='text' name='entry_name'> 
                 {% if game.password %}
-                <br/>Password: <input type='password' name='password'> 
+                    <br/>Password: <input type='password' name='password'>
                 {% endif %}
                 <input type='hidden' name='game_id' value='{{game.id}}'>
-                <input type='submit' value='Join Game'>
+                <button type='submit' class='btn btn-success'>Join Game</button>
             </form>
         </div>
     {% endif %}
