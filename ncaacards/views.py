@@ -593,8 +593,9 @@ def save_settings(request, game_id):
         except ValueError:
             errors.append('%s is not a valid score setting' % setting_str)
         else:
-            setting.points = setting_points
-            setting.save()
+            if setting.points != setting_points:
+                setting.points = setting_points
+                setting.save()
 
     context['errors'] = errors
     return render_with_request_context(request, 'scoring_settings.html', context)
