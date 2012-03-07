@@ -62,8 +62,8 @@ class CreateGameForm(forms.Form):
 
     game_name = forms.CharField(max_length=50)
     game_type = forms.ChoiceField(type_choices)
-    starting_shares = forms.CharField(max_length=10)
-    starting_points = forms.CharField(max_length=10)
+    position_limit = forms.CharField(max_length=10)
+    points_limit = forms.CharField(max_length=10)
     game_password = forms.CharField(widget=forms.PasswordInput, required=False)
     entry_name = forms.CharField(max_length=30)
     support_cards = forms.BooleanField(required=False)
@@ -75,8 +75,8 @@ class CreateGameForm(forms.Form):
 
         game_name = cleaned_data.get('game_name', '')
         game_type_str = cleaned_data.get('game_type', '')
-        starting_shares_str = cleaned_data.get('starting_shares', '')
-        starting_points_str = cleaned_data.get('starting_points', '')
+        position_limit_str = cleaned_data.get('position_limit', '')
+        points_limit_str = cleaned_data.get('points_limit', '')
         game_password = cleaned_data.get('game_password', '')
         entry_name = cleaned_data.get('entry_name', '')
         support_cards = cleaned_data.get('support_cards', False)
@@ -104,36 +104,36 @@ class CreateGameForm(forms.Form):
         else:
             self._errors['game_type'] = self.error_class(['You must specify a game type'])
 
-        if starting_shares_str:
+        if position_limit_str:
             try:
-                starting_shares = int(starting_shares_str)
+                position_limit = int(position_limit_str)
             except ValueError:
-                self._errors['starting_shares'] = self.error_class(['You must enter a valid number of starting shares'])
-                del cleaned_data['starting_shares']
+                self._errors['position_limit'] = self.error_class(['You must enter a valid position limit'])
+                del cleaned_data['position_limit']
             else:
                 if starting_shares <= 0:
-                    self._errors['starting_shares'] = self.error_class(['You must enter a positive number of starting shares'])
-                    del cleaned_data['starting_shares']
+                    self._errors['position_limit'] = self.error_class(['You must enter a positive position limit'])
+                    del cleaned_data['position_limit']
                 else:
-                    cleaned_data['starting_shares'] = starting_shares
+                    cleaned_data['position_limit'] = position_limit
         else:
-            self._errors['starting_shares'] = self.error_class(['You must specify a number of starting shares'])
+            self._errors['position_limit'] = self.error_class(['You must specify a position limit'])
 
-        if starting_points_str:
+        if points_limit_str:
             try:
-                starting_points = int(starting_points_str)
+                points_limit = int(points_limit_str)
             except ValueError:
-                self._errors['starting_points'] = self.error_class(['You must enter a valid number of starting points'])
-                del cleaned_data['starting_points']
+                self._errors['points_limit'] = self.error_class(['You must enter a valid points limit'])
+                del cleaned_data['points_limit']
             else:
                 if support_stocks:
-                    if starting_points <= 0:
-                        self._errors['starting_points'] = self.error_class(['Games supporting stock-style trading must give entries at least 1 point to start'])
-                        del cleaned_data['starting_points']
+                    if points_limit <= 0:
+                        self._errors['points_limit'] = self.error_class(['Games supporting stock-style trading must give entries a non-zero point short limit'])
+                        del cleaned_data['points_limit']
                     else:
-                        cleaned_data['starting_points'] = starting_points
+                        cleaned_data['points_limit'] = points_limit
         else:
-            self._errors['starting_points'] = self.error_class(['You must specify a number of starting points'])
+            self._errors['points_limit'] = self.error_class(['You must specify a points short limit'])
         
 
         if not support_cards and not support_stocks:

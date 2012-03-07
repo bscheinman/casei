@@ -284,9 +284,9 @@ def make_offer(request, game_id):
                 bid_team, bid_count = bid
                 if bid_team in teams_in_offer:
                     raise Exception('Team %s cannot exist multiple times in the same offer' % bid_team.team.abbrev_name)
-                self_count = self_entry.teams.get(team=bid_team).count
-                if bid_count > self_count:
-                    raise Exception('You tried to offer %s shares of %s but you only own %s' % (bid_count, bid_team_name, self_count))
+                max_offer_size = self_count - game.position_limit
+                if bid_count > max_offer_size:
+                    raise Exception('You tried to offer %s shares of %s but you can only offer %s' % (bid_count, bid_team_name, max_offer_size))
                 teams_in_offer.add(bid_team)
                 bids.append(bid)
             ask_team_name, ask_count_str = request.POST.get('ask_%s_team' % i, ''), request.POST.get('ask_%s_count' % i, '')
@@ -364,8 +364,8 @@ def do_create_game(request):
     if form.is_valid():
         data = form.cleaned_data
 
-        game = NcaaGame.objects.create(name=data['game_name'], game_type=data['game_type'], starting_shares=data['starting_shares'],\
-            starting_points=data['starting_points'], supports_cards=data['support_cards'], supports_stocks=data['support_stocks'])
+        game = NcaaGame.objects.create(name=data['game_name'], game_type=data['game_type'], position_limit=data['position_limit'],\
+            points_limit=data['points_limit'], supports_cards=data['support_cards'], supports_stocks=data['support_stocks'])
         game_password = data['game_password']
         if game_password:
             game.password = game_password
