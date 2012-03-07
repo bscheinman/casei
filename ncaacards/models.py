@@ -20,8 +20,8 @@ class NcaaGame(models.Model):
     name = models.CharField(max_length=50, unique=True)
     # Storing these in plain text for now
     password = models.CharField(blank=True, null=True, max_length=100)
-    starting_shares = models.IntegerField(default=100)
-    starting_points = models.IntegerField(default=0)
+    position_limit = models.IntegerField(default=100)
+    points_limit = models.IntegerField(default=0)
     game_type = models.ForeignKey(GameType, related_name='games')
     supports_cards = models.BooleanField(default=False)
     supports_stocks = models.BooleanField(default=False)
@@ -184,10 +184,7 @@ def complete_user_entry(sender, instance, created, **kwargs):
     if created:
         TradingBlock.objects.create(entry=instance)
         for team in GameTeam.objects.filter(game=instance.game):
-            UserTeam.objects.create(entry=instance, team=team, count=instance.game.starting_shares)
-        instance.extra_points = instance.game.starting_points
-        instance.score = instance.game.starting_points
-        instance.save()
+            UserTeam.objects.create(entry=instance, team=team, count=0)
 
 
 # Whenever a team's wins are updated, update the score for that team
