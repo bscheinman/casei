@@ -31,7 +31,7 @@ Score: {{ entry.score }}<br/>
 {% block main_tab %}
 <div id='holdings' class='well span4'>
     <h3>Holdings</h3>
-    <table class='table table-bordered table-striped table-condensed'>
+    <table class='table table-bordered table-striped table-condensed sortable'>
         <tr><td>Shares</td><td>Team</td><td>Points/Share</td><td>Total Points</td></tr>
         {% for team, shares, team_points in teams %}
             <tr>
