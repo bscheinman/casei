@@ -70,7 +70,8 @@ def entry_view(request, game_id, entry_id):
 
     teams = []
     
-    user_teams = UserTeam.objects.filter(entry=entry).order_by('team__team__abbrev_name')
+    teams_query = Q(entry=entry) & ~Q(count=0)
+    user_teams = UserTeam.objects.filter(teams_query).order_by('team__team__abbrev_name')
     for user_team in user_teams:
         team_score = user_team.team.score * user_team.count
         teams.append((user_team.team, user_team.count, team_score))
