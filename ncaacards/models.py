@@ -20,8 +20,8 @@ class NcaaGame(models.Model):
     name = models.CharField(max_length=50, unique=True)
     # Storing these in plain text for now
     password = models.CharField(blank=True, null=True, max_length=100)
-    position_limit = models.IntegerField(default=100)
-    points_limit = models.IntegerField(default=0)
+    position_limit = models.IntegerField(blank=True, null=True)
+    points_limit = models.IntegerField(blank=True, null=True)
     game_type = models.ForeignKey(GameType, related_name='games')
     supports_cards = models.BooleanField(default=False)
     supports_stocks = models.BooleanField(default=False)
@@ -64,8 +64,8 @@ class UserEntry(models.Model):
     user = models.ForeignKey(User, related_name='entries')
     game = models.ForeignKey(NcaaGame, related_name='entries')
     entry_name = models.CharField(max_length=30)
-    extra_points = models.IntegerField(default=0)
-    score = models.IntegerField(default=0)
+    extra_points = models.DecimalField(decimal_places=2, max_digits=12, default=0)
+    score = models.DecimalField(decimal_places=2, max_digits=12, default=0)
     join_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -239,13 +239,19 @@ def record_execution(sender, instance, created, **kwargs):
             team = Team.objects.get(abbrev_name=instance.security.name)
             game_team = GameTeam.objects.get(game=game, team=team)
 
+            transaction_points = instance.quantity * instance.price
+
             buyer_count = UserTeam.objects.get(team=game_team, entry=buyer)
             buyer_count.count += instance.quantity
             buyer_count.save()
+            buyer.extra_points -= transaction_points
+            buyer.update_score()
 
             seller_count = UserTeam.objects.get(team=game_team, entry=seller)
             seller_count.count -= instance.quantity
             seller_count.save()
+            seller.extra_points += transaction_points
+            seller.update_score()
 
             if seller_count.count < 0:
                 logger.error('Entry %s sold %s shares of %s when they only had %s'\

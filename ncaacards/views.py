@@ -282,19 +282,24 @@ def make_offer(request, game_id):
             bid = create_offer_component(bid_team_name, bid_count_str, game)
             if bid:
                 bid_team, bid_count = bid
+                position = UserTeam.objects.get(entry=self_entry, team=bid_team)
                 if bid_team in teams_in_offer:
                     raise Exception('Team %s cannot exist multiple times in the same offer' % bid_team.team.abbrev_name)
-                max_offer_size = self_count - game.position_limit
-                if bid_count > max_offer_size:
-                    raise Exception('You tried to offer %s shares of %s but you can only offer %s' % (bid_count, bid_team_name, max_offer_size))
+                if game.position_limit and position.count - bid_count < -1 * game.position_limit:
+                    raise Exception('You tried to offer %s shares of %s but your current position is %s and the position limit is %s'\
+                        % (bid_count, bid_team_name, position.count, game.position_limit))
                 teams_in_offer.add(bid_team)
                 bids.append(bid)
             ask_team_name, ask_count_str = request.POST.get('ask_%s_team' % i, ''), request.POST.get('ask_%s_count' % i, '')
             ask = create_offer_component(ask_team_name, ask_count_str, game)
             if ask:
-                ask_team = ask[0]
+                ask_team, ask_count = ask
+                position = UserTeam.objects.get(entry=self_entry, team=ask_team)
                 if ask_team in teams_in_offer:
                     raise Exception('Team %s cannot exist multiple times in the same offer' % bid_team.team.abbrev_name)
+                if game.position_limit and position.count + bid_count > game.position_limit:
+                    raise Exception('You tried to acquire %s shares of %s but your current position is %s and the position limit is %s'\
+                        % (ask_count, ask_team_name, position.count, game.position_limit))
                 teams_in_offer.add(ask_team)
                 asks.append(ask)
 
@@ -303,6 +308,9 @@ def make_offer(request, game_id):
         try:
             if bid_point_str:
                 bid_points = int(bid_point_str)
+                if game.points_limit and self_entry.extra_points - bid_points < -1 * game.points_limit:
+                    raise Exception('You tried to offer %s points but you have %s points and the point short limit is %s' %\
+                        (bid_points_str, self_entry.extra_points, game.points_limit))
             if ask_point_str:
                 ask_points = int(ask_point_str)
         except ValueError:
@@ -364,12 +372,18 @@ def do_create_game(request):
     if form.is_valid():
         data = form.cleaned_data
 
-        game = NcaaGame.objects.create(name=data['game_name'], game_type=data['game_type'], position_limit=data['position_limit'],\
-            points_limit=data['points_limit'], supports_cards=data['support_cards'], supports_stocks=data['support_stocks'])
-        game_password = data['game_password']
+        game = NcaaGame.objects.create(name=data['game_name'], game_type=data['game_type'],\
+            supports_cards=data['support_cards'], supports_stocks=data['support_stocks'])
+        game_password = data.get('game_password', '')
         if game_password:
             game.password = game_password
-            game.save()
+        position_limit = data.get('position_limit', 0)
+        points_limit = data.get('points_limit', 0)
+        if position_limit:
+            game.position_limit = position_limit
+        if points_limit:
+            game.points_limit = points_limit
+        game.save()
 
         entry = UserEntry.objects.create(game=game, user=request.user, entry_name=data['entry_name'])
 
@@ -490,9 +504,12 @@ def leaderboard(request, game_id):
 def do_place_order(request, game_id):
     results = { 'success':False, 'errors':[], 'field_errors':{} }
     context = get_base_context(request, game_id)
+    game = context['game']
     self_entry = context.get('self_entry', None)
-    if not context['game']:
-        results['errors'].append('This game does not support stock-style trades')
+    if not game:
+        results['errors'].append('No game exists with id %' % game_id)
+    if not game.supports_stocks:
+        results['errors'].append('This game does not support stock-style trading')
     if not self_entry:
         results['errors'].append('You cannot place orders for games in which you do not have an entry')
     if request.method != 'POST':
@@ -503,21 +520,33 @@ def do_place_order(request, game_id):
         if form.is_valid():
             error = ''
             data = form.cleaned_data
-            placer_name = self_entry.entry_name
 
             team = data['team']
-            game_team = None
-            if team:
-                try:
-                    game_team = GameTeam.objects.get(game=context['game'], team=team)
-                except GameTeam.DoesNotExist:
-                    pass
+            game_team = GameTeam.objects.get(game=context['game'], team=team)
             if not game_team:
                 results['errors'].append('There is no team with the ID %s' % team_id)
+            position = UserTeam.objects.get(entry=self_entry, team=game_team)
+
+            is_buy = data['side'] == 'buy'
+            quantity = data['quantity']
+            price = data['price']
+            total_order_points = quantity * price
+            if is_buy:
+                if game.position_limit and quantity + position.count > game.position_limit:
+                    results['errors'].append('You tried to buy %s shares of %s but your current position is %s shares and the position limit is %s' %\
+                        (quantity, team.abbrev_name, position.count, game.position_limit))
+                if game.points_limit and self_entry.extra_points - total_order_points < -1 * game.points_limit:
+                    results['errors'].append('This order would cost %s but you have %s raw points and the points short limit is %s' %\
+                        (total_order_points, self_entry.extra_points, game.points_limit))
             else:
+                if game.position_limit and position.count - quantity < -1 * game.position_limit:
+                    results['errors'].append('You tried to sell %s shares of %s but your current position is %s shares and the position limit is %s' %\
+                        (quantity, team.abbrev_name, position.count, game.position_limit))
+
+            if not results['errors']:
                 try:
-                    place_order(market_name=context['game'].name, placer_name=placer_name, security_name=team.abbrev_name,\
-                       is_buy=data['side'] == 'buy', price=data['price'], quantity=data['quantity'])
+                    place_order(market_name=context['game'].name, placer_name=self_entry.entry_name, security_name=team.abbrev_name,\
+                       is_buy=is_buy, price=price, quantity=quantity)
                     results['success'] = True
                 except Exception as error:
                     results['errors'].append(str(error))
