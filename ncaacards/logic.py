@@ -36,12 +36,17 @@ def apply_trade_side(components, points, entry, holdings, addOrRemove):
     entry.save()
         
 
-def validate_trade_side(components, trade_points, entry, holdings):
+def validate_trade_side(components, entry, positions, is_buying, position_limit):
     for component in components:
-        if component.count > holdings.get(team=component.team).count:
-            return False
-    return entry.extra_points >= trade_points
-
+        position = positions.get(team=component.team)
+        if is_buying:
+            if position.count + component.count > position_limit:
+                raise Exception('%s would acquire %s shares of %s but their current position is %s and the position limit is %s' %\
+                    (entry.entry_name, component.count, component.team.team.abbrev_name, position.count, position_limit))
+        else:
+            if position.count - component.count < -1 * position_limit:
+                raise Exception('%s would give up %s shares of %s but their current position is %s and the position limit is %s' %\
+                    (entry.entry_name, component.count, component.team.team.abbrev_name, position.count, position_limit))
 
 
 def accept_trade(trade, accepting_entry):
@@ -63,9 +68,12 @@ def accept_trade(trade, accepting_entry):
     seller_holdings = seller.teams.all()
     buyer_holdings = buyer.teams.all()
 
-    if not (validate_trade_side(bid_components, bid_points, seller, seller_holdings)\
-            and validate_trade_side(ask_components, ask_points, buyer, buyer_holdings)):
-        raise Exception('Entries do not have sufficient resources to complete the trade')
+    position_limit = seller.game.position_limit
+    if position_limit:
+        validate_trade_side(bid_components, seller, seller_holdings, False, position_limit)
+        validate_trade_side(bid_components, buyer, buyer_holdings, True, position_limit)
+        validate_trade_side(ask_components, seller, seller_holdings, True, position_limit)
+        validate_trade_side(ask_components, buyer, buyer_holdings, False, position_limit)
 
     apply_trade_side(bid_components, bid_points, seller, seller_holdings, False)
     apply_trade_side(ask_components, ask_points, buyer, buyer_holdings, False)

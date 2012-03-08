@@ -296,8 +296,8 @@ def make_offer(request, game_id):
                 ask_team, ask_count = ask
                 position = UserTeam.objects.get(entry=self_entry, team=ask_team)
                 if ask_team in teams_in_offer:
-                    raise Exception('Team %s cannot exist multiple times in the same offer' % bid_team.team.abbrev_name)
-                if game.position_limit and position.count + bid_count > game.position_limit:
+                    raise Exception('Team %s cannot exist multiple times in the same offer' % ask_team.team.abbrev_name)
+                if game.position_limit and position.count + ask_count > game.position_limit:
                     raise Exception('You tried to acquire %s shares of %s but your current position is %s and the position limit is %s'\
                         % (ask_count, ask_team_name, position.count, game.position_limit))
                 teams_in_offer.add(ask_team)
@@ -310,7 +310,7 @@ def make_offer(request, game_id):
                 bid_points = int(bid_point_str)
                 if game.points_limit and self_entry.extra_points - bid_points < -1 * game.points_limit:
                     raise Exception('You tried to offer %s points but you have %s points and the point short limit is %s' %\
-                        (bid_points_str, self_entry.extra_points, game.points_limit))
+                        (bid_point_str, self_entry.extra_points, game.points_limit))
             if ask_point_str:
                 ask_points = int(ask_point_str)
         except ValueError:
