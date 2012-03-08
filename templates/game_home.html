@@ -18,9 +18,10 @@
             Game Settings:<br/>
             Game Type = {{ game.game_type.name }}<br/>
             Trading Types = {{ game.trade_type_string }}<br/>
-            Starting Points = 
-            {% if game.starting_points %}{{ game.starting_points }}{% else %}Disabled{% endif %}<br/>
-            Starting Shares = {{ game.starting_shares }}<br/>
+            Position Limit = 
+            {% if game.position_limit %}{{ game.position_limit }}{% else %}None{% endif %}<br/>
+            Points Short Limit =
+            {% if game.points_limit %}{{ game.points_limit }}{% else %}None{% endif %}<br/>
         </div><br/>
     </div>
 
