@@ -60,6 +60,7 @@
                     {% if game %}
                         <li class='nav-header'>{{ game.name }}</li>
                         <li><a href='/ncaa/game/{{game.id}}/'>Home</a></li>
+                        <li><a href='/ncaa/game/{{game.id}}/entry/{{self_entry.id}}/'>{{ self_entry.entry_name }}</a></li>
                         <li><a href='/ncaa/game/{{game.id}}/scoring_settings/'>Scoring Settings</a></li>
                         {% if game.supports_cards %}
                             <li><a href='/ncaa/game/{{game.id}}/marketplace/'>Marketplace</a></li>
@@ -74,7 +75,9 @@
                                 <a class='btn dropdown-toggle' data-toggle='dropdown' href='#'>{{ game.name }} Entries <span class='caret'></span></a>
                                 <ul class='dropdown-menu'>
                                     {% for entry in game.entries.all %}
-                                        <li><a href='/ncaa/game/{{game.id}}/entry/{{entry.id}}/'>{{ entry.entry_name }}</a></li>
+                                        {% if entry != self_entry %}
+                                            <li><a href='/ncaa/game/{{game.id}}/entry/{{entry.id}}/'>{{ entry.entry_name }}</a></li>
+                                        {% endif %}
                                     {% endfor %}
                                 </ul>
                             </div>
