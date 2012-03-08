@@ -62,8 +62,8 @@ class CreateGameForm(forms.Form):
 
     game_name = forms.CharField(max_length=50)
     game_type = forms.ChoiceField(type_choices)
-    position_limit = forms.CharField(max_length=10)
-    points_limit = forms.CharField(max_length=10)
+    position_limit = forms.CharField(max_length=10, required=False)
+    points_limit = forms.CharField(max_length=10, required=False)
     game_password = forms.CharField(widget=forms.PasswordInput, required=False)
     entry_name = forms.CharField(max_length=30)
     support_cards = forms.BooleanField(required=False)
@@ -111,13 +111,11 @@ class CreateGameForm(forms.Form):
                 self._errors['position_limit'] = self.error_class(['You must enter a valid position limit'])
                 del cleaned_data['position_limit']
             else:
-                if starting_shares <= 0:
-                    self._errors['position_limit'] = self.error_class(['You must enter a positive position limit'])
+                if position_limit < 0:
+                    self._errors['position_limit'] = self.error_class(['You cannot have a negative position limit'])
                     del cleaned_data['position_limit']
-                else:
+                elif position_limit > 0:
                     cleaned_data['position_limit'] = position_limit
-        else:
-            self._errors['position_limit'] = self.error_class(['You must specify a position limit'])
 
         if points_limit_str:
             try:
@@ -127,13 +125,11 @@ class CreateGameForm(forms.Form):
                 del cleaned_data['points_limit']
             else:
                 if support_stocks:
-                    if points_limit <= 0:
-                        self._errors['points_limit'] = self.error_class(['Games supporting stock-style trading must give entries a non-zero point short limit'])
+                    if points_limit < 0:
+                        self._errors['points_limit'] = self.error_class(['You cannot have a negative points limit'])
                         del cleaned_data['points_limit']
-                    else:
+                    elif points_limit > 0:
                         cleaned_data['points_limit'] = points_limit
-        else:
-            self._errors['points_limit'] = self.error_class(['You must specify a points short limit'])
         
 
         if not support_cards and not support_stocks:
