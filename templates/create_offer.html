@@ -35,10 +35,8 @@
         </select></td>
         <td><input type='text' name='ask_{{i}}_count' value='0' class='offer_form_field'></td></tr>
     {% endfor %}
-    {% if game.starting_points %}
     <tr><td>Points</td><td><input type='text' name='bid_points' value='0' class='offer_form_field'>
     <td>Points</td><td><input type='text' name='ask_points' value='0' class='offer_form_field'></td></tr>
-    {% endif %}
     </table>
     <button type='submit' class='btn btn-success'>Submit Offer</button>
 </form>
