@@ -234,19 +234,19 @@ def record_execution(sender, instance, created, **kwargs):
     if created:
         try:
             game = NcaaGame.objects.get(name=instance.security.market.name)
-            buyer = UserEntry.objects.get(game=game, entry_name=instance.buy_order.placer)
-            seller = UserEntry.objects.get(game=game, entry_name=instance.sell_order.placer)
             team = Team.objects.get(abbrev_name=instance.security.name)
             game_team = GameTeam.objects.get(game=game, team=team)
 
             transaction_points = instance.quantity * instance.price
 
+            buyer = UserEntry.objects.get(game=game, entry_name=instance.buy_order.placer)
             buyer_count = UserTeam.objects.get(team=game_team, entry=buyer)
             buyer_count.count += instance.quantity
             buyer_count.save()
             buyer.extra_points -= transaction_points
             buyer.update_score()
 
+            seller = UserEntry.objects.get(game=game, entry_name=instance.sell_order.placer)
             seller_count = UserTeam.objects.get(team=game_team, entry=seller)
             seller_count.count -= instance.quantity
             seller_count.save()

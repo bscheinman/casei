@@ -105,8 +105,14 @@ def process_new_order(order):
             buy_order = existing_order
             sell_order = order
 
-        execution = Execution.objects.create(security=order.security, buy_order=buy_order,\
-            sell_order=sell_order, quantity=exec_quantity, price=existing_order.price)
+        if buy_order.placer == sell_order.placer:
+            buy_order.quantity_remaining -= exec_quantity
+            buy_order.save()
+            sell_order.quantity_remaining -= exec_quantity
+            sell_order.save()
+        else:
+            execution = Execution.objects.create(security=order.security, buy_order=buy_order,\
+                sell_order=sell_order, quantity=exec_quantity, price=existing_order.price)
 
     if order.is_buy:
         comparer = lambda x: x.price <= order.price
