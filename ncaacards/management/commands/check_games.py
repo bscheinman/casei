@@ -1,14 +1,15 @@
 from casei.ncaacards.models import LiveGame, TradeOffer
 from casei.trading.models import Order
 from django.core.management.base import NoArgsCommand
+from django.db.models import Q
 import datetime
 
 
-class CheckGamesCommand(NoArgsCommand):
+class Command(NoArgsCommand):
     
     def handle_noargs(self, **options):
         now = datetime.datetime.now()
-        started_games = LiveGame.objects.filter(game_time__lt=now, is_processed=False):
+        started_games = LiveGame.objects.filter(game_time__lt=now, is_processed=False)
         for game in started_games:
             teams = (game.home_team, game.away_team)
             team_names = (game.home_team.abbrev_name, game.away_team.abbrev_name)
