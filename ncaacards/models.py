@@ -152,6 +152,7 @@ class TradeOffer(models.Model):
     offer_time = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     accept_time = models.DateTimeField(blank=True, null=True)
+    cancel_on_game = models.BooleanField(default=False)
 
     def is_accepted(self):
         return bool(self.accepting_user)
@@ -164,6 +165,14 @@ class TradeComponent(models.Model):
 
     def get_score(self):
         return self.count * self.team.score
+
+
+class LiveGame(models.Model):
+    home_team = models.ForeignKey(Team, related_name='home_games')
+    away_team = models.ForeignKey(Team, related_name='away_games')
+    game_time = models.DateTimeField()
+    is_processed = models.BooleanField(default=False)
+
 
 admin.site.register(NcaaGame)
 admin.site.register(Team)
@@ -178,6 +187,8 @@ admin.site.register(TradeOffer)
 admin.site.register(TradeSide)
 admin.site.register(TradeComponent)
 admin.site.register(GameType)
+admin.site.register(LiveGame)
+
 
 @receiver(post_save, sender=UserEntry, weak=False)
 def complete_user_entry(sender, instance, created, **kwargs):
