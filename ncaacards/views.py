@@ -332,7 +332,9 @@ def make_offer(request, game_id):
     bid_side.save()
     ask_side.save()
 
-    offer = TradeOffer.objects.create(entry=self_entry, ask_side=ask_side, bid_side=bid_side)
+    cancel_on_game = request.POST.get('cancel_on_game', False)
+    import pdb; pdb.set_trace()
+    offer = TradeOffer.objects.create(entry=self_entry, ask_side=ask_side, bid_side=bid_side, cancel_on_game=cancel_on_game)
 
     for bid_team, bid_count in bids:
         bid_component = TradeComponent.objects.create(team=bid_team, count=bid_count, offer=bid_side)
@@ -548,7 +550,7 @@ def do_place_order(request, game_id):
             if not results['errors']:
                 try:
                     place_order(market_name=context['game'].name, placer_name=self_entry.entry_name, security_name=team.abbrev_name,\
-                       is_buy=is_buy, price=price, quantity=quantity)
+                       is_buy=is_buy, price=price, quantity=quantity, cancel_on_game=data['cancel_on_game'])
                     results['success'] = True
                 except Exception as error:
                     results['errors'].append(str(error))

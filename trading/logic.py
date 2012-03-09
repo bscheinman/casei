@@ -13,7 +13,7 @@ def get_security(market_name, security_name):
         return security
 
 
-def place_order(market_name, placer_name, security_name, is_buy, price, quantity):
+def place_order(market_name, placer_name, security_name, is_buy, price, quantity, cancel_on_game):
     security = get_security(market_name, security_name)
     if not security:
         raise Exception('No security %s exists in the market %s' % (security_name, market_name))
@@ -21,4 +21,5 @@ def place_order(market_name, placer_name, security_name, is_buy, price, quantity
     if quantity <= 0:
         raise Exception('Offers must have a positive quantity')
 
-    order = Order.objects.create(placer=placer_name, security=security, price=price, quantity=quantity, quantity_remaining=quantity, is_buy=is_buy)
+    order = Order.objects.create(placer=placer_name, security=security, price=price, quantity=quantity,\
+        quantity_remaining=quantity, is_buy=is_buy, cancel_on_game=cancel_on_game)
