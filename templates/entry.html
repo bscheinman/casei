@@ -3,7 +3,7 @@
 
 {% block title %}{{ entry.entry_name }}{% endblock title %}
 
-{% block game_scripts %}
+{% block tab_scripts %}
     <script type='text/javascript'>
         function OnCancelResponse(data) {
             if (data.success)
@@ -21,7 +21,7 @@
             $('#tradeForm').ajaxForm(options);
         });
     </script>
-{% endblock game_scripts %}
+{% endblock tab_scripts %}
 
 {% block page_header %}
 <h2>{{ entry.entry_name }}</h2>

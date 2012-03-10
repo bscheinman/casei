@@ -25,6 +25,10 @@ def get_base_context(request, game_id, **kwargs):
         #context['user_entries'] = UserEntry.objects.filter(user=request.user)
         if game:
             context['self_entry'] = get_entry(game, request.user)
+    if request.method == 'GET':
+        start_tab = request.GET.get('start_tab', '')
+        if start_tab:
+            context['start_tab'] = start_tab
     return context
 
 
@@ -218,9 +222,6 @@ def game_team_view(request, game_id, team_id):
     context = create_team_context(request, team=team, game=game)
     context['self_entry'] = entry
     context['security'] = get_security(game.name, team.abbrev_name)
-    start_tab = request.GET.get('start_tab', '')
-    if start_tab:
-        context['start_tab'] = start_tab
     return render_with_request_context(request, 'team_view.html', context)
 
 
