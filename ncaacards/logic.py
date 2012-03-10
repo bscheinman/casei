@@ -81,13 +81,13 @@ def accept_trade(trade, accepting_entry):
         if ask_points > 0:
             if buyer.extra_points - ask_points < points_short_limit:
                 points_error_info = (buyer.entry_name, ask_points, buyer.extra_points, points_short_limit)
-        elif ask_points < 0:
+        elif ask_points and ask_points < 0:
             if seller.extra_points + ask_points < points_short_limit:
                 points_error_info = (seller.entry_name, ask_points, seller.extra_points, points_short_limit)
         elif bid_points > 0:
             if seller.extra_points - bid_points < points_short_limit:
                 points_error_info = (seller.entry_name, bid_points, seller.extra_points, points_short_limit)
-        elif bid_points < 0:
+        elif bid_points and bid_points < 0:
             if buyer.extra_points + bid_points < points_short_limit:
                 points_error_info = (buyer.entry_name, bid_points, buyer.extra_points, points_short_limit)
         
