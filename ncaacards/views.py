@@ -310,11 +310,15 @@ def make_offer(request, game_id):
         try:
             if bid_point_str:
                 bid_points = int(bid_point_str)
+                if bid_points < 0:
+                    raise Exception('You cannot offer a negative number of points')
                 if game.points_limit and self_entry.extra_points - bid_points < -1 * game.points_limit:
                     raise Exception('You tried to offer %s points but you have %s points and the point short limit is %s' %\
                         (bid_point_str, self_entry.extra_points, game.points_limit))
             if ask_point_str:
                 ask_points = int(ask_point_str)
+                if ask_points < 0:
+                    raise Exception('You cannot ask for a negative number of points')
         except ValueError:
             raise Exception('You must enter integer values for points')
 
@@ -333,7 +337,6 @@ def make_offer(request, game_id):
     ask_side.save()
 
     cancel_on_game = request.POST.get('cancel_on_game', False)
-    import pdb; pdb.set_trace()
     offer = TradeOffer.objects.create(entry=self_entry, ask_side=ask_side, bid_side=bid_side, cancel_on_game=cancel_on_game)
 
     for bid_team, bid_count in bids:
