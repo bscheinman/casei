@@ -75,6 +75,26 @@ def accept_trade(trade, accepting_entry):
         validate_trade_side(ask_components, seller, seller_holdings, True, position_limit)
         validate_trade_side(ask_components, buyer, buyer_holdings, False, position_limit)
 
+    if trade.entry.game.points_limit:
+        points_short_limit = -1 * trade.entry.game.points_limit
+        points_error_info = None
+        if ask_points > 0:
+            if buyer.extra_points - ask_points < points_short_limit:
+                points_error_info = (buyer.entry_name, ask_points, buyer.extra_points, points_short_limit)
+        elif ask_points < 0:
+            if seller.extra_points + ask_points < points_short_limit:
+                points_error_info = (seller.entry_name, ask_points, seller.extra_points, points_short_limit)
+        elif bid_points > 0:
+            if seller.extra_points - bid_points < points_short_limit:
+                points_error_info = (seller.entry_name, bid_points, seller.extra_points, points_short_limit)
+        elif bid_points < 0:
+            if buyer.extra_points + bid_points < points_short_limit:
+                points_error_info = (buyer.entry_name, bid_points, buyer.extra_points, points_short_limit)
+        
+        if points_error_info:
+            raise Exception('%s would give up %s points but they have %s and the points short limit is %s' % points_error_info)
+            
+
     apply_trade_side(bid_components, bid_points, seller, seller_holdings, False)
     apply_trade_side(ask_components, ask_points, buyer, buyer_holdings, False)
     apply_trade_side(bid_components, bid_points, buyer, buyer_holdings, True)
