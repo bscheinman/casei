@@ -173,6 +173,9 @@ class LiveGame(models.Model):
     game_time = models.DateTimeField()
     is_processed = models.BooleanField(default=False)
 
+    def __str__(self):
+        return '%s @ %s %s' % (self.away_team.abbrev_name, self.home_team.abbrev_name, self.game_time)
+
 
 admin.site.register(NcaaGame)
 admin.site.register(Team)

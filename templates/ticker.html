@@ -7,8 +7,8 @@
     <script type='text/javascript' src='/static/sorttable.js/'></script>
     <script type='text/javascript'>
         function show_placer(team_name) {
-            $('#trade_title').html("<h4>Trade " + team_name + "</h4>");
-            $('#team_' + team_name).selected = true;
+            //$('#trade_title').html("<h4>Trade " + team_name + "</h4>");
+            document.getElementById('team_id_field').value = team_name;
             $('#order_placer').modal();
         }
     </script>
