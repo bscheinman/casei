@@ -3,7 +3,7 @@
 
 {% block title %}{{ team.full_name }} Profile{% endblock title %}
 
-{% block game_scripts %}
+{% block tab_scripts %}
 <script type='text/javascript'>
     function OnTradeResponse(data) {
         if (data.success)
@@ -25,14 +25,10 @@
 
         $('#tradeForm').ajaxForm(options);
         $('.cancelForm').ajaxForm(options);
-
-        {% if start_tab %}
-            $('#{{ start_tab }}_expander').click();
-        {% endif %}
     });
     
 </script>
-{% endblock game_scripts %}
+{% endblock tab_scripts %}
 
 {% block page_header %}
 <h2>{{ team.full_name }} ({{ team.abbrev_name }})</h2>
