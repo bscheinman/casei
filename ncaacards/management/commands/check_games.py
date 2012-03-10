@@ -22,3 +22,4 @@ class Command(NoArgsCommand):
                 offer.is_active = False
                 offer.save()
             game.is_processed = True
+            game.save()
