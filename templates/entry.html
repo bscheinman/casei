@@ -50,33 +50,16 @@ Score: {{ entry.score }}<br/>
 {% endblock main_tab %}
 
 {% block card_tab %}
-    <div id='trading_block' class='well span4'>
-        <h3>Trading Block</h3><br/>
-        <h4>Wanted</h4>
-        <div class='well'>
-            {% with wanted_teams=entry.trading_block.game_teams_desired.all %}
-                {% if wanted_teams %}
-                    {% for team in wanted_teams %}
-                        {% team_link team.team.abbrev_name entry.game %}<br/>
-                    {% endfor %}
-                {% else %}
-                    <em>None</em><br/>
-                {% endif %}
-            {% endwith %}
-        </div>
-        <h4>Available</h4><br/>
-        <div class='well'>
-            {% with available_teams=entry.trading_block.game_teams_available.all %}
-                {% if available_teams %}
-                    {% for team in available_teams %}
-                        {% team_link team.team.abbrev_name entry.game %}<br/>
-                    {% endfor %}
-                {% else %}
-                    <em>None</em><br/>
-                {% endif %}
-            {% endwith %}
-        </div>
-    </div>
+    {% if entry == self_entry %}
+        <h3>Open Card-Style Offers</h3>
+        {% if card_offers %}
+            {% for offer in card_offers %}
+                {% render_offer_table offer self_entry %}
+            {% endfor %}
+        {% else %}
+            (None)
+        {% endif %}
+    {% endif %}
 {% endblock card_tab %}
 
 {% block stock_tab %}
