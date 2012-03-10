@@ -8,8 +8,13 @@
     function OnTradeResponse(data) {
         if (data.success)
             window.location = '/ncaa/game/{{game.id}}/team/{{team.abbrev_name}}/?start_tab=stock_tab';
-        else
-            alert(data.errors);
+        else {
+            var errorString = data.errors.join('\n');
+            var field_errors = data.field_errors;
+            for (var key in field_errors)
+                errorString += '\n' + field_errors[key];
+            alert(errorString);
+        }
     }
 
     $(document).ready(function() {
@@ -19,6 +24,7 @@
         };
 
         $('#tradeForm').ajaxForm(options);
+        $('.cancelForm').ajaxForm(options);
 
         {% if start_tab %}
             $('#{{ start_tab }}_expander').click();

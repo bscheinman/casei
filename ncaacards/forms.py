@@ -23,7 +23,6 @@ class TradeForm(forms.Form):
 
         if not side in ['buy', 'sell']:
             self._errors['side'] = self.error_class(['Invalid side type %s' % side])
-            del cleaned_data['side']
 
         if team_identifier:
             team = get_team_from_identifier(team_identifier)
@@ -40,6 +39,8 @@ class TradeForm(forms.Form):
             except ValueError:
                 self._errors['price'] = self.error_class(['%s is not a valid price' % price])
                 del cleaned_data['price']
+        else:
+            self._errors['price'] = self.error_class(['You must enter a price'])
 
         if quantity:
             try:
@@ -53,6 +54,8 @@ class TradeForm(forms.Form):
                     del cleaned_data['quantity']
                 else:
                     cleaned_data['quantity'] = q
+        else:
+            self._errors['quantity'] = self.error_class(['You must enter a quantity'])
 
         return cleaned_data
 

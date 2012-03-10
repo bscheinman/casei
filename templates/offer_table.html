@@ -44,7 +44,7 @@
             <form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/cancel/' class='span2'>
                 {% csrf_token %}
                 <button type='submit' class='btn btn-danger'>Cancel Offer</button>
-            <form>
+            </form>
         {% endif %}
     {% endif %}
 </div>

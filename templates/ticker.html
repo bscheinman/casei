@@ -6,11 +6,32 @@
 {% block game_scripts %}
     <script type='text/javascript' src='/static/sorttable.js/'></script>
     <script type='text/javascript'>
+        function OnTradeResponse(data) {
+            if (data.success)
+                location.reload();
+            else {
+                var errorString = data.errors.join('\n');
+                var field_errors = data.field_errors;
+                for (var key in field_errors)
+                    errorString += '\n' + field_errors[key];
+                alert(errorString);
+            }
+        }
+
         function show_placer(team_name) {
             //$('#trade_title').html("<h4>Trade " + team_name + "</h4>");
             document.getElementById('team_id_field').value = team_name;
             $('#order_placer').modal();
         }
+
+        $(document).ready(function() {
+            var options = {
+                dataType: 'json',
+                success: OnTradeResponse
+            };
+
+            $('#tradeForm').ajaxForm(options);
+        });
     </script>
 {% endblock %}
 
