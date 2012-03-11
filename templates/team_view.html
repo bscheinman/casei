@@ -35,6 +35,9 @@
 {% endblock page_header %}
 
 {% block main_tab %}
+    <div class='row' style='margin-left:30px; margin-bottom:10px;'>
+        <span style='font-weight:bold; font-size:16px;'>Volume: {{ game_team.volume }}</span>
+    </div>
     <div id='score_counts' class='span5'>
         <table class='table table-bordered table-striped table-condensed'>
             <tr><td></td><td>Wins</td><td>Points</td></tr>
