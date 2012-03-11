@@ -3,17 +3,6 @@
 {% block game_body %}
 {% block page_header %}{% endblock page_header %}
 
-{% block game_scripts %}
-    <script type='text/javascript'>
-        {% if start_tab %}
-            $(document).ready(function() {
-                $('#{{ start_tab }}_expander').click();
-            });
-        {% endif %}
-    </script>
-    {% block tab_scripts %}{% endblock tab_scripts %}
-{% endblock game_scripts %}
-
 <ul class='nav nav-tabs'>
     <li class='active'><a href='#overview' data-toggle='tab' id='overview_expander'>Overview</a></li>
     {% if game.supports_cards %}<li><a href='#card_tab' data-toggle='tab' id='card_tab_expander'>Card Trading</a></li>{% endif %}
@@ -36,3 +25,15 @@
     {% endif %}
 </div>
 {% endblock game_body %}
+
+{% block game_scripts %}
+    <script type='text/javascript'>
+        {% if start_tab %}
+            $(document).ready(function() {
+                $('#{{ start_tab }}_expander').click();
+            });
+        {% endif %}
+    </script>
+    {% block tab_scripts %}{% endblock tab_scripts %}
+{% endblock game_scripts %}
+
