@@ -1,4 +1,4 @@
-from casei.ncaacards.models import NcaaGame, Team, TradeComponent, UserEntry, UserTeam
+from casei.ncaacards.models import check_limits, NcaaGame, Team, TradeComponent, UserEntry, UserTeam
 from django.db.models import Q
 import datetime
 
