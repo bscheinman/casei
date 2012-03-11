@@ -25,6 +25,8 @@ def apply_trade_side(components, points, entry, holdings, addOrRemove):
         holding = holdings.get(team=component.team)
         if addOrRemove:
             holding.count += component.count
+            component.team.volume += component.count
+            component.team.save()
         else:
             holding.count -= component.count
         holding.save()
