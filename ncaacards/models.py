@@ -1,4 +1,4 @@
-from casei.trading.models import Execution, Market, Security
+from casei.trading.models import Execution, Market, Order, Security
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.db import models, transaction
@@ -216,10 +216,11 @@ def check_position_limits(entry, team):
                 offer.save()
 
     if game.supports_stocks:
-        orders = Order.objects.filter(placer=entry.entry_name, security__name=team.team.abbrev_name, is_active=True, quantity_remaining__gt=0)
+        orders = Order.objects.filter(placer=entry.entry_name, security__name=team.team.abbrev_name,\
+            security__market__name=game.name, is_active=True, quantity_remaining__gt=0)
         for order in orders:
-            if (order.is_buy and team_count - bid.quantity_remaining < -1 * position_limit) or\
-                (not order.is_buy and team_count + order.quantity_remaining > position_limit):
+            if (order.is_buy and team_count + order.quantity_remaining > position_limit) or\
+                (not order.is_buy and team_count - order.quantity_remaining < -1 * position_limit):
                     order.is_active = False
                     order.save()
 
@@ -253,7 +254,7 @@ def check_limits(entry, teams):
         for team in teams:
             check_position_limits(entry, team)
     if game.points_limit:
-        check_points_limit(entry)
+        check_point_limits(entry)
 
 
 @receiver(post_save, sender=UserEntry, weak=False)
