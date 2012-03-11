@@ -62,14 +62,13 @@
                         <li><a href='/ncaa/game/{{game.id}}/'>Home</a></li>
                         <li><a href='/ncaa/game/{{game.id}}/entry/{{self_entry.id}}/'>{{ self_entry.entry_name }}</a></li>
                         <li><a href='/ncaa/game/{{game.id}}/scoring_settings/'>Scoring Settings</a></li>
+                        <li><a href='/ncaa/game/{{game.id}}/team_list/'>Team List</a></li>
+                        <li><a href='/ncaa/game/{{game.id}}/leaderboard/'>Leaderboard</a></li>
                         {% if game.supports_cards %}
+                            <li class='nav-header'>Card-Style Trading</li>
                             <li><a href='/ncaa/game/{{game.id}}/marketplace/'>Marketplace</a></li>
                             <li><a href='/ncaa/game/{{game.id}}/create_offer/'>Create Offer</a></li>
                         {% endif %}
-                        {% if game.supports_stocks %}
-                            <li><a href='/ncaa/game/{{game.id}}/ticker/'>Ticker</a></li>
-                        {% endif %}
-                        <li><a href='/ncaa/game/{{game.id}}/leaderboard/'>Leaderboard</a></li>
                         <li>
                             <div class='entry-select btn-group'>
                                 <a class='btn dropdown-toggle' data-toggle='dropdown' href='#'>{{ game.name }} Entries <span class='caret'></span></a>
