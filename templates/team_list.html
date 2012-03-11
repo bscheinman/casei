@@ -1,7 +1,7 @@
 {% extends 'game_base.html' %}
 {% load ncaa_tags %}
 
-{% block title %}{{ game.name }} Ticker{% endblock title %}
+{% block title %}{{ game.name }} Team List{% endblock title %}
 
 {% block game_scripts %}
     <script type='text/javascript' src='/static/sorttable.js/'></script>
@@ -37,14 +37,23 @@
 
 {% block game_body %}
 <table class='table table-bordered table-striped table-condensed sortable'>
-    <thead><tr><th>Team</th><th>Last</th><th>Bid</th><th>Ask</th><th>Volume</th><th class='sorttable_nosort'></th></tr></thead>
+    <thead><tr>
+        <th>Team</th><th>Volume</th>
+        {% if game.supports_stocks %}
+            <th>Last</th><th>Bid</th><th>Ask</th><th class='sorttable_nosort'></th>
+        {% endif %}
+    </tr></thead>
     {% for team, security in rows %}
-        <tr><td>{% team_link team.team.abbrev_name game %} </td>
-        <td>{{ security.get_last }}</td>
-        <td>{{ security.get_bid }}</td>
-        <td>{{ security.get_ask }}</td>
-        <td>{{ team.volume }}</td>
-        <td><button class='btn btn-primary' onclick='show_placer("{{team.team.abbrev_name}}")'>Place Order</button></td></tr>
+        <tr>
+            <td>{% team_link team.team.abbrev_name game %} </td>
+            <td>{{ team.volume }}</td>
+            {% if game.supports_stocks %}
+                <td>{{ security.get_last }}</td>
+                <td>{{ security.get_bid }}</td>
+                <td>{{ security.get_ask }}</td>
+                <td><button class='btn btn-primary' onclick='show_placer("{{team.team.abbrev_name}}")'>Place Order</button></td>
+            {% endif %}
+        </tr>
     {% endfor %}
 </table>
 
