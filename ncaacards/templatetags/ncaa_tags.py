@@ -100,7 +100,7 @@ def trade_form(game, team=None):
     if team:
         all_team_ids = []
     else:
-        all_team_ids = [t.team.abbrev_name for t in GameTeam.objects.filter(game=game)]
+        all_team_ids = [t.team.abbrev_name for t in GameTeam.objects.filter(game=game).order_by('team__abbrev_name')]
     return { 'game':game, 'team':team, 'all_team_ids':all_team_ids }
 
 
