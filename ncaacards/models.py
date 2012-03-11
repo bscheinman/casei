@@ -95,6 +95,7 @@ class GameTeam(models.Model):
     game = models.ForeignKey(NcaaGame)
     team = models.ForeignKey(Team)
     score = models.IntegerField(default=0)
+    volume = models.IntegerField(default=0)
 
     def __str__(self):
         return '%s (%s)' % (self.team.full_name, self.game.name)
@@ -267,8 +268,8 @@ def record_execution(sender, instance, created, **kwargs):
             seller.extra_points += transaction_points
             seller.update_score()
 
-            if seller_count.count < 0:
-                logger.error('Entry %s sold %s shares of %s when they only had %s'\
-                    % (seller.name, instance.quantity, team.abbrev_name, seller_count + instance.quantity))
+            game_team.volume += instance.quantity
+            game_team.save()
+
         except Exception as e:
             logger.error('Error processing execution %s: %s' % (instance.execution_id, str(e)))

@@ -7,18 +7,18 @@
     <script type='text/javascript'>
         function OnCancelResponse(data) {
             if (data.success)
-                location.reload();
+                window.location = '/ncaa/game/{{game.id}}/entry/{{entry.id}}/?start_tab=stock_tab';
             else
-                alert(data.errors);
+                alert(data.errors.join('\n'));
         }
 
         $(document).ready(function() {
             var options = {
                 dataType: 'json',
-                success: OnTradeResponse
+                success: OnCancelResponse
             };
 
-            $('#tradeForm').ajaxForm(options);
+            $('.cancelForm').ajaxForm(options);
         });
     </script>
 {% endblock tab_scripts %}

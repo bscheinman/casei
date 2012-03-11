@@ -131,7 +131,7 @@ def ticker(request, game_id):
     teams = GameTeam.objects.filter(game=context['game']).order_by('-team__abbrev_name')
     securities = Security.objects.filter(market__name=context['game'].name)
     for team in teams:
-        rows.append((team.team, securities.get(name=team.team.abbrev_name)))
+        rows.append((team, securities.get(name=team.team.abbrev_name)))
     context['rows'] = rows
     
     return render_with_request_context(request, 'ticker.html', context)
