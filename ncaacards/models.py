@@ -1,3 +1,4 @@
+from casei.ncaacards.logic import check_limits
 from casei.trading.models import Execution, Market, Security
 from django.contrib import admin
 from django.contrib.auth.models import User
@@ -267,6 +268,9 @@ def record_execution(sender, instance, created, **kwargs):
             seller_count.save()
             seller.extra_points += transaction_points
             seller.update_score()
+
+            check_limits(buyer, [game_team])
+            check_limits(seller, [game_team])
 
             game_team.volume += instance.quantity
             game_team.save()
