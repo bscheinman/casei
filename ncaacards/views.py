@@ -115,7 +115,7 @@ def marketplace(request, game_id):
     if bid_filter:
         offers_query = offers_query & Q(bid_side__components__team__abbrev_name__iexact=bid_filter)
 
-    offers = TradeOffer.objects.filter(offers_query)
+    offers = TradeOffer.objects.filter(offers_query).order_by('-offer_time')[:25]
     context = get_base_context(request, game_id, offers=offers)
     return render_with_request_context(request, 'marketplace.html', context)
 
@@ -238,7 +238,7 @@ def create_offer(request, game_id, **kwargs):
     if not entry:
         return HttpResponseRedirect('/ncaa/')
 
-    all_teams = GameTeam.objects.filter(game=game)
+    all_teams = GameTeam.objects.filter(game=game).order_by('team__abbrev_name')
 
     error = kwargs.get('error', '')
 
