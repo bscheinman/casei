@@ -47,9 +47,10 @@
 
 
 {% block card_tab %}
+    <h3>Recent Trades</h3>
     {% if card_executions %}
-        <h3>Recent Trades</h3>
-        {% include 'offer_list.html' with offers=card_executions %}
+        {# This is a really hacky way of passing 'True' because it's actually a string here and passing 'False' or any other string would do the same thing #}
+        {% include 'offer_list.html' with offers=card_executions show_accepts='True' %}
     {% endif %}
 {% endblock card_tab %}
 
