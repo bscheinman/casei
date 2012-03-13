@@ -4,7 +4,13 @@
     <thead><tr><th>Time</th><th>Entry</th><th>Offering</th><th>Asking</th><th>Actions</th></tr></thead>
     {% for offer in offers %}
         <tr>
-            <td>{{ offer.offer_time|date:'m/d/y H:i:s' }}
+            <td>
+                {% if offer.is_accepted %}
+                    {{ offer.accept_time|date:'m/d/y H:i:s' }}
+                {% else %}
+                    {{ offer.offer_time|date:'m/d/y H:i:s' }}
+                {% endif %}
+            </td>
             <td>{% entry_link offer.entry %}</td>
             <td>{% offer_side offer.bid_side %}</td>
             <td>{% offer_side offer.ask_side %}</td>
