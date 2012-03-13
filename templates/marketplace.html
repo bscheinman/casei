@@ -5,41 +5,13 @@
     <h2>{{ game.name }} Marketplace</h2>
 
     {% if offers %}
-        <table class='table table-bordered table-striped table-condensed'>
-            <thead><tr><th>Time</th><th>Entry</th><th>Offering</th><th>Asking</th><th>Actions</th></tr></thead>
-            {% for offer in offers %}
-                <tr>
-                    <td>{{ offer.offer_time|date:'m/d/y H:i:s' }}
-                    <td>{% entry_link offer.entry %}</td>
-                    <td>{% offer_side offer.bid_side %}</td>
-                    <td>{% offer_side offer.ask_side %}</td>
-                    <td>
-                        {% if offer.is_active and not offer.is_accepted and self_entry %}
-                            {% if offer.entry == self_entry %}
-                                <form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/cancel/'>
-                                    {% csrf_token %}
-                                    <button type='submit' class='btn btn-danger'>Cancel Offer</button>
-                                </form>
-                            {% else %}
-                                <form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/accept/' class='acceptForm'>
-                                    {% csrf_token %}
-                                    <button type='submit' class='btn btn-success'>Accept Offer</button>
-                                </form>
-                            {% endif %}
-                        {% endif %}
-            {% endfor %}
-        </table>
+        {% include 'offer_list.html' %}
+    {% else %}
+        <h3>No Open Offers</h3>
     {% endif %}
 {% endblock game_body %}
 
 {% block game_scripts %}
-    <script type='text/javascript'>
-        $('.acceptForm').submit(function(e) {
-            if (!confirm('Are you sure you want to accept this trade?')) {
-                e.preventDefault();
-                return;
-            }
-        });
-    </script>
+    {% include 'accept_form_confirmation.html' %}
 {% endblock game_scripts %}
 

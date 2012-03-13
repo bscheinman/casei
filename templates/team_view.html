@@ -4,30 +4,30 @@
 {% block title %}{{ team.full_name }} Profile{% endblock title %}
 
 {% block tab_scripts %}
-<script type='text/javascript'>
-    function OnTradeResponse(data) {
-        if (data.success)
-            window.location = '/ncaa/game/{{game.id}}/team/{{team.abbrev_name}}/?start_tab=stock_tab';
-        else {
-            var errorString = data.errors.join('\n');
-            var field_errors = data.field_errors;
-            for (var key in field_errors)
-                errorString += '\n' + field_errors[key];
-            alert(errorString);
+    <script type='text/javascript'>
+        function OnTradeResponse(data) {
+            if (data.success)
+                window.location = '/ncaa/game/{{game.id}}/team/{{team.abbrev_name}}/?start_tab=stock_tab';
+            else {
+                var errorString = data.errors.join('\n');
+                var field_errors = data.field_errors;
+                for (var key in field_errors)
+                    errorString += '\n' + field_errors[key];
+                alert(errorString);
+            }
         }
-    }
 
-    $(document).ready(function() {
-        var options = {
-            dataType: 'json',
-            success: OnTradeResponse
-        };
+        $(document).ready(function() {
+            var options = {
+                dataType: 'json',
+                success: OnTradeResponse
+            };
 
-        $('#tradeForm').ajaxForm(options);
-        $('.cancelForm').ajaxForm(options);
-    });
-    
-</script>
+            $('#tradeForm').ajaxForm(options);
+            $('.cancelForm').ajaxForm(options);
+        });
+    </script>
+    {% include 'accept_form_confirmation.html' %}
 {% endblock tab_scripts %}
 
 {% block page_header %}
@@ -66,9 +66,7 @@
             <div id='offering_accordion' class='accordion-body collapse'>
                 <div class='accordion-inner'>
                     {% if offering_trades %}
-                        {% for trade in offering_trades %}
-                            {% render_offer_table trade self_entry %}
-                        {% endfor %}
+                        {% include 'offer_list.html' with offers=offering_trades %}
                     {% else %}
                         <em>None</em>
                     {% endif %}
@@ -83,9 +81,7 @@
             <div id='asking_accordion' class='accordion-body collapse'>
                 <div class='accordion-inner'>
                     {% if asking_trades %}
-                        {% for trade in asking_trades %}
-                            {% render_offer_table trade self_entry %}
-                        {% endfor %}
+                        {% include 'offer_list.html' with offers=asking_trades %}
                     {% else %}
                         <em>None</em>
                     {% endif %}

@@ -49,9 +49,7 @@
 {% block card_tab %}
     {% if card_executions %}
         <h3>Recent Trades</h3>
-        {% for trade in card_executions %}
-            {% render_offer_table trade self_entry %}
-        {% endfor %}
+        {% include 'offer_list.html' with offers=card_executions %}
     {% endif %}
 {% endblock card_tab %}
 
