@@ -21,6 +21,7 @@
             $('.cancelForm').ajaxForm(options);
         });
     </script>
+    {% include 'accept_form_confirmation.html' %}
 {% endblock tab_scripts %}
 
 {% block page_header %}
@@ -53,9 +54,7 @@ Score: {{ entry.score }}<br/>
     {% if entry == self_entry %}
         <h3>Open Card-Style Offers</h3>
         {% if card_offers %}
-            {% for offer in card_offers %}
-                {% render_offer_table offer self_entry %}
-            {% endfor %}
+            {% include 'offer_list.html' with offers=card_offers %}
         {% else %}
             (None)
         {% endif %}
