@@ -55,6 +55,16 @@ def render_offer_table(offer, entry):
     return { 'offer':offer, 'rows':rows, 'bid_points':bid_points, 'ask_points':ask_points, 'bid_total':bid_total, 'ask_total':ask_total, 'can_claim':can_claim, 'can_cancel':can_cancel }
 
 
+@register.inclusion_tag('offer_side.html')
+def offer_side(offer_side):
+    rows = []
+    for component in offer_side.components.all():
+        rows.append(component)
+    if offer_side.points:
+        rows.append(offer_side.points)
+    return { 'rows':rows }
+
+
 @register.inclusion_tag('team_link.html')
 def team_link(team_name, game=None):
     return { 'team_name':team_name, 'game':game }
