@@ -21,7 +21,7 @@
                                     <button type='submit' class='btn btn-danger'>Cancel Offer</button>
                                 </form>
                             {% else %}
-                                <form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/accept/'>
+                                <form method='POST' action='/ncaa/game/{{offer.entry.game.id}}/offer/{{offer.id}}/accept/' class='acceptForm'>
                                     {% csrf_token %}
                                     <button type='submit' class='btn btn-success'>Accept Offer</button>
                                 </form>
@@ -31,3 +31,15 @@
         </table>
     {% endif %}
 {% endblock game_body %}
+
+{% block game_scripts %}
+    <script type='text/javascript'>
+        $('.acceptForm').submit(function(e) {
+            if (!confirm('Are you sure you want to accept this trade?')) {
+                e.preventDefault();
+                return;
+            }
+        });
+    </script>
+{% endblock game_scripts %}
+
