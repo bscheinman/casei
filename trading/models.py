@@ -136,8 +136,7 @@ def process_new_order(order):
 
 @receiver(post_save, sender=Order, weak=False)
 def on_new_order(sender, instance, created, **kwargs):
-    if created:
-        process_new_order(instance)
+    process_new_order(instance)
 
 
 @receiver(post_save, sender=Execution, weak=False)

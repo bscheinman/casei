@@ -594,6 +594,41 @@ def cancel_order(request, game_id):
     return HttpResponse(simplejson.dumps(results), mimetype='text/json')
 
 
+@login_required
+def change_order(request, game_id):
+    results = { 'success':False, 'errors':[], field_errors:{} }
+    if request.method != 'POST':
+        results['errors'].append('You must use a POST request for changing orders')
+    else:
+        try:
+            context = get_base_context(request, game_id)
+            self_entry = context.get('self_entry', None)
+            form = ChangeOrderForm(request.POST)
+
+            if form.is_valid():
+                data = form.cleaned_data
+                order = Order.objects.get(order_id=data['order_id'])
+                price = data.get('price', 0.0)
+                quantity = data.get('quantity', 0)
+
+                cancel_on_game = data.get('cancel_on_game', False)
+                if price:
+                    order.price = price
+                if quantity:
+                    order.quantity = quantity
+                order.cancel_on_game = cancel_on_game
+                order.save()
+                results['success'] = True
+            else:
+                results['field_errors'] = form.errors
+
+        except Exception as ex:
+            results['errors'].append(str(ex))
+
+    return HttpResponse(simplejson.dumps(results), mimetype='text/json')
+
+
+
 def add_scoring_context(game, context):
     scoring_settings = ScoringSetting.objects.filter(game=game).order_by('scoreType__ordering')
     context['scoring_settings'] = scoring_settings
