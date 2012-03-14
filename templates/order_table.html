@@ -1,7 +1,7 @@
 {% load ncaa_tags %}
 
 <table class='table table-bordered table-striped table-condensed sortable'>
-    <thead><tr><td>Time</td><td>Team</td><td>Side</td><td>Quantity Remaining</td><td>Price</td><td class='sorttable_nosort'>Actions</td></tr></thead>
+    <thead><tr><td>Time</td><td>Team</td><td>Side</td><td>Quantity Remaining</td><td>Price</td><td>CoG</td><td class='sorttable_nosort'>Actions</td></tr></thead>
     {% for order in orders %}
         <tr>
             <td>{{ order.placed_time|date:'m/d/y H:i:s' }}</td>
@@ -9,6 +9,7 @@
             <td>{{ order.side_name }}</td>
             <td>{{ order.quantity_remaining }}</td>
             <td>{{ order.price }}</td>
+            <td>{% if order.cancel_on_game %}x{% endif %}</td>
             <td>
                 {% if self_entry.entry_name == order.placer and order.is_active and order.quantity_remaining > 0%}
                     {#<button class='btn'>Change Order</button>#}

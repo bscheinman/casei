@@ -1,0 +1,4 @@
+#!/bin/bash
+
+export DJANGO_SETTIGS_MODULE=settings
+cd /srv/www/caseinsensitive.org/casei && python manage.py ${*}
