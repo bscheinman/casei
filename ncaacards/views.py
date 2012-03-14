@@ -609,8 +609,8 @@ def change_order(request, game_id):
                 order = Order.objects.get(order_id=data['order_id'])
                 price = data.get('price', 0.0)
                 quantity = data.get('quantity', 0)
-
                 cancel_on_game = data.get('cancel_on_game', False)
+
                 if price:
                     order.price = price
                 if quantity:
