@@ -90,6 +90,21 @@
                 </div>
             </div>
         </div>
+        <div class='accordion-group'>
+            <div class='accordion-heading'>
+                <a class='accordion-toggle' data-toggle='collapse' data-parent='#trades' href='#recent_accordion'>
+                    Recent {{ team.full_name }} Trades ({{ recent_trades|length }})</a>
+            </div>
+            <div id='recent_accordion' class='accordion-body collapse'>
+                <div class='accordion-inner'>
+                    {% if recent_trades %}
+                        {% include 'offer_list.html' with offers=recent_trades %}
+                    {% else %}
+                        <em>None</em>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
