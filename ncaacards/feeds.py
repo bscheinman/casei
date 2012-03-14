@@ -17,11 +17,11 @@ class RecentTradesFeed(Feed):
 
 
     def link(self, game):
-        return '/ncaa/game/%s/' % game.id
+        return 'http://caseinsensitive.org/ncaa/game/%s/' % game.id
 
 
     def item_link(self, trade):
-        return '/ncaa/game/%s/offer/%s/' % (trade.entry.game.id, trade.id)
+        return 'http://caseinsensitive.org/ncaa/game/%s/offer/%s/' % (trade.entry.game.id, trade.id)
     
 
     def description(self, game):
