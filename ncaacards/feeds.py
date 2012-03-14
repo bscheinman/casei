@@ -1,4 +1,4 @@
-from casei.ncaacards.models import NcaaGame, TradeOffer
+from casei.ncaacards.models import GameTeam, NcaaGame, TradeOffer
 from casei.trading.models import Execution
 from django.contrib.syndication.views import Feed
 from django.db.models import Q
@@ -35,5 +35,5 @@ class RecentTradesFeed(Feed):
 
     def items(self, game):
         #return TradeOffer.objects.filter(Q(entry__game=game) & ~Q(accepting_user=None)).order_by('-accept_time')[:25]
-        return Execution.objects.filter(market__name=game.name).order_by('-time')[:50]
+        return Execution.objects.filter(security__market__name=game.name).order_by('-time')[:50]
 
