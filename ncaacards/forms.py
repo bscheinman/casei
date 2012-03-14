@@ -1,5 +1,6 @@
 from casei.ncaacards.logic import get_team_from_identifier
 from casei.ncaacards.models import NcaaGame, GameType
+from casei.trading.models import Order
 from django import forms
 from decimal import *
 
@@ -58,6 +59,56 @@ class TradeForm(forms.Form):
             self._errors['quantity'] = self.error_class(['You must enter a quantity'])
 
         return cleaned_data
+
+
+class ChangeOrderForm(forms.Form):
+    order_id = forms.CharField(max_length=32)
+    quantity = forms.CharField(max_length=10, required=False)
+    price = forms.CharField(max_length=10, required=False)
+    cancel_on_game = forms.BooleanField(required=False)
+
+    def clean(self):
+        super(ChangeOrderForm, self).clean()
+        cleaned_data = self.cleaned_data
+
+        order_id = cleaned_data.get('order_id', '')
+        quantity = cleaned_data.get('quantity', '')
+        price = cleaned_data.get('price', '')
+        cancel_on_game = cleaned_data.get('cancel_on_game', False)
+
+        if order_id:
+            try:
+                order = Order.objects.get(order_id=order_id)
+            except Order.DoesNotExist:
+                self._errors['order_id'] = self.error_class(['No order exists with the ID %s' % order_id])
+                del cleaned_data['order_id']
+        else:
+            self._errors['order_id'] = self.error_class(['You must provide an order ID'])
+            
+        if quantity:
+            try:
+                q = int(quantity)
+            except ValueError:
+                self._errors['quantity'] = self.error_class(['%s is not a valid quantity' % quantity])
+                del cleaned_data['quantity']
+            else:
+                if q <= 0:
+                    self._errors['quantity'] = self.error_class(['Quantity must be greater than zero'])
+                    del cleaned_data['quantity']
+                else:
+                    cleaned_data['quantity'] = q
+
+        if price:
+            try:
+                p = Decimal(price)
+            except ValueError:
+                self._errors['price'] = self.error_class(['%s is not a valid price' % price])
+                del cleaned_data['price']
+            else:
+                cleaned_data['price'] = p
+
+        return cleaned_data
+
 
 
 class CreateGameForm(forms.Form):
