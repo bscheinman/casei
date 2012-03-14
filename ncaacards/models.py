@@ -183,7 +183,7 @@ class TradeOffer(models.Model):
         if self.ask_side.points:
             lines.append('\t%s Points' % self.ask_side.points)
 
-        return '\n'.join(lines)
+        return '<br/>'.join(lines)
 
 
 class TradeComponent(models.Model):
