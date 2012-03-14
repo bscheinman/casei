@@ -1,4 +1,4 @@
-from casei.ncaacards.forms import CreateGameForm, TradeForm
+from casei.ncaacards.forms import ChangeOrderForm, CreateGameForm, TradeForm
 from casei.ncaacards.logic import accept_trade
 from casei.ncaacards.logic import get_leaders, get_game, get_entry, get_team_from_identifier
 from casei.ncaacards.models import *
@@ -596,7 +596,7 @@ def cancel_order(request, game_id):
 
 @login_required
 def change_order(request, game_id):
-    results = { 'success':False, 'errors':[], field_errors:{} }
+    results = { 'success':False, 'errors':[], 'field_errors':{} }
     if request.method != 'POST':
         results['errors'].append('You must use a POST request for changing orders')
     else:
@@ -615,7 +615,7 @@ def change_order(request, game_id):
                 if price:
                     order.price = price
                 if quantity:
-                    order.quantity = quantity
+                    order.quantity_remaining = quantity
                 order.cancel_on_game = cancel_on_game
                 order.save()
                 results['success'] = True
