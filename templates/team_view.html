@@ -98,7 +98,7 @@
             <div id='recent_accordion' class='accordion-body collapse'>
                 <div class='accordion-inner'>
                     {% if recent_trades %}
-                        {% include 'offer_list.html' with offers=recent_trades %}
+                        {% include 'offer_list.html' with offers=recent_trades show_accepts='True' %}
                     {% else %}
                         <em>None</em>
                     {% endif %}
