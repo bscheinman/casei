@@ -21,7 +21,12 @@ class RecentTradesFeed(Feed):
 
 
     def item_link(self, trade):
-        return 'http://caseinsensitive.org/ncaa/game/%s/offer/%s/' % (trade.entry.game.id, trade.id)
+        try:
+            game_team = GameTeam.objects.get(game__name=trade.security.market.name, team__abbrev_name=trade.security.name)
+            return 'http://caseinsensitive.org/ncaa/game/%s/team/%s/?start_tab=stock_tab' % (game_team.game.id, game_team.team.abbrev_name)
+        except GameTeam.DoesNotExist:
+            return 'http://caseinsensitive.org/ncaa/'
+        #return 'http://caseinsensitive.org/ncaa/game/%s/offer/%s/' % (trade.entry.game.id, trade.id)
     
 
     def description(self, game):
@@ -29,5 +34,6 @@ class RecentTradesFeed(Feed):
 
 
     def items(self, game):
-        return TradeOffer.objects.filter(Q(entry__game=game) & ~Q(accepting_user=None)).order_by('-accept_time')[:25]
+        #return TradeOffer.objects.filter(Q(entry__game=game) & ~Q(accepting_user=None)).order_by('-accept_time')[:25]
+        return Execution.objects.filter(market__name=game.name).order_by('-time')[:50]
 
