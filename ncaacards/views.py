@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
+import datetime
 
 
 def get_base_context(request, game_id, **kwargs):
@@ -87,7 +88,7 @@ def entry_view(request, game_id, entry_id):
     if game.supports_stocks:
         stock_orders = Order.objects.filter(placer=self_entry.entry_name, security__market__name=game.name,\
             is_active=True, quantity_remaining__gt=0).order_by('-placed_time')
-        query = Q(buy_order__placer=self_entry.entry_name) | Q(sell_order__placer=self_entry.entry_name)
+        query = (Q(buy_order__placer=self_entry.entry_name) | Q(sell_order__placer=self_entry.entry_name)) & Q(security__market__name=game.name)
         stock_executions = Execution.objects.filter(query).order_by('-time')[:10]
 
     context = get_base_context(request, game_id, entry=entry, teams=teams,\
@@ -614,8 +615,9 @@ def change_order(request, game_id):
                 quantity = data.get('quantity', 0)
                 cancel_on_game = data.get('cancel_on_game', False)
 
-                if price:
+                if price and price != order.price:
                     order.price = price
+                    order.last_modified = datetime.datetime.now()
                 if quantity:
                     order.quantity_remaining = quantity
                 order.cancel_on_game = cancel_on_game
