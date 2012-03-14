@@ -1,0 +1,9 @@
+<script type='text/javascript'>
+    function show_change_form(order_id, quantity, price, cog) {
+        document.getElementById('change_id_field').value = order_id;
+        document.getElementById('change_quantity_field').value = quantity;
+        document.getElementById('change_price_field').value = price;
+        document.getElementById('change_cog_field').checked = cog ? 'checked' : 'unchecked';
+        $('#change_modal').modal();
+    }
+</script>

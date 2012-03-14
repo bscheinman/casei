@@ -14,6 +14,11 @@ def underscore(s):
     return s.replace(' ', '_')
 
 
+@register.filter
+def js_bool(b):
+    return 'true' if b else 'false'
+
+
 @register.inclusion_tag('offer_table.html')
 def render_offer_table(offer, entry):
     rows = []
