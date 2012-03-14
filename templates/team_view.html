@@ -24,10 +24,12 @@
             };
 
             $('#tradeForm').ajaxForm(options);
+            $('#changeForm').ajaxForm(options);
             $('.cancelForm').ajaxForm(options);
         });
     </script>
     {% include 'accept_form_confirmation.html' %}
+    {% include 'change_form_script.html' %}
 {% endblock tab_scripts %}
 
 {% block page_header %}
@@ -121,6 +123,15 @@
         </div>
         <div class='modal-body'>
             {% trade_form game team %}
+        </div>
+    </div>
+
+    <div id='change_modal' class='modal hide fade' style='width:250px;'>
+        <div class='modal-header'>
+            <a class='close' data-dismiss='modal'>x</a>
+        </div>
+        <div class='modal-body'>
+            {% include 'change_order_form.html' %}
         </div>
     </div>
 {% endblock stock_tab %}

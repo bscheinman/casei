@@ -1,9 +1,8 @@
-from casei.ncaacards.forms import CreateGameForm, TradeForm
-from casei.ncaacards.logic import accept_trade
-from casei.ncaacards.logic import get_leaders, get_game, get_entry, get_team_from_identifier
+from casei.ncaacards.forms import ChangeOrderForm, CreateGameForm, TradeForm
+from casei.ncaacards.logic import accept_trade, get_leaders, get_game, get_entry, get_team_from_identifier
 from casei.ncaacards.models import *
 from casei.trading.logic import get_security, place_order
-from casei.trading.models import Execution, Order
+from casei.trading.models import Execution, Order, process_order
 from casei.views import render_with_request_context
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -592,6 +591,42 @@ def cancel_order(request, game_id):
             results['success'] = True
 
     return HttpResponse(simplejson.dumps(results), mimetype='text/json')
+
+
+@login_required
+def change_order(request, game_id):
+    results = { 'success':False, 'errors':[], 'field_errors':{} }
+    if request.method != 'POST':
+        results['errors'].append('You must use a POST request for changing orders')
+    else:
+        try:
+            context = get_base_context(request, game_id)
+            self_entry = context.get('self_entry', None)
+            form = ChangeOrderForm(request.POST)
+
+            if form.is_valid():
+                data = form.cleaned_data
+                order = Order.objects.get(order_id=data['order_id'])
+                price = data.get('price', 0.0)
+                quantity = data.get('quantity', 0)
+                cancel_on_game = data.get('cancel_on_game', False)
+
+                if price:
+                    order.price = price
+                if quantity:
+                    order.quantity_remaining = quantity
+                order.cancel_on_game = cancel_on_game
+                order.save()
+                process_order(order)
+                results['success'] = True
+            else:
+                results['field_errors'] = form.errors
+
+        except Exception as ex:
+            results['errors'].append(str(ex))
+
+    return HttpResponse(simplejson.dumps(results), mimetype='text/json')
+
 
 
 def add_scoring_context(game, context):
