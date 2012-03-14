@@ -159,6 +159,33 @@ class TradeOffer(models.Model):
         return bool(self.accepting_user)
 
 
+    def __str__(self):
+        lines = []
+        lines.append('Proposed by %s at %s' % (self.entry.entry_name, self.offer_time))
+        if self.is_accepted():
+            lines.append('Accepted by %s at %s' % (self.accepting_user.entry_name, self.accept_time))
+            lines.append('%s Received:' % self.entry.entry_name)
+        else:
+            lines.append('%s is Offering:' % self.entry.entry_name)
+
+        for component in self.bid_side.components.all():
+            lines.append('\t%s x %s' % (component.team.team.abbrev_name, component.count))
+        if self.bid_side.points:
+            lines.append('\t%s Points' % self.bid_side.points)
+
+        if self.is_accepted():
+            lines.append('%s Received:' % self.accepting_user.entry_name)
+        else:
+            lines.append('%s is Asking For:' % self.entry.entry_name)
+
+        for component in self.ask_side.components.all():
+            lines.append('\t%s x %s' % (component.team.team.abbrev_name, component.count))
+        if self.ask_side.points:
+            lines.append('\t%s Points' % self.ask_side.points)
+
+        return '\n'.join(lines)
+
+
 class TradeComponent(models.Model):
     team = models.ForeignKey(GameTeam)
     count = models.IntegerField()

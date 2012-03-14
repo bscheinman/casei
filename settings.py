@@ -2,7 +2,7 @@
 import os
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 LOGIN_URL = '/ncaa/'
@@ -18,7 +18,7 @@ DATABASES = {
         'ENGINE': 'mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'casei',                      # Or path to database file if using sqlite3.
         'USER': 'casei',                      # Not used with sqlite3.
-        'PASSWORD': 'emopkonriuty',                  # Not used with sqlite3.
+        'PASSWORD': 'casei',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
@@ -73,7 +73,7 @@ ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    '/srv/www/caseinsensitive.org/casei/staticfiles/',
+    '/home/brendon/source/casei/staticfiles/',
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

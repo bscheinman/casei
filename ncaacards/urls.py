@@ -1,3 +1,4 @@
+from casei.ncaacards.feeds import RecentTradesFeed
 from django.conf.urls.defaults import patterns, include, url
 
 # Uncomment the next two lines to enable the admin:
@@ -7,6 +8,7 @@ from django.conf.urls.defaults import patterns, include, url
 urlpatterns = patterns('',
     url(r'^$', 'casei.ncaacards.views.home'),
     url(r'^game/([0-9]+)/$', 'casei.ncaacards.views.game_home'),
+    url(r'^game/([0-9]+)/rss/$', RecentTradesFeed()),
     url(r'^game/([0-9]+)/scoring_settings/$', 'casei.ncaacards.views.scoring_settings'),
     url(r'^game/([0-9]+)/save_settings/$', 'casei.ncaacards.views.save_settings'),
     url(r'^game/([0-9]+)/lock_settings/$', 'casei.ncaacards.views.lock_settings'),

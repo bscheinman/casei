@@ -1,0 +1,33 @@
+from casei.ncaacards.models import NcaaGame, TradeOffer
+from casei.trading.models import Execution
+from django.contrib.syndication.views import Feed
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from django.utils.feedgenerator import Rss201rev2Feed
+
+class RecentTradesFeed(Feed):
+    feed_type = Rss201rev2Feed
+    
+    def get_object(self, request, game_id):
+        return get_object_or_404(NcaaGame, pk=game_id)
+
+
+    def title(self, game):
+        return 'Recent Trades in %s' % game.name
+
+
+    def link(self, game):
+        return '/ncaa/game/%s/' % game.id
+
+
+    def item_link(self, trade):
+        return '/ncaa/game/%s/offer/%s/' % (trade.entry.game.id, trade.id)
+    
+
+    def description(self, game):
+        return 'Trades recently completed in game %s' % game.name
+
+
+    def items(self, game):
+        return TradeOffer.objects.filter(Q(entry__game=game) & ~Q(accepting_user=None)).order_by('-accept_time')[:25]
+
