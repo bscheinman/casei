@@ -95,7 +95,7 @@ admin.site.register(Order)
 admin.site.register(Execution)
 
 
-def process_new_order(order):
+def process_order(order):
     def execute_orders(existing_order):
         exec_quantity = min([order.quantity_remaining, existing_order.quantity_remaining])
 
@@ -136,7 +136,8 @@ def process_new_order(order):
 
 @receiver(post_save, sender=Order, weak=False)
 def on_new_order(sender, instance, created, **kwargs):
-    process_new_order(instance)
+    if created:
+        process_order(instance)
 
 
 @receiver(post_save, sender=Execution, weak=False)

@@ -1,9 +1,8 @@
 from casei.ncaacards.forms import ChangeOrderForm, CreateGameForm, TradeForm
-from casei.ncaacards.logic import accept_trade
-from casei.ncaacards.logic import get_leaders, get_game, get_entry, get_team_from_identifier
+from casei.ncaacards.logic import accept_trade, get_leaders, get_game, get_entry, get_team_from_identifier
 from casei.ncaacards.models import *
 from casei.trading.logic import get_security, place_order
-from casei.trading.models import Execution, Order
+from casei.trading.models import Execution, Order, process_order
 from casei.views import render_with_request_context
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -618,6 +617,7 @@ def change_order(request, game_id):
                     order.quantity_remaining = quantity
                 order.cancel_on_game = cancel_on_game
                 order.save()
+                process_order(order)
                 results['success'] = True
             else:
                 results['field_errors'] = form.errors
