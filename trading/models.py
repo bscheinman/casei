@@ -86,7 +86,7 @@ class Execution(models.Model):
     time = models.DateTimeField(auto_now_add=True, editable=False)
 
     def __str__(self):
-        return self.execution_id
+        return '%s   %s x %s @ %s' % (self.time.strftime('%a %m/%d %H:%M'), self.security.name, self.quantity, self.price)
 
 
 admin.site.register(Market)
