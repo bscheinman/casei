@@ -164,7 +164,7 @@ class TradeOffer(models.Model):
         lines.append('Proposed by %s at %s' % (self.entry.entry_name, self.offer_time))
         if self.is_accepted():
             lines.append('Accepted by %s at %s' % (self.accepting_user.entry_name, self.accept_time))
-            lines.append('%s Received:' % self.entry.entry_name)
+            lines.append('%s Received:' % self.accepting_user.entry_name)
         else:
             lines.append('%s is Offering:' % self.entry.entry_name)
 
@@ -174,7 +174,7 @@ class TradeOffer(models.Model):
             lines.append('\t%s Points' % self.bid_side.points)
 
         if self.is_accepted():
-            lines.append('%s Received:' % self.accepting_user.entry_name)
+            lines.append('%s Received:' % self.entry.entry_name)
         else:
             lines.append('%s is Asking For:' % self.entry.entry_name)
 
