@@ -184,12 +184,16 @@ def create_team_context(request, **kwargs):
         if game.supports_cards:
             offering_trades = TradeOffer.objects.filter(entry__game=game, bid_side__components__team=game_team, accepting_user=None, is_active=True).order_by('-offer_time')
             asking_trades = TradeOffer.objects.filter(entry__game=game, ask_side__components__team=game_team, accepting_user=None, is_active=True).order_by('-offer_time')
+
             recent_query = Q(entry__game=game) & ~Q(accepting_user=None) & (Q(bid_side__components__team=game_team) | Q(ask_side__components__team=game_team))
             recent_trades = TradeOffer.objects.filter(recent_query).order_by('-accept_time') 
+            recent_trade_set = set()
+            for trade in recent_trades:
+                recent_trade_set.add(trade)
 
             context['offering_trades'] = offering_trades
             context['asking_trades'] = asking_trades
-            context['recent_trades'] = recent_trades
+            context['recent_trades'] = recent_trade_set
 
         if game.supports_stocks:
             self_entry = context.get('self_entry', '')
