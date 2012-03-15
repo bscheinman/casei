@@ -86,6 +86,7 @@ class Team(models.Model):
     full_name = models.CharField(max_length=50, unique=True)
     abbrev_name = models.CharField(max_length=6, unique=True)
     game_type = models.ForeignKey(GameType, related_name='teams')
+    is_eliminated = models.BooleanField(default=False)
 
     def __str__(self):
         return self.full_name

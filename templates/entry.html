@@ -39,7 +39,10 @@ Score: {{ entry.score }}<br/>
         {% for team, shares, team_points in teams %}
             <tr>
             <td>{{ shares }}</td>
-            <td>{% team_link team.team.abbrev_name entry.game %}</td>
+            <td>
+                <span{% if team.team.is_eliminated %} style='text-decoration:line-through'{% endif %}>
+                {% team_link team.team.abbrev_name entry.game %}</span>
+            </td>
             <td>{{ team.score }}</td>
             <td>{{ team_points }}</td>
             </tr>
