@@ -126,7 +126,7 @@ def team_list(request, game_id):
     if not game:
         return HttpResponseRedirect('/ncaa/')
     rows = []
-    teams = GameTeam.objects.filter(game=context['game']).order_by('team__abbrev_name')
+    teams = GameTeam.objects.filter(game=game, team__is_eliminated=False).order_by('team__abbrev_name')
     if game.supports_stocks:
         securities = Security.objects.filter(market__name=context['game'].name)
         for team in teams:
