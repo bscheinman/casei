@@ -52,7 +52,7 @@ def game_home(request, game_id):
     if game.supports_cards:
         card_executions = TradeOffer.objects.filter(entry__game=game, accepting_user__isnull=False).order_by('-accept_time')[:10]
     if game.supports_stocks:
-        stock_executions = Execution.objects.filter(security__market__name=game.name).order_by('-time')[:25]
+        stock_executions = Execution.objects.filter(security__market__name=game.name).order_by('-time')[:50]
 
     context['card_executions'] = card_executions
     context['stock_executions'] = stock_executions
@@ -89,7 +89,7 @@ def entry_view(request, game_id, entry_id):
         stock_orders = Order.objects.filter(placer=self_entry.entry_name, security__market__name=game.name,\
             is_active=True, quantity_remaining__gt=0).order_by('-placed_time')
         query = (Q(buy_order__placer=self_entry.entry_name) | Q(sell_order__placer=self_entry.entry_name)) & Q(security__market__name=game.name)
-        stock_executions = Execution.objects.filter(query).order_by('-time')[:10]
+        stock_executions = Execution.objects.filter(query).order_by('-time')[:50]
 
     context = get_base_context(request, game_id, entry=entry, teams=teams,\
         card_offers=card_offers, stock_orders=stock_orders, card_executions=card_executions, stock_executions=stock_executions)
@@ -201,7 +201,7 @@ def create_team_context(request, **kwargs):
             if self_entry:
                 open_orders = Order.objects.filter(placer=self_entry.entry_name, security__name=team.abbrev_name,\
                     is_active=True, quantity_remaining__gt=0).order_by('-placed_time')[:10]
-            executions = Execution.objects.filter(security__market__name=game.name, security__name=team.abbrev_name).order_by('-time')[:10]
+            executions = Execution.objects.filter(security__market__name=game.name, security__name=team.abbrev_name).order_by('-time')[:50]
 
             context['open_orders'] = open_orders
             context['executions'] = executions
