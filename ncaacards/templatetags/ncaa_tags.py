@@ -1,5 +1,5 @@
 from array import array
-from casei.ncaacards.models import GameTeam
+from casei.ncaacards.models import GameTeam, UserEntry
 from django import template
 register = template.Library()
 import random
@@ -77,6 +77,16 @@ def team_link(team_name, game=None):
 
 @register.inclusion_tag('entry_link.html')
 def entry_link(entry):
+    return {'entry':entry }
+
+
+@register.inclusion_tag('entry_link.html')
+def entry_name_link(entry_name, game):
+    entry = None
+    try:
+        entry = UserEntry.objects.get(game=game, entry_name=entry_name)
+    except UserEntry.DoesNotExist:
+        pass
     return { 'entry':entry }
 
 
