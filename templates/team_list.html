@@ -18,9 +18,17 @@
             }
         }
 
-        function show_placer(team_name) {
+        function show_placer(team_name, side, price) {
             //$('#trade_title').html("<h4>Trade " + team_name + "</h4>");
             document.getElementById('team_id_field').value = team_name;
+            var radioButtons = document.forms['tradeForm'].elements['side'];
+            for (var i = 0 ; i < radioButtons.length ; ++i)
+                radioButtons[i].checked = radioButtons[i].value == side;
+            if (price != 0.0)
+                document.getElementById('price_field').value = price;
+            else
+                document.getElementById('price_field').value = '';
+            document.getElementById('quantity_field').value = '';
             $('#order_placer').modal();
         }
 
@@ -36,26 +44,32 @@
 {% endblock %}
 
 {% block game_body %}
-<table class='table table-bordered table-striped table-condensed sortable'>
-    <thead><tr>
-        <th>Team</th><th>Volume</th>
-        {% if game.supports_stocks %}
-            <th>Last</th><th>Bid</th><th>Ask</th><th class='sorttable_nosort'></th>
-        {% endif %}
-    </tr></thead>
-    {% for team, security in rows %}
-        <tr>
-            <td>{% team_link team.team.abbrev_name game %} </td>
-            <td>{{ team.volume }}</td>
+<div class='span7'>
+    <table class='table table-bordered table-striped table-condensed sortable'>
+        <col width=
+        <thead><tr>
+            <th>Team</th><th>Volume</th>
             {% if game.supports_stocks %}
-                <td>{{ security.get_last }}</td>
-                <td>{{ security.get_bid }}</td>
-                <td>{{ security.get_ask }}</td>
-                <td><button class='btn btn-primary' onclick='show_placer("{{team.team.abbrev_name}}")'>Place Order</button></td>
+                <th>Last</th><th class='sorttable_nosort' width='55'></th><th width='65'>Bid</th><th width='65'>Ask</th><th class='sorttable_nosort' width='55'></th>
             {% endif %}
-        </tr>
-    {% endfor %}
-</table>
+        </tr></thead>
+        {% for team, security in rows %}
+            <tr>
+                <td>{% team_link team.team.abbrev_name game %} </td>
+                <td>{{ team.volume }}</td>
+                {% if game.supports_stocks %}
+                    <td>{{ security.get_last }}</td>
+                    {% with bid=security.get_bid %}
+                        <td><button class='btn btn-danger' onclick='show_placer("{{team.team.abbrev_name}}", "sell", {{bid}})'>Sell</button></td><td>{{ bid }}</td>
+                    {% endwith %}
+                    {% with ask=security.get_ask %}
+                        <td>{{ ask }}</td><td><button class='btn btn-success' onclick='show_placer("{{team.team.abbrev_name}}", "buy", {{ask}})'>Buy</button></td>
+                    {% endwith %}
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
+</div>
 
 <div id='order_placer' class='modal hide fade' style='width:250px;'>
     <div class='modal-header'>
