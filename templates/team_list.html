@@ -60,10 +60,10 @@
                 {% if game.supports_stocks %}
                     <td>{{ security.get_last }}</td>
                     {% with bid=security.get_bid %}
-                        <td><button class='btn btn-danger' onclick='show_placer("{{team.team.abbrev_name}}", "sell", {{bid}})'>Sell</button></td><td>{{ bid }}</td>
+                        <td><button class='btn btn-success' onclick='show_placer("{{team.team.abbrev_name}}", "buy", {{bid}})'>Buy</button></td><td>{{ bid }}</td>
                     {% endwith %}
                     {% with ask=security.get_ask %}
-                        <td>{{ ask }}</td><td><button class='btn btn-success' onclick='show_placer("{{team.team.abbrev_name}}", "buy", {{ask}})'>Buy</button></td>
+                        <td>{{ ask }}</td><td><button class='btn btn-danger' onclick='show_placer("{{team.team.abbrev_name}}", "sell", {{ask}})'>Sell</button></td>
                     {% endwith %}
                 {% endif %}
             </tr>
