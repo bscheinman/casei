@@ -21,6 +21,10 @@
             $('.cancelForm').ajaxForm(options);
             $('#changeForm').ajaxForm(options);
         });
+
+        function ToggleEliminatedRows(show) {
+            $('.eliminated-row').css('visibility', show ? '' : 'collapse');
+        }
     </script>
     {% include 'accept_form_confirmation.html' %}
     {% include 'change_form_script.html' %}
@@ -35,9 +39,10 @@ Score: {{ entry.score }}<br/>
 <div id='holdings' class='well span4'>
     <h3>Holdings</h3>
     <table class='table table-bordered table-striped table-condensed sortable'>
-        <tr><td>Shares</td><td>Team</td><td>Points/Share</td><td>Total Points</td></tr>
+        <tr>
+        <td>Shares</td><td>Team</td><td>Points/Share</td><td>Total Points</td></tr>
         {% for team, shares, team_points in teams %}
-            <tr>
+            <tr{% if team.team.is_eliminated %} class='eliminated-row'{% endif %}>
             <td>{{ shares }}</td>
             <td>
                 <span{% if team.team.is_eliminated %} style='text-decoration:line-through'{% endif %}>
@@ -52,6 +57,7 @@ Score: {{ entry.score }}<br/>
             <tr><td colspan='3'><b>Total</b></td><td>{{ entry.score }}</td></tr>
         </tfoot>
     </table>
+    <input type='checkbox' checked='checked' onclick='ToggleEliminatedRows(this.checked)'>Show Eliminated Teams
 </div>
 {% endblock main_tab %}
 

@@ -49,7 +49,8 @@
         <thead><tr>
             <th>Team</th><th>Volume</th>
             {% if game.supports_stocks %}
-                <th>Last</th><th class='sorttable_nosort' width='55'></th><th width='65'>Bid</th><th width='65'>Ask</th><th class='sorttable_nosort' width='55'></th>
+                <th>Last</th><th class='sorttable_nosort' width='55'></th><th width='65'>Bid</th>
+                <th width='65'>Ask</th><th class='sorttable_nosort' width='55'></th>
             {% endif %}
         </tr></thead>
         {% for team, security in rows %}
