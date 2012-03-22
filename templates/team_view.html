@@ -118,10 +118,14 @@
         </div>
         <div id='bbo' class='span3 well'>
             <table class='table table-striped table-condensed table-bordered'>
+                <col width='50%'>
+                <col width='50%'>
                 <tr><td>Bids</td><td>Asks</td></tr>
                     {% for bid, ask in security.get_bbo_table %}
-                        <tr><td>{% if bid %}{{ bid.price }} ({{ bid.quantity_remaining }}) {% endif %}</td>
-                        <td>{% if ask %}{{ ask.price }} ({{ ask.quantity_remaining }}) {% endif %}</td></tr>
+                        <tr>
+                            <td>{% if bid %}<span{% if bid.placer == self_entry.entry_name %} style='font-weight:bold;'{% endif %}>{{ bid.price }} ({{ bid.quantity_remaining }})</span>{% endif %}</td>
+                            <td>{% if ask %}<span{% if ask.placer == self_entry.entry_name %} style='font-weight:bold;'{% endif %}>{{ ask.price }} ({{ ask.quantity_remaining }})</span>{% endif %}</td>
+                        </tr>
                     {% endfor %}
             </table>
         </div>

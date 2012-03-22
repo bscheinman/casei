@@ -32,9 +32,17 @@ class Security(models.Model):
         bids = self.get_top_bids(1)
         return bids[0].price if bids else 0.0
 
+    def get_bid_order(self):
+        bids = self.get_top_bids(1)
+        return bids[0] if bids else Order(price=0.0)
+
     def get_ask(self):
         asks = self.get_top_asks(1)
         return asks[0].price if asks else 0.0
+
+    def get_ask_order(self):
+        asks = self.get_top_asks(1)
+        return asks[0] if asks else Order(price=0.0)
 
     def get_last(self):
         execs = self.executions.order_by('-time')

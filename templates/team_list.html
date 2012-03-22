@@ -59,11 +59,13 @@
                 <td>{{ team.volume }}</td>
                 {% if game.supports_stocks %}
                     <td>{{ security.get_last }}</td>
-                    {% with bid=security.get_bid %}
-                        <td><button class='btn btn-success' onclick='show_placer("{{team.team.abbrev_name}}", "buy", {{bid}})'>Buy</button></td><td>{{ bid }}</td>
+                    {% with bid=security.get_bid_order %}
+                        <td><button class='btn btn-success' onclick='show_placer("{{team.team.abbrev_name}}", "buy", {{bid.price}})'>Buy</button></td>
+                        <td><span{% if bid.placer == self_entry.entry_name %} style='font-weight:bold;'{% endif %}>{{ bid.price }}</span></td>
                     {% endwith %}
-                    {% with ask=security.get_ask %}
-                        <td>{{ ask }}</td><td><button class='btn btn-danger' onclick='show_placer("{{team.team.abbrev_name}}", "sell", {{ask}})'>Sell</button></td>
+                    {% with ask=security.get_ask_order %}
+                        <td><span{% if ask.placer == self_entry.entry_name %} style='font-weight:bold;'{% endif %}>{{ ask.price }}</span></td>
+                        <td><button class='btn btn-danger' onclick='show_placer("{{team.team.abbrev_name}}", "sell", {{ask.price}})'>Sell</button></td>
                     {% endwith %}
                 {% endif %}
             </tr>
