@@ -1,7 +1,6 @@
 from casei.ncaacards.forms import ChangeOrderForm, CreateGameForm, TradeForm
 from casei.ncaacards.logic import accept_trade, get_leaders, get_game, get_entry, get_team_from_identifier
 from casei.ncaacards.models import *
-from casei.trading.logic import get_security, place_order
 from casei.trading.models import Execution, Order, process_order
 from casei.views import render_with_request_context
 from decimal import Decimal
@@ -240,7 +239,7 @@ def game_team_view(request, game_id, team_id):
 
     context = create_team_context(request, team=team, game=game)
     context['self_entry'] = entry
-    context['security'] = get_security(game.name, team.abbrev_name)
+    context['security'] = Security.objects.get(team=context['game_team'])
     return render_with_request_context(request, 'team_view.html', context)
 
 
@@ -572,8 +571,8 @@ def do_place_order(request, game_id):
 
             if not results['errors']:
                 try:
-                    place_order(market_name=context['game'].name, placer_name=self_entry.entry_name, security_name=team.abbrev_name,\
-                       is_buy=is_buy, price=price, quantity=quantity, cancel_on_game=data['cancel_on_game'])
+                    order = Order.objects.create(entry=self_entry, placer=self_entry.entry_name, security=Security.objects.get(team=game_team),\
+                        price=price, quantity=quantity, quantity_remaining=quantity, is_buy=is_buy, cancel_on_game=data['cancel_on_game'])
                     results['success'] = True
                 except Exception as error:
                     results['errors'].append(str(error))

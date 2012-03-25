@@ -7,6 +7,7 @@ from django.dispatch import receiver
 
 class Market(models.Model):
     name = models.CharField(max_length=20, unique=True)
+    game = models.ForeignKey('ncaacards.NcaaGame', blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -15,6 +16,7 @@ class Market(models.Model):
 class Security(models.Model):
     market = models.ForeignKey(Market, related_name='securities')
     name = models.CharField(max_length=6)
+    team = models.ForeignKey('ncaacards.GameTeam', blank=True, null=True)
 
     class Meta:
        unique_together = ('market', 'name')
@@ -67,6 +69,7 @@ class Security(models.Model):
 class Order(models.Model):
     order_id = UUIDField(auto=True, primary_key=True)
     placer = models.CharField(max_length=30) # This should be populated by the using application and is just for that application's use
+    entry = models.ForeignKey('ncaacards.UserEntry', blank=True, null=True)
     security = models.ForeignKey(Security, related_name='orders')
     placed_time = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now_add=True)

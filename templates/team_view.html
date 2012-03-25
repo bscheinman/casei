@@ -123,8 +123,8 @@
                 <tr><td>Bids</td><td>Asks</td></tr>
                     {% for bid, ask in security.get_bbo_table %}
                         <tr>
-                            <td>{% if bid %}<span{% if bid.placer == self_entry.entry_name %} style='font-weight:bold;'{% endif %}>{{ bid.price }} ({{ bid.quantity_remaining }})</span>{% endif %}</td>
-                            <td>{% if ask %}<span{% if ask.placer == self_entry.entry_name %} style='font-weight:bold;'{% endif %}>{{ ask.price }} ({{ ask.quantity_remaining }})</span>{% endif %}</td>
+                            <td>{% if bid %}<span{% if bid.entry == self_entry %} style='font-weight:bold;'{% endif %}>{{ bid.price }} ({{ bid.quantity_remaining }})</span>{% endif %}</td>
+                            <td>{% if ask %}<span{% if ask.entry == self_entry %} style='font-weight:bold;'{% endif %}>{{ ask.price }} ({{ ask.quantity_remaining }})</span>{% endif %}</td>
                         </tr>
                     {% endfor %}
             </table>
