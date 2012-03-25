@@ -4,6 +4,7 @@ from casei.ncaacards.models import *
 from casei.trading.logic import get_security, place_order
 from casei.trading.models import Execution, Order, process_order
 from casei.views import render_with_request_context
+from decimal import Decimal
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -126,15 +127,24 @@ def team_list(request, game_id):
     if not game:
         return HttpResponseRedirect('/ncaa/')
     rows = []
+    bid_total, ask_total = Decimal('0.0'), Decimal('0.0')
     teams = GameTeam.objects.filter(game=game, team__is_eliminated=False).order_by('team__abbrev_name')
     if game.supports_stocks:
         securities = Security.objects.filter(market__name=context['game'].name)
         for team in teams:
-            rows.append((team, securities.get(name=team.team.abbrev_name)))
+            security = securities.get(name=team.team.abbrev_name)
+            bid, ask = security.get_bid(), security.get_ask()
+            if bid:
+                bid_total += bid
+            if ask:
+                ask_total += ask
+            rows.append((team, security))
     else:
         for team in teams:
             rows.append((team, None))
     context['rows'] = rows
+    context['bid_total'] = bid_total
+    context['ask_total'] = ask_total
     
     return render_with_request_context(request, 'team_list.html', context)
 
