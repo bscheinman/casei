@@ -11,7 +11,7 @@
             <td>{{ order.price }}</td>
             <td>{% if order.cancel_on_game %}x{% endif %}</td>
             <td>
-                {% if self_entry.entry_name == order.placer and order.is_active and order.quantity_remaining > 0%}
+                {% if order.entry == self_entry and order.is_active and order.quantity_remaining > 0%}
                     <button class='btn' onclick='show_change_form("{{order.order_id}}","{{order.security.name}}","{{order.quantity_remaining}}",
                         "{{order.price}}","{{order.side_name}}",{{order.cancel_on_game|js_bool}})'>Change Order</button>
                     <form class='cancelForm' method='POST' action='/ncaa/game/{{game.id}}/cancel_order/' style='display:inline'>

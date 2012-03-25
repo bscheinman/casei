@@ -83,10 +83,13 @@ class UserEntry(models.Model):
 
 
 class Team(models.Model):
-    full_name = models.CharField(max_length=50, unique=True)
-    abbrev_name = models.CharField(max_length=6, unique=True)
+    full_name = models.CharField(max_length=50)
+    abbrev_name = models.CharField(max_length=6)
     game_type = models.ForeignKey(GameType, related_name='teams')
     is_eliminated = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('abbrev_name', 'game_type')
 
     def __str__(self):
         return self.full_name
@@ -318,11 +321,11 @@ def update_game_scores(sender, instance, created, **kwargs):
 @receiver(post_save, sender=NcaaGame, weak=False)
 def populate_game(sender, instance, created, **kwargs):
     if created:
-        market = Market.objects.create(name=instance.name)
+        market = Market.objects.create(game=instance, name=instance.name)
         with transaction.commit_on_success():
             for team in Team.objects.filter(game_type=instance.game_type):
-                GameTeam.objects.create(game=instance, team=team)
-                Security.objects.create(market=market, name=team.abbrev_name)
+                game_team = GameTeam.objects.create(game=instance, team=team)
+                Security.objects.create(market=market, team=game_team, name=team.abbrev_name)
             for scoreType in ScoreType.objects.filter(game_type=instance.game_type):
                 ScoringSetting.objects.create(game=instance, scoreType=scoreType, points=scoreType.default_score)
 
