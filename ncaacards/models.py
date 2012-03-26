@@ -346,6 +346,8 @@ def create_team_counts(sender, instance, created, **kwargs):
 def create_score_counts(sender, instance, created, **kwargs):
     if created:
         with transaction.commit_on_success():
+            for game in NcaaGame.objects.filter(game_type=instance.game_type):
+                ScoringSetting.objects.create(game=game, scoreType=instance, points=0)
             for team in Team.objects.filter(game_type=instance.game_type):
                 TeamScoreCount.objects.create(team=team, scoreType=instance)
 
