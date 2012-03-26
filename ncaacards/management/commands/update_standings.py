@@ -29,10 +29,15 @@ class Command(NoArgsCommand):
         for match in matches:
             try:
                 team = self.get_team(match.group('name'))
-                wins, losses = TeamScoreCount.objects.get(team=team, scoreType=self.wins_type), TeamScoreCount.objects.get(team=team, scoreType=self.losses_type)
-                wins.count = int(match.group('wins'))
-                wins.save()
-                losses.count = int(match.group('losses'))
-                losses.save()
+                win_count, loss_count = TeamScoreCount.objects.get(team=team, scoreType=self.wins_type), TeamScoreCount.objects.get(team=team, scoreType=self.losses_type)
+                
+                wins = int(match.group('wins'))
+                if wins != win_count.count:
+                    win_count.count = wins
+                    win_count.save()
+                losses = int(match.group('losses'))
+                if losses != loss_count.count:
+                    loss_count.count = losses
+                    loss_count.save()
             except Exception as err:
                 print 'Error processing team %s: %s' % (match.group('name'), str(err))
