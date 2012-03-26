@@ -302,11 +302,12 @@ def complete_user_entry(sender, instance, created, **kwargs):
 # Whenever a team's wins are updated, update the score for that team
 @receiver(post_save, sender=TeamScoreCount, weak=False)
 def update_team_scores(sender, instance, created, **kwargs):
-    with transaction.commit_on_success():
-        for team in GameTeam.objects.filter(team=instance.team):
-            team.update_score()
-        for entry in UserEntry.objects.all():
-            entry.update_score()
+    if not created:
+        with transaction.commit_on_success():
+            for team in GameTeam.objects.filter(team=instance.team):
+                team.update_score()
+            for entry in UserEntry.objects.all():
+                entry.update_score()
 
 
 # Update all scores in a game when its scoring settings change
