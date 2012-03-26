@@ -172,7 +172,8 @@ def create_team_context(request, **kwargs):
     for score_count in score_counts:
         if game:
             multiplier = score_multipliers.get(scoreType=score_count.scoreType).points
-            score_counts_list.append((score_count.scoreType.name, score_count.count, score_count.count * multiplier))
+            if multiplier:
+                score_counts_list.append((score_count.scoreType.name, score_count.count, score_count.count * multiplier))
         else:
             score_counts_list.append((score_count.scoreType.name, score_count.count))
 
