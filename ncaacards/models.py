@@ -205,6 +205,9 @@ class LiveGame(models.Model):
     game_time = models.DateTimeField()
     is_processed = models.BooleanField(default=False)
 
+    class Meta:
+        unique_together = ('home_team', 'away_team', 'game_time')
+
     def __str__(self):
         return '%s @ %s %s' % (self.away_team.abbrev_name, self.home_team.abbrev_name, self.game_time)
 
@@ -336,6 +339,14 @@ def create_team_counts(sender, instance, created, **kwargs):
         with transaction.commit_on_success():
             for scoreType in ScoreType.objects.filter(game_type=instance.game_type):
                 TeamScoreCount.objects.create(team=instance, scoreType=scoreType)
+
+
+@receiver(post_save, sender=ScoreType, weak=False)
+def create_score_counts(sender, instance, created, **kwargs):
+    if created:
+        with transaction.commit_on_success():
+            for team in Team.objects.filter(game_type=instance.game_type):
+                TeamScoreCount.objects.create(team=team, scoreType=instance)
 
 
 @receiver(post_save, sender=Execution, weak=False)
