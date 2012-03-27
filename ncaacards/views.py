@@ -219,14 +219,6 @@ def create_team_context(request, **kwargs):
     return context
 
 
-def team_view(request, team_id):
-    team = get_team_from_identifier(team_id)
-    if not team:
-        return HttpResponseRedirect('/ncaa/')
-
-    return render_with_request_context(request, 'team_view.html', create_team_context(request, team=team))
-
-
 @login_required
 def game_team_view(request, game_id, team_id):
     game = get_game(game_id)
@@ -234,7 +226,7 @@ def game_team_view(request, game_id, team_id):
     if not entry:
         return HttpResponseRedirect('/ncaa/')
 
-    team = get_team_from_identifier(team_id)
+    team = get_team_from_identifier(team_id, game.game_type)
     if not team:
         return HttpResponseRedirect('/ncaa/')
 
@@ -548,35 +540,35 @@ def do_place_order(request, game_id):
             error = ''
             data = form.cleaned_data
 
-            team = data['team']
-            game_team = GameTeam.objects.get(game=context['game'], team=team)
-            if not game_team:
-                results['errors'].append('There is no team with the ID %s' % team_id)
-            position = UserTeam.objects.get(entry=self_entry, team=game_team)
+            try:
+                team = get_team_from_identifier(data['team_identifier'], context['game'].game_type)
+                game_team = GameTeam.objects.get(game=context['game'], team=team)
+                if not game_team:
+                    raise Exception('There is no team with the ID %s' % team_id)
+                position = UserTeam.objects.get(entry=self_entry, team=game_team)
 
-            is_buy = data['side'] == 'buy'
-            quantity = data['quantity']
-            price = data['price']
-            total_order_points = quantity * price
-            if is_buy:
-                if game.position_limit and quantity + position.count > game.position_limit:
-                    results['errors'].append('You tried to buy %s shares of %s but your current position is %s shares and the position limit is %s' %\
-                        (quantity, team.abbrev_name, position.count, game.position_limit))
-                if game.points_limit and self_entry.extra_points - total_order_points < -1 * game.points_limit:
-                    results['errors'].append('This order would cost %s but you have %s raw points and the points short limit is %s' %\
-                        (total_order_points, self_entry.extra_points, game.points_limit))
-            else:
-                if game.position_limit and position.count - quantity < -1 * game.position_limit:
-                    results['errors'].append('You tried to sell %s shares of %s but your current position is %s shares and the position limit is %s' %\
-                        (quantity, team.abbrev_name, position.count, game.position_limit))
+                is_buy = data['side'] == 'buy'
+                quantity = data['quantity']
+                price = data['price']
+                total_order_points = quantity * price
+                if is_buy:
+                    if game.position_limit and quantity + position.count > game.position_limit:
+                        raise Exception('You tried to buy %s shares of %s but your current position is %s shares and the position limit is %s' %\
+                            (quantity, team.abbrev_name, position.count, game.position_limit))
+                    if game.points_limit and self_entry.extra_points - total_order_points < -1 * game.points_limit:
+                        raise Exception('This order would cost %s but you have %s raw points and the points short limit is %s' %\
+                            (total_order_points, self_entry.extra_points, game.points_limit))
+                else:
+                    if game.position_limit and position.count - quantity < -1 * game.position_limit:
+                        raise Exception('You tried to sell %s shares of %s but your current position is %s shares and the position limit is %s' %\
+                            (quantity, team.abbrev_name, position.count, game.position_limit))
 
-            if not results['errors']:
-                try:
-                    order = Order.objects.create(entry=self_entry, placer=self_entry.entry_name, security=Security.objects.get(team=game_team),\
-                        price=price, quantity=quantity, quantity_remaining=quantity, is_buy=is_buy, cancel_on_game=data['cancel_on_game'])
-                    results['success'] = True
-                except Exception as error:
-                    results['errors'].append(str(error))
+                order = Order.objects.create(entry=self_entry, placer=self_entry.entry_name, security=Security.objects.get(team=game_team),\
+                    price=price, quantity=quantity, quantity_remaining=quantity, is_buy=is_buy, cancel_on_game=data['cancel_on_game'])
+                results['success'] = True
+
+            except Exception as error:
+                results['errors'].append(str(error))
         else:
             results['field_errors'] = form.errors
 

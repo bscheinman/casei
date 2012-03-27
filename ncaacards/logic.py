@@ -117,12 +117,13 @@ def accept_trade(trade, accepting_entry):
     accepting_entry.update_score()
 
 
-def get_team_from_identifier(team_id):
+def get_team_from_identifier(team_id, game_type):
+    team_query = Q(game_type=game_type)
     try:
         num_id = int(team_id)
-        team_query = Q(id=num_id)
+        team_query = team_query & Q(id=num_id)
     except ValueError:
-        team_query = Q(abbrev_name__iexact=team_id)
+        team_query = team_query & Q(abbrev_name__iexact=team_id)
 
     try:
         return Team.objects.get(team_query)
