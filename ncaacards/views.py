@@ -209,7 +209,7 @@ def create_team_context(request, **kwargs):
             self_entry = context.get('self_entry', '')
             open_orders = []
             if self_entry:
-                open_orders = Order.objects.filter(placer=self_entry.entry_name, security__name=team.abbrev_name,\
+                open_orders = Order.objects.filter(entry=self_entry, security__team=game_team,\
                     is_active=True, quantity_remaining__gt=0).order_by('-placed_time')[:10]
             executions = Execution.objects.filter(security__market__name=game.name, security__name=team.abbrev_name).order_by('-time')[:50]
 
