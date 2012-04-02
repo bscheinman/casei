@@ -48,8 +48,8 @@
         <thead><tr>
             <th>Team</th><th>Volume</th>
             {% if game.supports_stocks %}
-                <th>Last</th><th class='sorttable_nosort' width='55'></th><th width='65'>Bid</th>
-                <th width='65'>Ask</th><th class='sorttable_nosort' width='55'></th>
+                <th>Last</th><th class='sorttable_nosort' width='55'></th><th class='sorttable_nosort'>Bid Size</th><th width='65'>Bid</th>
+                <th width='65'>Ask</th><th class='sorttable_nosort'>Ask Size</th><th class='sorttable_nosort' width='55'></th>
             {% endif %}
         </tr></thead>
         {% for team, security in rows %}
@@ -60,17 +60,19 @@
                     <td>{{ security.get_last }}</td>
                     {% with bid=security.get_bid_order %}
                         <td><button class='btn btn-success' onclick='show_placer("{{team.team.abbrev_name}}", "buy", {{bid.price}})'>Buy</button></td>
-                        <td><span{% if bid.placer == self_entry.entry_name %} style='font-weight:bold;'{% endif %}>{{ bid.price }}</span></td>
+                        <td>{{ security|bid_size_at_price:bid.price }}</td>
+                        <td><span{% if self_entry == bid.entry %} style='font-weight:bold;'{% endif %}>{{ bid.price }}</span></td>
                     {% endwith %}
                     {% with ask=security.get_ask_order %}
-                        <td><span{% if ask.placer == self_entry.entry_name %} style='font-weight:bold;'{% endif %}>{{ ask.price }}</span></td>
+                        <td><span{% if self_entry == ask.entry %} style='font-weight:bold;'{% endif %}>{{ ask.price }}</span></td>
+                        <td>{{ security|ask_size_at_price:ask.price }}</td>
                         <td><button class='btn btn-danger' onclick='show_placer("{{team.team.abbrev_name}}", "sell", {{ask.price}})'>Sell</button></td>
                     {% endwith %}
                 {% endif %}
             </tr>
         {% endfor %}
         <tfoot>
-            <tr><td colspan='3'>Total</td><td></td><td>{{ bid_total }}</td><td>{{ ask_total }}</td><td></td></tr>
+            <tr><td colspan='3'>Total</td><td></td><td></td><td>{{ bid_total }}</td><td>{{ ask_total }}</td><td></td><td></td></tr>
         </tfoot>
     </table>
 </div>
