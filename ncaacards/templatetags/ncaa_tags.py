@@ -19,6 +19,16 @@ def js_bool(b):
     return 'true' if b else 'false'
 
 
+@register.filter
+def bid_size_at_price(security, price):
+    return security.get_bid_size_at_price(price)
+
+
+@register.filter
+def ask_size_at_price(security, price):
+    return security.get_ask_size_at_price(price)
+
+
 @register.inclusion_tag('offer_table.html')
 def render_offer_table(offer, entry):
     rows = []
