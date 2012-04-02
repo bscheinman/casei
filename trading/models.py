@@ -47,9 +47,9 @@ class Security(models.Model):
         #    GROUP BY o.price
         #    ORDER BY o.price DESC
         #    LIMIT 1; """ % self.id)
-        bids = Order.objects.filter(security=self, is_active=True, quantity_remaining__gt=0, is_buy=is_buy, price=price)
+        orders = Order.objects.filter(security=self, is_active=True, quantity_remaining__gt=0, is_buy=is_buy, price=str(price))
         total_qty = 0
-        for order in bids:
+        for order in orders:
             total_qty += order.quantity_remaining
         return total_qty
 
