@@ -60,12 +60,12 @@
                     <td>{{ security.get_last }}</td>
                     {% with bid=security.get_bid_order %}
                         <td><button class='btn btn-success' onclick='show_placer("{{team.team.abbrev_name}}", "buy", {{bid.price}})'>Buy</button></td>
-                        <td>{{ security|bid_size_at_price:bid.price }}</td>
+                        <td>{{ security.get_bid_size }}</td>
                         <td><span{% if self_entry == bid.entry %} style='font-weight:bold;'{% endif %}>{{ bid.price }}</span></td>
                     {% endwith %}
                     {% with ask=security.get_ask_order %}
                         <td><span{% if self_entry == ask.entry %} style='font-weight:bold;'{% endif %}>{{ ask.price }}</span></td>
-                        <td>{{ security|ask_size_at_price:ask.price }}</td>
+                        <td>{{ security.get_ask_size }}</td>
                         <td><button class='btn btn-danger' onclick='show_placer("{{team.team.abbrev_name}}", "sell", {{ask.price}})'>Sell</button></td>
                     {% endwith %}
                 {% endif %}
