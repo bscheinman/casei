@@ -17,7 +17,7 @@ class Command(NoArgsCommand):
     game_type = GameType.objects.get(name='MLB')
     url = 'http://sports.yahoo.com/mlb/standings'
     regex = re.compile('<a href="/mlb/teams/(?P<name>[a-z]+)" ?>[A-Za-z ]+</a>\s*</td>\s*<td>\s*(?P<wins>[0-9]+)\s*</td>\s*<td>\s*(?P<losses>[0-9]+)\s*</td>')
-    wins_type, losses_type = ScoreType.objects.get(name='Wins'), ScoreType.objects.get(name='Losses')
+    wins_type, losses_type = ScoreType.objects.get(game_type=game_type, name='Wins'), ScoreType.objects.get(game_type=game_type, name='Losses')
 
 
     def get_team(self, team_name):
