@@ -1,7 +1,7 @@
 from casei.fields import UUIDField
 from decimal import Decimal
 from django.contrib import admin
-from django.db import models
+from django.db import connection, models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -39,27 +39,26 @@ class Security(models.Model):
         bids = self.get_top_bids(1)
         return bids[0] if bids else Order(price=0.0)
 
-    def get_size_at_price_impl(self, price, is_buy):
-        #bids = Order.objects.raw(""" SELECT o.order_id AS id, SUM(o.quantity_remaining) AS total_qty, o.price
-        #    FROM trading_order o INNER JOIN trading_security s
-        #    ON o.security_id = s.id
-        #    WHERE o.is_active = 1 AND o.is_buy = 1 AND s.id = %s
-        #    GROUP BY o.price
-        #    ORDER BY o.price DESC
-        #    LIMIT 1; """ % self.id)
-        bids = Order.objects.filter(security=self, is_active=True, quantity_remaining__gt=0, is_buy=is_buy, price=price)
-        total_qty = 0
-        for order in bids:
-            total_qty += order.quantity_remaining
-        return total_qty
+
+    def get_bidask_size_impl(self, is_buy):
+        cursor = connection.cursor()
+        query = """ SELECT SUM(quantity_remaining) AS total_qty
+            FROM trading_order
+            WHERE is_active = 1 AND is_buy = %s AND security_id = %s
+            GROUP BY price
+            ORDER BY price %s
+            LIMIT 1; """ % ('1' if is_buy else '0', self.id, 'DESC' if is_buy else 'ASC')
+        cursor.execute(query)
+        row = cursor.fetchone()
+        return row[0] if row else 0
 
 
-    def get_bid_size_at_price(self, price):
-        return self.get_size_at_price_impl(price, True)
+    def get_bid_size(self):
+        return self.get_bidask_size_impl(True)
 
-
-    def get_ask_size_at_price(self, price):
-        return self.get_size_at_price_impl(price, False)
+    
+    def get_ask_size(self):
+        return self.get_bidask_size_impl(False)
 
 
     def get_ask(self):
