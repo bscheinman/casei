@@ -1,6 +1,7 @@
 from casei.fields import UUIDField
 from decimal import Decimal
 from django.contrib import admin
+from django.core.cache import cache
 from django.db import connection, models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -36,8 +37,13 @@ class Security(models.Model):
         return bids[0].price if bids else 0.0
 
     def get_bid_order(self):
-        bids = self.get_top_bids(1)
-        return bids[0] if bids else Order(price=0.0)
+        cache_key = 'bid_%s' % self.id
+        bid = cache.get(cache_key)
+        if bid is None:
+            bids = self.get_top_bids(1)
+            bid = bids[0] if bids else Order(price=0.0)
+            cache.set(cache_key, bid, None)
+        return bid
 
 
     def get_bidask_size_impl(self, is_buy):
@@ -54,11 +60,21 @@ class Security(models.Model):
 
 
     def get_bid_size(self):
-        return self.get_bidask_size_impl(True)
+        cache_key = 'bid_size_%s' % self.id
+        bid_size = cache.get(cache_key)
+        if bid_size is None:
+            bid_size = self.get_bidask_size_impl(True)
+            cache.set(cache_key, bid_size, None)
+        return bid_size
 
     
     def get_ask_size(self):
-        return self.get_bidask_size_impl(False)
+        cache_key = 'ask_size_%s' % self.id
+        ask_size = cache.get(cache_key)
+        if ask_size is None:
+            ask_size = self.get_bidask_size_impl(False)
+            cache.set(cache_key, ask_size, None)
+        return ask_size
 
 
     def get_ask(self):
@@ -66,8 +82,13 @@ class Security(models.Model):
         return asks[0].price if asks else 0.0
 
     def get_ask_order(self):
-        asks = self.get_top_asks(1)
-        return asks[0] if asks else Order(price=0.0)
+        cache_key = 'ask_%s' % self.id
+        ask = cache.get(cache_key)
+        if not ask:
+            asks = self.get_top_asks(1)
+            ask = asks[0] if asks else Order(price=0.0)
+            cache.set(cache_key, ask, None)
+        return ask
 
     def get_last(self):
         execs = self.executions.order_by('-time')
@@ -172,6 +193,11 @@ def process_order(order):
 def on_new_order(sender, instance, created, **kwargs):
     if created:
         process_order(instance)
+    # In the future we can try to be a little smarter about which cache values to reset, but
+    # for now even this will be a huge improvement since the ratio of orders to page views
+    # right now is very low
+    sec_id = instance.security.id
+    cache.delete_many(map(lambda x: '%s_%s' % (x, sec_id), ['bid', 'ask', 'bid_size', 'ask_size']))
 
 
 @receiver(post_save, sender=Execution, weak=False)
