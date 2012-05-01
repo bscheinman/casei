@@ -27,10 +27,10 @@ class Security(models.Model):
         return self.name
 
     def get_top_bids(self, count=5):
-        return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=True).order_by('-price', 'last_modified')[:count]
+        return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=True).order_by('-price', 'last_modified')[:count].select_related('entry')
 
     def get_top_asks(self, count=5):
-        return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=False).order_by('price', 'last_modified')[:count]
+        return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=False).order_by('price', 'last_modified')[:count].select_related('entry')
 
     def get_bid(self):
         return self.get_bid_order().price
