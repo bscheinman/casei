@@ -86,8 +86,8 @@ def entry_view(request, game_id, entry_id):
         query = (Q(entry=self_entry) | Q(accepting_user=self_entry)) & Q(accepting_user__isnull=False)
         card_executions = TradeOffer.objects.filter(query).order_by('-offer_time')[:10]
     if game.supports_stocks:
-        stock_orders = Order.objects.filter(placer=self_entry.entry_name, security__market__name=game.name,\
-            is_active=True, quantity_remaining__gt=0).order_by('-placed_time')
+        stock_orders = Order.objects.filter(entry=self_entry,\
+            is_active=True, quantity_remaining__gt=0).order_by('-placed_time').select_related('security', 'entry')
         query = (Q(buy_order__placer=self_entry.entry_name) | Q(sell_order__placer=self_entry.entry_name)) & Q(security__market__name=game.name)
         stock_executions = Execution.objects.filter(query).order_by('-time')[:50]
 
