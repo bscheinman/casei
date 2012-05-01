@@ -127,11 +127,14 @@ def team_list(request, game_id):
         return HttpResponseRedirect('/ncaa/')
     rows = []
     bid_total, ask_total = Decimal('0.0'), Decimal('0.0')
-    teams = GameTeam.objects.filter(game=game, team__is_eliminated=False).order_by('team__abbrev_name')
+    game_teams = GameTeam.objects.filter(game=game, team__is_eliminated=False).order_by('team__abbrev_name').select_related('team')
     if game.supports_stocks:
         securities = Security.objects.filter(market__name=context['game'].name)
-        for team in teams:
-            security = securities.get(name=team.team.abbrev_name)
+        security_map = { }
+        for security in securities:
+            security_map[security.name] = security
+        for team in game_teams:
+            security = security_map[team.team.abbrev_name]
             bid, ask = security.get_bid(), security.get_ask()
             if bid:
                 bid_total += bid
@@ -139,7 +142,7 @@ def team_list(request, game_id):
                 ask_total += ask
             rows.append((team, security))
     else:
-        for team in teams:
+        for team in game_teams:
             rows.append((team, None))
     context['rows'] = rows
     context['bid_total'] = bid_total

@@ -1,6 +1,7 @@
 from array import array
 from casei.ncaacards.models import GameTeam, UserEntry
 from django import template
+from django.db import connection
 register = template.Library()
 import random
 
@@ -125,7 +126,16 @@ def trade_form(game, team=None):
     if team:
         all_team_ids = []
     else:
-        all_team_ids = [t.team.abbrev_name for t in GameTeam.objects.filter(game=game).order_by('team__abbrev_name')]
+        cursor = connection.cursor()
+        query = """ select t.abbrev_name from
+            ncaacards_gameteam gt inner join
+            ncaacards_team t
+            on gt.team_id = t.id
+            where gt.game_id = %s
+            order by t.abbrev_name asc """
+        cursor.execute(query, [game.id])
+        all_team_ids = [x[0] for x in cursor.fetchall()]
+        #all_team_ids = [t.team.abbrev_name for t in GameTeam.objects.filter(game=game).order_by('team__abbrev_name')]
     return { 'game':game, 'team':team, 'all_team_ids':all_team_ids }
 
 
