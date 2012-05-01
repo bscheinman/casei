@@ -33,8 +33,7 @@ class Security(models.Model):
         return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=False).order_by('price', 'last_modified')[:count]
 
     def get_bid(self):
-        bids = self.get_top_bids(1)
-        return bids[0].price if bids else 0.0
+        return self.get_bid_order().price
 
     def get_bid_order(self):
         cache_key = 'bid_%s' % self.id
@@ -78,21 +77,25 @@ class Security(models.Model):
 
 
     def get_ask(self):
-        asks = self.get_top_asks(1)
-        return asks[0].price if asks else 0.0
+        return self.get_ask_order().price
 
     def get_ask_order(self):
         cache_key = 'ask_%s' % self.id
         ask = cache.get(cache_key)
-        if not ask:
+        if ask is None:
             asks = self.get_top_asks(1)
             ask = asks[0] if asks else Order(price=0.0)
             cache.set(cache_key, ask, None)
         return ask
 
     def get_last(self):
-        execs = self.executions.order_by('-time')
-        return execs[0].price if execs else 0.0
+        cache_key = 'last_%s' % self.id
+        last = cache.get(cache_key)
+        if last is None:
+            execs = self.executions.order_by('-time')
+            last = execs[0].price if execs else 0.0
+            cache.set(cache_key, last, None)
+        return last
 
     def get_bbo(self):
         return (self.get_top_bids(5), self.get_top_asks(5))
@@ -207,3 +210,4 @@ def record_execution(sender, instance, created, **kwargs):
         instance.buy_order.save()
         instance.sell_order.quantity_remaining -= instance.quantity
         instance.sell_order.save()
+    cache.delete('last_%s' % instance.security.id)
