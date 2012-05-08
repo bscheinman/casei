@@ -43,19 +43,27 @@
 {% endblock %}
 
 {% block game_body %}
-<div class='span7'>
+<div class='span8'>
     <table class='table table-bordered table-striped table-condensed sortable'>
         <thead><tr>
-            <th>Team</th><th>Volume</th>
+            <th>Team</th>
+            <th>Volume</th>
+            <th>Points</th>
             {% if game.supports_stocks %}
-                <th>Last</th><th class='sorttable_nosort' width='55'></th><th class='sorttable_nosort'>Bid Size</th><th width='65'>Bid</th>
-                <th width='65'>Ask</th><th class='sorttable_nosort'>Ask Size</th><th class='sorttable_nosort' width='55'></th>
+                <th>Last</th>
+                <th class='sorttable_nosort' width='50'></th>
+                <th class='sorttable_nosort'>Bid Size</th>
+                <th width='65'>Bid</th>
+                <th width='65'>Ask</th>
+                <th class='sorttable_nosort'>Ask Size</th>
+                <th class='sorttable_nosort' width='50'></th>
             {% endif %}
         </tr></thead>
         {% for team, security in rows %}
             <tr>
                 <td>{% team_link team.team.abbrev_name game %} </td>
                 <td>{{ team.volume }}</td>
+                <td>{{ team.score }}</td>
                 {% if game.supports_stocks %}
                     <td>{{ security.get_last }}</td>
                     {% with bid=security.get_bid_order %}
@@ -71,9 +79,20 @@
                 {% endif %}
             </tr>
         {% endfor %}
-        <tfoot>
-            <tr><td colspan='3'>Total</td><td></td><td></td><td>{{ bid_total }}</td><td>{{ ask_total }}</td><td></td><td></td></tr>
-        </tfoot>
+        {% if game.supports_stocks %}
+            <tfoot>
+                <tr>
+                    <td colspan='2'>Total</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>{{ bid_total }}</td>
+                    <td>{{ ask_total }}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        {% endif %}
     </table>
 </div>
 
