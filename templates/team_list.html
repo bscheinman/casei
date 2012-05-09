@@ -82,8 +82,10 @@
         {% if game.supports_stocks %}
             <tfoot>
                 <tr>
-                    <td colspan='2'>Total</td>
-                    <td></td>
+                    <td>Total</td>
+                    <td>{{ volume_total }}</td>
+                    <td>{{ points_total }}</td>
+                    <td>{{ last_total }}</td>
                     <td></td>
                     <td></td>
                     <td>{{ bid_total }}</td>
