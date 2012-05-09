@@ -86,8 +86,7 @@ def entry_view(request, game_id, entry_id):
         query = (Q(entry=self_entry) | Q(accepting_user=self_entry)) & Q(accepting_user__isnull=False)
         card_executions = TradeOffer.objects.filter(query).order_by('-offer_time')[:10]
     if game.supports_stocks:
-        stock_orders = Order.objects.filter(entry=self_entry,\
-            is_active=True, quantity_remaining__gt=0).order_by('-placed_time').select_related('security', 'entry')
+        stock_orders = Order.open_orders.filter(entry=self_entry).order_by('-placed_time').select_related('security', 'entry')
         query = (Q(buy_order__placer=self_entry.entry_name) | Q(sell_order__placer=self_entry.entry_name)) & Q(security__market__name=game.name)
         stock_executions = Execution.objects.filter(query).order_by('-time')[:50]
 
@@ -126,10 +125,10 @@ def team_list(request, game_id):
     if not game:
         return HttpResponseRedirect('/ncaa/')
     rows = []
-    bid_total, ask_total = Decimal('0.0'), Decimal('0.0')
+    bid_total, ask_total, last_total, volume_total, points_total = Decimal('0.0'), Decimal('0.0'), Decimal('0.0'), 0, 0
     game_teams = GameTeam.objects.filter(game=game, team__is_eliminated=False).order_by('team__abbrev_name').select_related('team')
     if game.supports_stocks:
-        securities = Security.objects.filter(market__name=context['game'].name)
+        securities = Security.objects.filter(market__game=context['game'])
         security_map = { }
         for security in securities:
             security_map[security.name] = security
@@ -140,6 +139,9 @@ def team_list(request, game_id):
                 bid_total += bid
             if ask:
                 ask_total += ask
+            last_total += security.get_last()
+            volume_total += team.volume
+            points_total += team.score
             rows.append((team, security))
     else:
         for team in game_teams:
@@ -147,6 +149,9 @@ def team_list(request, game_id):
     context['rows'] = rows
     context['bid_total'] = bid_total
     context['ask_total'] = ask_total
+    context['last_total'] = last_total
+    context['volume_total'] = volume_total
+    context['points_total'] = points_total
     
     return render_with_request_context(request, 'team_list.html', context)
 
@@ -212,8 +217,7 @@ def create_team_context(request, **kwargs):
             self_entry = context.get('self_entry', '')
             open_orders = []
             if self_entry:
-                open_orders = Order.objects.filter(entry=self_entry, security__team=game_team,\
-                    is_active=True, quantity_remaining__gt=0).order_by('-placed_time')[:10]
+                open_orders = Order.open_orders.filter(entry=self_entry, security__team=game_team).order_by('-placed_time')[:10]
             executions = Execution.objects.filter(security__market__name=game.name, security__name=team.abbrev_name).order_by('-time')[:50]
 
             context['open_orders'] = open_orders
@@ -566,7 +570,7 @@ def do_place_order(request, game_id):
                         raise Exception('You tried to sell %s shares of %s but your current position is %s shares and the position limit is %s' %\
                             (quantity, team.abbrev_name, position.count, game.position_limit))
 
-                order = Order.objects.create(entry=self_entry, placer=self_entry.entry_name, security=Security.objects.get(team=game_team),\
+                order = Order.orders.create(entry=self_entry, placer=self_entry.entry_name, security=Security.objects.get(team=game_team),\
                     price=price, quantity=quantity, quantity_remaining=quantity, is_buy=is_buy, cancel_on_game=data['cancel_on_game'])
                 results['success'] = True
 
@@ -591,7 +595,7 @@ def cancel_order(request, game_id):
             results['errors'].append('You must provide an order id')
         else:
             try:
-                order = Order.objects.get(order_id=order_id)
+                order = Order.orders.get(order_id=order_id)
             except Order.DoesNotExist:
                 results['errors'].append('No order exists with the id %s' % order_id)
             else:
@@ -619,7 +623,7 @@ def change_order(request, game_id):
 
             if form.is_valid():
                 data = form.cleaned_data
-                order = Order.objects.get(order_id=data['order_id'])
+                order = Order.orders.get(order_id=data['order_id'])
                 price = data.get('price', 0.0)
                 quantity = data.get('quantity', 0)
                 cancel_on_game = data.get('cancel_on_game', False)

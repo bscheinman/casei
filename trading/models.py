@@ -93,7 +93,7 @@ class Security(models.Model):
         last = cache.get(cache_key)
         if last is None:
             execs = self.executions.order_by('-time')
-            last = execs[0].price if execs else 0.0
+            last = execs[0].price if execs else Decimal('0.0')
             cache.set(cache_key, last, None)
         return last
 
@@ -112,6 +112,9 @@ class Security(models.Model):
         return table
 
 
+class OpenOrderManager(models.Manager):
+    def get_query_set(self):
+        return super(OpenOrderManager, self).get_query_set().filter(quantity_remaining__gt=0, is_active=True)
 
 class Order(models.Model):
     order_id = UUIDField(auto=True, primary_key=True)
@@ -126,6 +129,9 @@ class Order(models.Model):
     is_buy = models.BooleanField()
     is_active = models.BooleanField(default=True)
     cancel_on_game = models.BooleanField(default=False)
+
+    orders = models.Manager()
+    open_orders = OpenOrderManager()
 
     def __str__(self):
         return self.order_id

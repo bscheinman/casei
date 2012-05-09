@@ -69,7 +69,7 @@ class ChangeOrderForm(forms.Form):
 
         if order_id:
             try:
-                order = Order.objects.get(order_id=order_id)
+                order = Order.orders.get(order_id=order_id)
             except Order.DoesNotExist:
                 self._errors['order_id'] = self.error_class(['No order exists with the ID %s' % order_id])
                 del cleaned_data['order_id']

@@ -13,7 +13,7 @@ class Command(NoArgsCommand):
         for game in started_games:
             teams = (game.home_team, game.away_team)
             #team_names = (game.home_team.abbrev_name, game.away_team.abbrev_name)
-            for order in Order.objects.filter(security__team__team__in=teams, cancel_on_game=True, is_active=True, quantity_remaining__gt=0):
+            for order in Order.open_orders.filter(security__team__team__in=teams, cancel_on_game=True):
                 order.is_active = False
                 order.save()
             offer_query = (Q(bid_side__components__team__team__in=teams) | Q(ask_side__components__team__team__in=teams))\

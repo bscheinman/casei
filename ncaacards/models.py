@@ -247,8 +247,7 @@ def check_position_limits(entry, team):
                 offer.save()
 
     if game.supports_stocks:
-        orders = Order.objects.filter(placer=entry.entry_name, security__name=team.team.abbrev_name,\
-            security__market__name=game.name, is_active=True, quantity_remaining__gt=0)
+        orders = Order.open_orders.filter(placer__entry=entry, security__team=team, security__market__game=game)
         for order in orders:
             if (order.is_buy and team_count + order.quantity_remaining > position_limit) or\
                 (not order.is_buy and team_count - order.quantity_remaining < -1 * position_limit):
@@ -272,7 +271,7 @@ def check_point_limits(entry):
                 offer.save()
 
     if game.supports_stocks:
-        orders = Order.objects.filter(placer=entry.entry_name, is_active=True, quantity_remaining__gt=0)
+        orders = Order.open_orders.filter(placer__entry=entry)
         for order in orders:
             if order.is_buy and entry_points - order.price * order.quantity_remaining < -1 * points_limit:
                 order.is_active = False
