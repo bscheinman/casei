@@ -114,11 +114,12 @@ def team_options(teams):
 CI_LOWER = 'case insensitive'
 @register.inclusion_tag('ci_text.html')
 def ci_text():
-    ci_array = array('c', CI_LOWER)
-    for i in range(len(CI_LOWER)):
-        if random.randint(0,1):
-            ci_array[i] = ci_array[i].upper()
-    return { 'ci_text':ci_array.tostring() }
+    return { 'ci_text' : ''.join([c.upper() if random.randint(0,1) else c for c in CI_LOWER]) }
+#    ci_array = array('c', CI_LOWER)
+#    for i in range(len(CI_LOWER)):
+#        if random.randint(0,1):
+#            ci_array[i] = ci_array[i].upper()
+#    return { 'ci_text':ci_array.tostring() }
 
 
 @register.inclusion_tag('trade_form.html')
