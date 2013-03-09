@@ -33,8 +33,8 @@
 	        	<th>Team</th>
 	        	<th>Last</th>
 	        	<th>Volume</th>
-	            <th>Apply</th>
 	            <th>Your Position</th>
+	            <th>Apply</th>
 	            <th width='25'>Bid Size</th>
 	            <th width='25'>Bid</th>
 	            <th>Market Bid</th>
@@ -47,8 +47,8 @@
 	        		<td>{% team_link team.team.abbrev_name game %}</td>
 	        		<td>{{ security.get_last }}</td>
 	        		<td>{{ team.volume }}</td>
-	        		<td><input type='checkbox' name='apply_team_{{team.team.abbrev_name}}'/></td>
         			<td>{{ position }}</th>
+	        		<td><input type='checkbox' name='apply_team_{{team.team.abbrev_name}}'/></td>
         			<td><input style='width:50px;' name='bid_size_{{team.team.abbrev_name}}' type='text'
         				value='{{user_bid.quantity_remaining}}'/></td>
         			<td><input style='width:50px;' name='bid_{{team.team.abbrev_name}}' type='text'
