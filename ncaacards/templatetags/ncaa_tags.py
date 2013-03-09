@@ -33,8 +33,6 @@ def render_offer_table(offer, entry):
 
     bid_count, ask_count = len(bids), len(asks)
     bid_total, ask_total = 0,0
-    # maybe later change this to actually use iterators since lists don't have constant-time random access
-    # for now it doesn't really matter
     for i in range(max(bid_count, ask_count)):
         bid, ask = None, None
         if i < bid_count:

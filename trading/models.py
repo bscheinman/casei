@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.contrib import admin
 from django.core.cache import cache
 from django.db import connection, models
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -26,21 +27,29 @@ class Security(models.Model):
     def __str__(self):
         return self.name
 
-    def get_top_bids(self, count=5):
-        return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=True).order_by('-price', 'last_modified')[:count].select_related('entry')
+    def get_top_bids(self, count=5, entry=None):
+    	bid_query = Q(is_active=True, quantity_remaining__gt=0, is_buy=True)
+    	if entry:
+    		bid_query = bid_query & Q(entry__id=entry.id)
+        #return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=True).order_by('-price', 'last_modified')[:count].select_related('entry')
+        return self.orders.filter(bid_query).order_by('-price', 'last_modified')[:count].select_related('entry')
 
-    def get_top_asks(self, count=5):
-        return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=False).order_by('price', 'last_modified')[:count].select_related('entry')
+    def get_top_asks(self, count=5, entry=None):
+    	ask_query = Q(is_active=True, quantity_remaining__gt=0, is_buy=False)
+    	if entry:
+    		ask_query = ask_query & Q(entry__id=entry.id)
+        #return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=False).order_by('price', 'last_modified')[:count].select_related('entry')
+        return self.orders.filter(ask_query).order_by('price', 'last_modified')[:count].select_related('entry')
 
     def get_bid(self):
         return self.get_bid_order().price
 
-    def get_bid_order(self):
-        cache_key = 'bid_%s' % self.id
+    def get_bid_order(self, entry=None):
+        cache_key = 'bid_%s%s' % (self.id, ('|entry=%s' % entry.id) if entry else '')
         bid = cache.get(cache_key)
         if bid is None:
-            bids = self.get_top_bids(1)
-            bid = bids[0] if bids else Order(price=0.0)
+            bids = self.get_top_bids(1, entry)
+            bid = bids[0] if bids else Order(price=0.0, quantity_remaining=0, is_active=False)
             cache.set(cache_key, bid, None)
         return bid
 
@@ -79,12 +88,12 @@ class Security(models.Model):
     def get_ask(self):
         return self.get_ask_order().price
 
-    def get_ask_order(self):
-        cache_key = 'ask_%s' % self.id
+    def get_ask_order(self, entry=None):
+        cache_key = 'ask_%s%s' % (self.id, ('|entry=%s' % entry.id) if entry else '')
         ask = cache.get(cache_key)
         if ask is None:
-            asks = self.get_top_asks(1)
-            ask = asks[0] if asks else Order(price=0.0)
+            asks = self.get_top_asks(1, entry)
+            ask = asks[0] if asks else Order(price=0.0, quantity_remaining=0, is_active=False)
             cache.set(cache_key, ask, None)
         return ask
 
@@ -206,7 +215,12 @@ def on_new_order(sender, instance, created, **kwargs):
     # for now even this will be a huge improvement since the ratio of orders to page views
     # right now is very low
     sec_id = instance.security.id
-    cache.delete_many(map(lambda x: '%s_%s' % (x, sec_id), ['bid', 'ask', 'bid_size', 'ask_size']))
+    entry_id = instance.entry.id
+    #cache.delete_many(map(lambda x: '%s_%s' % (x, sec_id), ['bid', 'ask', 'bid_size', 'ask_size']))
+    for tag in ('bid', 'ask', 'bid_size', 'ask_size'):
+    	cache_key = '%s_%s' % (tag, sec_id)
+    	cache.delete(cache_key)
+    	cache.delete(cache_key + '|entry=%s' % entry_id)
 
 
 @receiver(post_save, sender=Execution, weak=False)
