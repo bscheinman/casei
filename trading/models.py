@@ -31,14 +31,12 @@ class Security(models.Model):
     	bid_query = Q(is_active=True, quantity_remaining__gt=0, is_buy=True)
     	if entry:
     		bid_query = bid_query & Q(entry__id=entry.id)
-        #return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=True).order_by('-price', 'last_modified')[:count].select_related('entry')
         return self.orders.filter(bid_query).order_by('-price', 'last_modified')[:count].select_related('entry')
 
     def get_top_asks(self, count=5, entry=None):
     	ask_query = Q(is_active=True, quantity_remaining__gt=0, is_buy=False)
     	if entry:
     		ask_query = ask_query & Q(entry__id=entry.id)
-        #return self.orders.filter(is_active=True, quantity_remaining__gt=0, is_buy=False).order_by('price', 'last_modified')[:count].select_related('entry')
         return self.orders.filter(ask_query).order_by('price', 'last_modified')[:count].select_related('entry')
 
     def get_bid(self):
@@ -53,7 +51,6 @@ class Security(models.Model):
             cache.set(cache_key, bid, None)
         return bid
 
-
     def get_bidask_size_impl(self, is_buy):
         cursor = connection.cursor()
         query = """ SELECT SUM(quantity_remaining) AS total_qty
@@ -66,7 +63,6 @@ class Security(models.Model):
         row = cursor.fetchone()
         return row[0] if row else 0
 
-
     def get_bid_size(self):
         cache_key = 'bid_size_%s' % self.id
         bid_size = cache.get(cache_key)
@@ -74,7 +70,6 @@ class Security(models.Model):
             bid_size = self.get_bidask_size_impl(True)
             cache.set(cache_key, bid_size, None)
         return bid_size
-
     
     def get_ask_size(self):
         cache_key = 'ask_size_%s' % self.id
@@ -83,7 +78,6 @@ class Security(models.Model):
             ask_size = self.get_bidask_size_impl(False)
             cache.set(cache_key, ask_size, None)
         return ask_size
-
 
     def get_ask(self):
         return self.get_ask_order().price
