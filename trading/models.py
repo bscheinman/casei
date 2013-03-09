@@ -216,7 +216,6 @@ def on_new_order(sender, instance, created, **kwargs):
     # right now is very low
     sec_id = instance.security.id
     entry_id = instance.entry.id
-    #cache.delete_many(map(lambda x: '%s_%s' % (x, sec_id), ['bid', 'ask', 'bid_size', 'ask_size']))
     for tag in ('bid', 'ask', 'bid_size', 'ask_size'):
     	cache_key = '%s_%s' % (tag, sec_id)
     	cache.delete(cache_key)
