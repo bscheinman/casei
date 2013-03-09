@@ -705,3 +705,90 @@ def lock_settings(request, game_id):
         game.save()
 
     return HttpResponseRedirect('/ncaa/game/%s/scoring_settings/' % game_id)
+
+
+def market_maker(request, game_id):
+    context = get_base_context(request, game_id)
+    game = context.get('game', None)
+    self_entry = context.get('self_entry', None)
+    if not game or not self_entry or not game.supports_stocks:
+        return HttpResponseRedirect('/ncaa/')
+
+    rows = []
+    game_teams = GameTeam.objects.filter(game=game, team__is_eliminated=False).order_by('team__abbrev_name').select_related('team')
+    securities = Security.objects.filter(market__game=context['game'])
+    security_map = {}
+    for security in securities:
+        security_map[security.name] = security
+    for team in game_teams:
+        security = security_map[team.team.abbrev_name]
+        position = UserTeam.objects.filter(entry__id=self_entry.id, team__id=team.id)[0].count
+        user_bid = security.get_bid_order(self_entry)
+        user_ask = security.get_ask_order(self_entry)
+        rows.append((team, security, position, user_bid, user_ask))
+
+    context['rows'] = rows
+    
+    return render_with_request_context(request, 'market_maker.html', context)
+
+def do_make_market(request, game_id):
+    context = get_base_context(request, game_id)
+    game = context.get('game', None)
+    self_entry = context.get('self_entry', None)
+    if not game or not self_entry or request.method != 'POST' or not game.supports_stocks:
+        return HttpResponseRedirect('/ncaa/')
+
+    errors = []
+    game_teams = GameTeam.objects.filter(game=game, team__is_eliminated=False).order_by('team__abbrev_name').select_related('team')
+    securities = Security.objects.filter(market__game=context['game'])
+    security_map = {}
+    for security in securities:
+        security_map[security.name] = security
+
+    for team in game_teams:
+        do_edit = request.POST.get('apply_team_%s' % team.team.abbrev_name, False)
+        if not do_edit:
+            continue
+
+        security = security_map[team.team.abbrev_name]
+        self_bid = security.get_bid_order(self_entry)
+        self_ask = security.get_ask_order(self_entry)
+
+        def extract_request_value(key_prefix, cast_type):
+            value = request.POST.get('%s_%s' % (key_prefix, team.team.abbrev_name), None)
+            if value is None:
+                raise Exception('missing required field %s' % key_prefix)
+            try:
+                return cast_type(value)
+            except ValueError as e:
+                raise Exception('invalid entry %s for field %s' % (value, key_prefix))
+
+        def apply_market_maker_line(is_buy, existing_order, price, quantity):
+            if existing_order and existing_order.is_active:
+                if quantity:
+                    existing_order.price = price
+                    existing_order.quantity_remaining = quantity
+                else:
+                    existing_order.is_active = False
+                existing_order.save()
+            else:
+                if quantity:
+                    order = Order.orders.create(entry=self_entry, placer=self_entry.entry_name, security=security,
+                        price=price, quantity=quantity, quantity_remaining=quantity, is_buy=is_buy, cancel_on_game=True)
+
+        try:
+            bid_price = extract_request_value('bid', Decimal)
+            bid_size = extract_request_value('bid_size', int)
+            ask_price = extract_request_value('ask', Decimal)
+            ask_size = extract_request_value('ask_size', int)
+
+            if bid_size < 0 or ask_size < 0:
+                raise Exception('order sizes cannot be negative')
+        except Exception as e:
+            result['errors'].append('error for security %s: %s' % (team.team.abbrev_name, str(e)))
+
+        apply_market_maker_line(True, self_bid, bid_price, bid_size)
+        apply_market_maker_line(False, self_ask, ask_price, ask_size)
+
+    results = { 'success' : len(errors) == 0, 'errors' : errors }
+    return HttpResponse(simplejson.dumps(results), mimetype='text/json')

@@ -33,8 +33,6 @@ def render_offer_table(offer, entry):
 
     bid_count, ask_count = len(bids), len(asks)
     bid_total, ask_total = 0,0
-    # maybe later change this to actually use iterators since lists don't have constant-time random access
-    # for now it doesn't really matter
     for i in range(max(bid_count, ask_count)):
         bid, ask = None, None
         if i < bid_count:
@@ -114,11 +112,7 @@ def team_options(teams):
 CI_LOWER = 'case insensitive'
 @register.inclusion_tag('ci_text.html')
 def ci_text():
-    ci_array = array('c', CI_LOWER)
-    for i in range(len(CI_LOWER)):
-        if random.randint(0,1):
-            ci_array[i] = ci_array[i].upper()
-    return { 'ci_text':ci_array.tostring() }
+    return { 'ci_text' : ''.join([c.upper() if random.randint(0,1) else c for c in CI_LOWER]) }
 
 
 @register.inclusion_tag('trade_form.html')
