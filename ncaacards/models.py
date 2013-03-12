@@ -331,11 +331,18 @@ def populate_game(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=Team, weak=False)
-def create_team_counts(sender, instance, created, **kwargs):
+def on_new_team(sender, instance, created, **kwargs):
     if created:
         with transaction.commit_on_success():
             for scoreType in ScoreType.objects.filter(game_type=instance.game_type):
                 TeamScoreCount.objects.create(team=instance, scoreType=scoreType)
+            for game in NcaaGame.objects.filter(game_type=instance.game_type):
+                game_team = GameTeam.objects.create(game=game, team=instance)
+                for entry in UserEntry.objects.filter(game=game):
+                    UserTeam.objects.create(entry=entry, team=game_team, count=0)
+                if game.supports_stocks:
+                    Security.objects.create(
+                        market=Market.objects.filter(game=game)[0], team=game_team, name=instance.abbrev_name)
 
 
 @receiver(post_save, sender=ScoreType, weak=False)
