@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
 import datetime
+import re
 
 
 def get_base_context(request, game_id, **kwargs):
@@ -431,6 +432,7 @@ def game_list(request):
     return render_with_request_context(request, 'game_list.html', context)
 
 
+entry_forbidden_regex = re.compile('[^0-9a-zA-Z _]')
 @login_required
 def join_game(request):
     game_id = request.POST.get('game_id', '')
@@ -445,6 +447,8 @@ def join_game(request):
 
     if not entry_name:
         error = 'You must provide an entry name'
+    elif entry_forbidden_regex.search(entry_name):
+    	error = 'Entry names can only contain letters, numbers, spaces, and underscores'
     else:
         try:
             entry = UserEntry.objects.get(game=game, entry_name=entry_name)
