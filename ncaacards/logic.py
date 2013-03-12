@@ -77,7 +77,7 @@ def accept_trade(trade, accepting_entry):
         validate_trade_side(ask_components, seller, seller_holdings, True, position_limit)
         validate_trade_side(ask_components, buyer, buyer_holdings, False, position_limit)
 
-	if trade.entry.game.points_limit:
+    if trade.entry.game.points_limit:
         points_short_limit = -1 * trade.entry.game.points_limit
         points_error_info = None
         if ask_points > 0:
