@@ -789,10 +789,10 @@ def do_make_market(request, game_id):
             if bid_size < 0 or ask_size < 0:
                 raise Exception('order sizes cannot be negative')
         except Exception as e:
-            result['errors'].append('error for security %s: %s' % (team.team.abbrev_name, str(e)))
-
-        apply_market_maker_line(True, self_bid, bid_price, bid_size)
-        apply_market_maker_line(False, self_ask, ask_price, ask_size)
+            errors.append('error for security %s: %s' % (team.team.abbrev_name, str(e)))
+        else:
+	        apply_market_maker_line(True, self_bid, bid_price, bid_size)
+	        apply_market_maker_line(False, self_ask, ask_price, ask_size)
 
     results = { 'success' : len(errors) == 0, 'errors' : errors }
     return HttpResponse(simplejson.dumps(results), mimetype='text/json')
