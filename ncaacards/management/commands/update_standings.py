@@ -9,6 +9,7 @@ import urllib2
 class Command(NoArgsCommand):
     
     team_names = {
+        'ari' : 'ARZ',
         'kan' : 'KC',
         'sdg' : 'SD',
         'sfo' : 'SF',
