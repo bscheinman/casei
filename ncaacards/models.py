@@ -7,7 +7,7 @@ from django.dispatch import receiver
 import logging
 import string
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('ncaacards')
 
 class GameType(models.Model):
     name = models.CharField(max_length=20, unique=True)
@@ -360,7 +360,7 @@ def record_execution(sender, instance, created, **kwargs):
     if created:
         try:
             game = NcaaGame.objects.get(name=instance.security.market.name)
-            team = Team.objects.get(abbrev_name=instance.security.name)
+            team = Team.objects.get(abbrev_name=instance.security.name, game_type=game.game_type)
             game_team = GameTeam.objects.get(game=game, team=team)
 
             transaction_points = instance.quantity * instance.price
