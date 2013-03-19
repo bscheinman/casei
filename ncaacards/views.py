@@ -91,7 +91,7 @@ def entry_view(request, game_id, entry_id):
         query = (Q(buy_order__placer=self_entry.entry_name) | Q(sell_order__placer=self_entry.entry_name)) & Q(security__market__name=game.name)
         stock_executions = Execution.objects.filter(query).order_by('-time')[:50]
 
-    context = get_base_context(request, game_id, entry=entry, teams=teams,\
+    context = get_base_context(request, game_id, entry=entry, teams=teams,
         card_offers=card_offers, stock_orders=stock_orders, card_executions=card_executions, stock_executions=stock_executions)
     return render_with_request_context(request, 'entry.html', context)
 
@@ -448,7 +448,7 @@ def join_game(request):
     if not entry_name:
         error = 'You must provide an entry name'
     elif entry_forbidden_regex.search(entry_name):
-    	error = 'Entry names can only contain letters, numbers, spaces, and underscores'
+        error = 'Entry names can only contain letters, numbers, spaces, and underscores'
     else:
         try:
             entry = UserEntry.objects.get(game=game, entry_name=entry_name)
@@ -537,7 +537,7 @@ def do_place_order(request, game_id):
     game = context['game']
     self_entry = context.get('self_entry', None)
     if not game:
-        results['errors'].append('No game exists with id %' % game_id)
+        results['errors'].append('No game exists with id %s' % game_id)
     if not game.supports_stocks:
         results['errors'].append('This game does not support stock-style trading')
     if not self_entry:
