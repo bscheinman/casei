@@ -772,6 +772,7 @@ def do_make_market(request, game_id):
                 if quantity:
                     existing_order.price = price
                     existing_order.quantity_remaining = quantity
+                    existing_order.last_modified = datetime.datetime.now()
                 else:
                     existing_order.is_active = False
                 existing_order.save()
@@ -791,8 +792,8 @@ def do_make_market(request, game_id):
         except Exception as e:
             errors.append('error for security %s: %s' % (team.team.abbrev_name, str(e)))
         else:
-	        apply_market_maker_line(True, self_bid, bid_price, bid_size)
-	        apply_market_maker_line(False, self_ask, ask_price, ask_size)
+            apply_market_maker_line(True, self_bid, bid_price, bid_size)
+            apply_market_maker_line(False, self_ask, ask_price, ask_size)
 
     results = { 'success' : len(errors) == 0, 'errors' : errors }
     return HttpResponse(simplejson.dumps(results), mimetype='text/json')
