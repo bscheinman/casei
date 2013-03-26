@@ -29,10 +29,13 @@ class Command(NoArgsCommand):
 
         trade_graph = gv.AGraph(strict=True, directed=True)
         for entry, score in entry_scores.iteritems():
-            trade_graph.add_node(entry, label='%s: %s' % (entry, str(score)))
+            #trade_graph.add_node(entry, label='%s: %s' % (entry, str(score)))
+            trade_graph.add_node(entry)
         for entries, weight in edges.iteritems():
-            if weight < 0:
+            if weight > 0:
                 entries = (entries[1], entries[0])
+            else:
+                weight = -1 * weight
             trade_graph.add_edge(*entries, label=str(weight))
 
         trade_graph.write('graph.dot')
