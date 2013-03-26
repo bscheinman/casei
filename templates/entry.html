@@ -74,7 +74,9 @@ Score: {{ entry.score }}<br/>
 
 {% block stock_tab %}
     {% if entry == self_entry %}
-        {% ordercordion stock_orders stock_executions game self_entry %}
+        {% ordercordion stock_orders stock_executions game entry %}
+    {% else %}
+        {% execution_table stock_executions game entry %}
     {% endif %}
 
     <div id='change_modal' class='modal hide fade' style='width:250px;'>
