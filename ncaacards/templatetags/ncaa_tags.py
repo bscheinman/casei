@@ -70,8 +70,8 @@ def offer_side(offer_side):
 
 
 @register.inclusion_tag('team_link.html')
-def team_link(team_name, game=None):
-    return { 'team_name':team_name, 'game':game }
+def team_link(team_name, game=None, start_tab=''):
+    return { 'team_name':team_name, 'game':game, 'start_tab':start_tab }
 
 
 @register.inclusion_tag('entry_link.html')
@@ -146,3 +146,7 @@ def order_table(orders, game, self_entry):
 @register.inclusion_tag('stock_execution_table.html')
 def execution_table(executions, game, self_entry):
     return { 'executions':executions, 'game':game, 'self_entry':self_entry }
+
+@register.inclusion_tag('order_format.html')
+def order_format(order, self_entry, value):
+    return { 'is_self_order': (order.entry == self_entry), 'value':value }

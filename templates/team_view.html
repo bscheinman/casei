@@ -116,15 +116,32 @@
             Last: {{ security.get_last }}<br/>
             Volume: {{ game_team.volume }}
         </div>
-        <div id='bbo' class='span3 well'>
+        <div id='bbo' class='span6 well'>
             <table class='table table-striped table-condensed table-bordered'>
-                <col width='50%'>
-                <col width='50%'>
-                <tr><td>Bids</td><td>Asks</td></tr>
+                <col width='1*'>
+                <col width='1*'>
+                <col width='1*'>
+                <col width='1*'>
+                <col width='1*'>
+                <col width='1*'>
+                <tr><td colspan='3'>Bids</td><td colspan='3'>Asks</td></tr>
+                <tr><td>Entry</td><td>Size</td><td>Price</td><td>Price</td><td>Size</td><td>Entry</td></tr>
                     {% for bid, ask in security.get_bbo_table %}
                         <tr>
-                            <td>{% if bid %}<span{% if bid.entry == self_entry %} style='font-weight:bold;'{% endif %}>{{ bid.price }} ({{ bid.quantity_remaining }})</span>{% endif %}</td>
-                            <td>{% if ask %}<span{% if ask.entry == self_entry %} style='font-weight:bold;'{% endif %}>{{ ask.price }} ({{ ask.quantity_remaining }})</span>{% endif %}</td>
+                            {% if bid %}
+                                <td>{% order_format bid self_entry bid.entry.entry_name %}</td>
+                                <td>{% order_format bid self_entry bid.quantity_remaining %}</td>
+                                <td>{% order_format bid self_entry bid.price %}</td>
+                            {% else %}
+                                <td colspan='3'/>
+                            {% endif %}
+                            {% if ask %}
+                                <td>{% order_format ask self_entry ask.price %}</td>
+                                <td>{% order_format ask self_entry ask.quantity_remaining %}</td>
+                                <td>{% order_format ask self_entry ask.entry.entry_name %}</td>
+                            {% else %}
+                                <td colspan='3'/>
+                            {% endif %}
                         </tr>
                     {% endfor %}
             </table>

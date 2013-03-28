@@ -44,7 +44,7 @@
 	        </tr></thead>
 	        {% for team, security, position, user_bid, user_ask in rows %}
 	        	<tr>
-	        		<td>{% team_link team.team.abbrev_name game %}</td>
+	        		<td>{% team_link team.team.abbrev_name game 'stock_tab' %}</td>
 	        		<td>{{ security.get_last }}</td>
 	        		<td>{{ team.volume }}</td>
         			<td>{{ position }}</th>

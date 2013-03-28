@@ -61,7 +61,11 @@
         </tr></thead>
         {% for team, security in rows %}
             <tr>
-                <td>{% team_link team.team.abbrev_name game %} </td>
+                {% if game.supports_stocks %}
+                    <td>{% team_link team.team.abbrev_name game 'stock_tab' %} </td>
+                {% else %}
+                    <td>{% team_link team.team.abbrev_name game %} </td>
+                {% endif %}
                 <td>{{ team.volume }}</td>
                 <td>{{ team.score }}</td>
                 {% if game.supports_stocks %}
